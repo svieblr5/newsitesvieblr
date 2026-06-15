@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>SVIE CMS — Hostinger Deployment Guide</title>
+  <!--[if gte mso 9]>
+  <xml><w:WordDocument><w:View>Print</w:View><w:Zoom>90</w:Zoom></w:WordDocument></xml>
+  <![endif]-->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Calibri&display=swap');
+
+    body {
+      font-family: Calibri, Arial, sans-serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 50px;
+      background: #fff;
+    }
+
+    /* ─── COVER ─── */
+    .cover {
+      text-align: center;
+      padding: 60px 20px 50px;
+      border-bottom: 3px solid #0E1A14;
+      margin-bottom: 40px;
+      page-break-after: always;
+    }
+
+    .cover-logo {
+      font-size: 36pt;
+      font-weight: bold;
+      color: #0E1A14;
+      letter-spacing: 8px;
+      margin-bottom: 4px;
+    }
+
+    .cover-sub {
+      font-size: 9pt;
+      color: #C9A05A;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+    }
+
+    .cover-title {
+      font-size: 22pt;
+      font-weight: bold;
+      color: #0E1A14;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .cover-subtitle {
+      font-size: 11pt;
+      color: #555;
+      margin-bottom: 30px;
+    }
+
+    .cover-box {
+      display: inline-block;
+      background: #0E1A14;
+      color: #F5EFE6;
+      padding: 14px 30px;
+      font-size: 9pt;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+    }
+
+    .cover-meta-table {
+      width: 100%;
+      border-top: 1px solid #C9A05A;
+      padding-top: 20px;
+      font-size: 9pt;
+    }
+
+    .cover-meta-table td {
+      padding: 4px 10px;
+      color: #333;
+    }
+
+    .cover-meta-table .label {
+      font-weight: bold;
+      color: #0E1A14;
+      text-transform: uppercase;
+      font-size: 8pt;
+      letter-spacing: 1px;
+      width: 140px;
+    }
+
+    /* ─── HEADINGS ─── */
+    h1 {
+      font-size: 18pt;
+      color: #0E1A14;
+      border-bottom: 2px solid #C9A05A;
+      padding-bottom: 6px;
+      margin-top: 30px;
+      margin-bottom: 12px;
+      page-break-after: avoid;
+    }
+
+    h2 {
+      font-size: 14pt;
+      color: #0E1A14;
+      margin-top: 24px;
+      margin-bottom: 8px;
+      page-break-after: avoid;
+    }
+
+    h3 {
+      font-size: 11pt;
+      color: #C9A05A;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 18px;
+      margin-bottom: 6px;
+      page-break-after: avoid;
+    }
+
+    /* ─── IMPORTANT NOTE BOX ─── */
+    .note-box {
+      background: #fff8ec;
+      border-left: 4px solid #C9A05A;
+      padding: 12px 16px;
+      margin: 16px 0;
+      font-size: 10pt;
+    }
+
+    .note-box strong { color: #0E1A14; }
+
+    .warning-box {
+      background: #fff0f0;
+      border-left: 4px solid #b33a3a;
+      padding: 12px 16px;
+      margin: 16px 0;
+      font-size: 10pt;
+    }
+
+    .success-box {
+      background: #f0fff4;
+      border-left: 4px solid #2d7d52;
+      padding: 12px 16px;
+      margin: 16px 0;
+      font-size: 10pt;
+    }
+
+    /* ─── STEPS ─── */
+    .step {
+      margin-bottom: 18px;
+      page-break-inside: avoid;
+    }
+
+    .step-number {
+      display: inline-block;
+      background: #0E1A14;
+      color: #C9A05A;
+      font-weight: bold;
+      font-size: 10pt;
+      width: 26px;
+      height: 26px;
+      line-height: 26px;
+      text-align: center;
+      border-radius: 50%;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .step-title {
+      font-size: 11pt;
+      font-weight: bold;
+      color: #0E1A14;
+      vertical-align: middle;
+    }
+
+    .step-body {
+      margin-left: 36px;
+      margin-top: 6px;
+      font-size: 10.5pt;
+      color: #333;
+    }
+
+    /* ─── CODE BLOCKS ─── */
+    .code {
+      background: #1a1a2e;
+      color: #c8e6c9;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 9.5pt;
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin: 10px 0;
+      white-space: pre;
+      overflow-x: auto;
+      page-break-inside: avoid;
+    }
+
+    .inline-code {
+      background: #f0f0f0;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 9.5pt;
+      padding: 1px 5px;
+      border-radius: 2px;
+      color: #b33a3a;
+    }
+
+    /* ─── TABLES ─── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 10pt;
+      page-break-inside: avoid;
+    }
+
+    th {
+      background: #0E1A14;
+      color: #C9A05A;
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 9pt;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #ddd;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td { background: #f9f6f1; }
+
+    /* ─── CHECKLIST ─── */
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0;
+    }
+
+    .checklist li {
+      padding: 5px 0 5px 28px;
+      position: relative;
+      font-size: 10.5pt;
+      border-bottom: 1px solid #f0e9df;
+    }
+
+    .checklist li::before {
+      content: "☐";
+      position: absolute;
+      left: 4px;
+      color: #C9A05A;
+      font-size: 12pt;
+    }
+
+    /* ─── STRUCTURE TREE ─── */
+    .file-tree {
+      background: #f9f6f1;
+      border: 1px solid #ddd;
+      padding: 14px 18px;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 9.5pt;
+      line-height: 1.8;
+      color: #1a1a1a;
+    }
+
+    .file-tree .folder { color: #0E1A14; font-weight: bold; }
+    .file-tree .file   { color: #555; }
+    .file-tree .note   { color: #C9A05A; font-style: italic; }
+
+    /* ─── PAGE BREAKS ─── */
+    .page-break { page-break-after: always; }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      margin-top: 50px;
+      padding-top: 14px;
+      border-top: 2px solid #0E1A14;
+      display: flex;
+      justify-content: space-between;
+      font-size: 8.5pt;
+      color: #888;
+    }
+
+    .footer strong { color: #C9A05A; }
+
+    /* ─── PRINT ─── */
+    @media print {
+      body { margin: 0; padding: 20px 30px; }
+      @page { size: A4; margin: 20mm 20mm 15mm 20mm; }
+    }
+
+    /* ─── PRINT NOTICE ─── */
+    .print-notice {
+      background: #C9A05A;
+      color: #0E1A14;
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      font-size: 9pt;
+      margin-bottom: 0;
+    }
+    @media print { .print-notice { display: none; } }
+  </style>
+</head>
+<body>
+
+<div class="print-notice">
+  TO SAVE AS WORD FILE: Open in Microsoft Word directly (File → Open → select this .html file) then Save As → Word Document (.docx) &nbsp;|&nbsp; Or: Ctrl+P → Save as PDF
+</div>
+
+<!-- ═══════════════════════ COVER ═══════════════════════ -->
+<div class="cover">
+  <div class="cover-logo">SVIE</div>
+  <div class="cover-sub">Space · Vision · Interior · Excellence</div>
+  <div class="cover-title">Hostinger Deployment Guide</div>
+  <div class="cover-subtitle">Complete Step-by-Step Process to Deploy the<br>SVIE Website + Node.js CMS to Hostinger Hosting</div>
+  <div class="cover-box">Technical Deployment Document — June 2026</div>
+  <br>
+  <table class="cover-meta-table">
+    <tr>
+      <td class="label">Document Type</td>
+      <td>Deployment &amp; Migration Guide</td>
+    </tr>
+    <tr>
+      <td class="label">Platform</td>
+      <td>Hostinger (hostinger.com)</td>
+    </tr>
+    <tr>
+      <td class="label">CMS Technology</td>
+      <td>Node.js + Express + JSON storage</td>
+    </tr>
+    <tr>
+      <td class="label">Website</td>
+      <td>svie5.com — 8-page static HTML site + Admin Panel</td>
+    </tr>
+    <tr>
+      <td class="label">Required Plan</td>
+      <td>Hostinger Business Shared OR Cloud Startup</td>
+    </tr>
+    <tr>
+      <td class="label">Estimated Time</td>
+      <td>2–4 hours (first deployment)</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ═══════════════════════ SECTION 1 ═══════════════════════ -->
+<h1>Section 1 — Understanding Your Setup</h1>
+
+<p>Before deploying, it is important to understand what the SVIE system consists of, because it requires a <strong>specific type of Hostinger plan</strong> — not all plans will work.</p>
+
+<h2>1.1 What You Have</h2>
+
+<div class="file-tree">
+<span class="folder">svie-redesign/</span>
+├── <span class="file">index.html</span>           <span class="note">← Home page</span>
+├── <span class="file">about.html</span>           <span class="note">← About / Team page</span>
+├── <span class="file">services.html</span>        <span class="note">← Services page</span>
+├── <span class="file">products.html</span>        <span class="note">← Products / Brands page</span>
+├── <span class="file">furniture.html</span>       <span class="note">← Green Nest Furniture</span>
+├── <span class="file">electronics.html</span>     <span class="note">← Venus World Electronics</span>
+├── <span class="file">gallery.html</span>         <span class="note">← Portfolio / Gallery</span>
+├── <span class="file">contact.html</span>         <span class="note">← Contact Form</span>
+├── <span class="file">styles.css</span>           <span class="note">← Full design system</span>
+├── <span class="file">script.js</span>            <span class="note">← Frontend JS</span>
+├── <span class="file">server.js</span>            <span class="note">← Node.js CMS backend (Express)</span>
+├── <span class="file">cms-loader.js</span>        <span class="note">← CMS content loader</span>
+├── <span class="file">package.json</span>         <span class="note">← Node.js dependencies</span>
+├── <span class="folder">admin/</span>               <span class="note">← CMS Admin Panel (HTML)</span>
+├── <span class="folder">data/</span>                <span class="note">← JSON data files (content, enquiries, etc.)</span>
+└── <span class="folder">images/</span>              <span class="note">← Website images + gallery uploads</span>
+</div>
+
+<h2>1.2 Why You Need a Special Plan</h2>
+
+<p>Your CMS runs on <strong>Node.js</strong> (server.js uses Express framework). This means:</p>
+
+<div class="note-box">
+  <strong>Important:</strong> Hostinger's basic Shared Hosting plans (Single, Premium) run on PHP/Apache and do <strong>not</strong> natively support Node.js applications. You need the <strong>Business Shared Hosting</strong> plan or higher, which includes Node.js support through hPanel.
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Hostinger Plan</th>
+      <th>Node.js Support</th>
+      <th>Annual Cost</th>
+      <th>Suitable?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Single Shared</td>
+      <td>No</td>
+      <td>~$23.88/yr</td>
+      <td>❌ Not suitable</td>
+    </tr>
+    <tr>
+      <td>Premium Shared</td>
+      <td>No</td>
+      <td>~$35.88/yr</td>
+      <td>❌ Not suitable</td>
+    </tr>
+    <tr>
+      <td><strong>Business Shared</strong></td>
+      <td><strong>Yes ✓</strong></td>
+      <td><strong>~$47.88/yr</strong></td>
+      <td><strong>✅ Recommended</strong></td>
+    </tr>
+    <tr>
+      <td>Cloud Startup</td>
+      <td>Yes ✓</td>
+      <td>~$95.88/yr</td>
+      <td>✅ Better performance</td>
+    </tr>
+    <tr>
+      <td>VPS KVM 1</td>
+      <td>Full Control</td>
+      <td>~$59.88/yr</td>
+      <td>✅ Most flexible</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note-box">
+  <strong>Recommendation:</strong> Start with the <strong>Business Shared Hosting plan ($47.88/yr)</strong>. It includes Node.js support, free domain for 1 year, daily backups, SSL certificate, and sufficient resources for svie5.com traffic.
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 2 ═══════════════════════ -->
+<h1>Section 2 — Purchase &amp; Account Setup</h1>
+
+<div class="step">
+  <span class="step-number">1</span>
+  <span class="step-title">Go to Hostinger and Choose Your Plan</span>
+  <div class="step-body">
+    <p>Visit <strong>hostinger.com</strong> and click <strong>Hosting</strong> in the navigation menu.</p>
+    <p>Select <strong>Web Hosting</strong> → Choose the <strong>Business</strong> plan → Click <strong>Add to Cart</strong>.</p>
+    <p>On the billing page, choose <strong>12 months</strong> period to get the annual discount.</p>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">2</span>
+  <span class="step-title">Register or Transfer Your Domain</span>
+  <div class="step-body">
+    <p>During checkout, Hostinger will ask about a domain. You have two options:</p>
+    <table>
+      <thead>
+        <tr><th>Option</th><th>What to Do</th><th>Cost</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Claim Free Domain</strong></td>
+          <td>Register a new domain (e.g., svie5.com) — included free for year 1</td>
+          <td>Free (year 1)<br>~$15.99/yr renewal</td>
+        </tr>
+        <tr>
+          <td><strong>Use Existing Domain</strong></td>
+          <td>Keep your current domain registrar, just point DNS to Hostinger</td>
+          <td>No extra cost</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note-box"><strong>Tip:</strong> If svie5.com is already registered elsewhere, choose "Use existing domain" and we will point it to Hostinger in Section 5.</div>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">3</span>
+  <span class="step-title">Complete Payment &amp; Access hPanel</span>
+  <div class="step-body">
+    <p>Complete the checkout. You will receive a welcome email from Hostinger.</p>
+    <p>Login to your Hostinger account at <strong>hpanel.hostinger.com</strong>.</p>
+    <p>This is the control panel where all deployment steps will happen.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 3 ═══════════════════════ -->
+<h1>Section 3 — Upload Your Website Files</h1>
+
+<h2>3.1 Method A — File Manager (Easiest, No Software Needed)</h2>
+
+<div class="step">
+  <span class="step-number">1</span>
+  <span class="step-title">Open File Manager in hPanel</span>
+  <div class="step-body">
+    <p>In hPanel, click on your website → Go to <strong>Files</strong> → <strong>File Manager</strong>.</p>
+    <p>You will see a folder called <span class="inline-code">public_html</span>. This is your website's root folder — everything visible online lives here.</p>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">2</span>
+  <span class="step-title">Compress Your Project Files</span>
+  <div class="step-body">
+    <p>On your computer, go to your <span class="inline-code">svie-redesign</span> folder on your Desktop.</p>
+    <p>Select ALL files and folders (Ctrl+A), then Right-click → <strong>Compress to ZIP file</strong>.</p>
+    <p>Name it <strong>svie-website.zip</strong>.</p>
+    <div class="warning-box">
+      <strong>Exclude the node_modules folder</strong> from your ZIP. It is very large (hundreds of MBs) and will be regenerated on the server. Right-click → "Send to Compressed" → then delete node_modules from the zip if it got included.
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">3</span>
+  <span class="step-title">Upload and Extract ZIP</span>
+  <div class="step-body">
+    <p>In File Manager, navigate inside <span class="inline-code">public_html</span> and click <strong>Upload Files</strong>.</p>
+    <p>Upload your <strong>svie-website.zip</strong> file.</p>
+    <p>After upload completes, right-click the ZIP file → <strong>Extract</strong> → extract into <span class="inline-code">public_html</span>.</p>
+    <p>Your file structure should look like:</p>
+    <div class="code">public_html/
+├── index.html
+├── about.html
+├── services.html
+├── products.html
+├── furniture.html
+├── electronics.html
+├── gallery.html
+├── contact.html
+├── styles.css
+├── script.js
+├── server.js
+├── cms-loader.js
+├── package.json
+├── admin/
+├── data/
+└── images/</div>
+  </div>
+</div>
+
+<h2>3.2 Method B — FTP Upload (Recommended for Large Files)</h2>
+
+<div class="step">
+  <span class="step-number">1</span>
+  <span class="step-title">Download FileZilla (Free FTP Client)</span>
+  <div class="step-body">
+    <p>Download FileZilla from <strong>filezilla-project.org</strong> (free, trusted).</p>
+    <p>Install and open it.</p>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">2</span>
+  <span class="step-title">Get FTP Credentials from hPanel</span>
+  <div class="step-body">
+    <p>In hPanel → <strong>Files</strong> → <strong>FTP Accounts</strong>.</p>
+    <p>Note down the following credentials:</p>
+    <table>
+      <thead><tr><th>Field</th><th>Where to Find It</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>Host / FTP Server</td><td>Shown in FTP Accounts page</td><td>ftp.yourdomain.com</td></tr>
+        <tr><td>Username</td><td>Your hPanel FTP username</td><td>u123456789</td></tr>
+        <tr><td>Password</td><td>The password you set</td><td>(your password)</td></tr>
+        <tr><td>Port</td><td>Default</td><td>21</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">3</span>
+  <span class="step-title">Connect and Upload via FileZilla</span>
+  <div class="step-body">
+    <p>In FileZilla, fill in the Quickconnect bar at the top with Host, Username, Password, Port → click <strong>Quickconnect</strong>.</p>
+    <p>On the <strong>left side</strong> (your computer): navigate to your <span class="inline-code">svie-redesign</span> folder.</p>
+    <p>On the <strong>right side</strong> (server): navigate to <span class="inline-code">/public_html</span>.</p>
+    <p>Select all your files on the left (except <span class="inline-code">node_modules</span>) → drag and drop to the right panel.</p>
+    <p>Wait for upload to complete. This may take 5–15 minutes depending on image file sizes.</p>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 4 ═══════════════════════ -->
+<h1>Section 4 — Configure the Node.js CMS on Hostinger</h1>
+
+<p>This is the most important section. Your <span class="inline-code">server.js</span> (the CMS backend) must be registered and started as a Node.js application in hPanel.</p>
+
+<div class="step">
+  <span class="step-number">1</span>
+  <span class="step-title">Open the Node.js Manager in hPanel</span>
+  <div class="step-body">
+    <p>In hPanel → go to <strong>Advanced</strong> section → click <strong>Node.js</strong>.</p>
+    <p>If you do not see "Node.js" in hPanel, you may need to upgrade to the Business plan — go to <strong>Hosting Plans</strong> to upgrade.</p>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">2</span>
+  <span class="step-title">Create a New Node.js Application</span>
+  <div class="step-body">
+    <p>Click <strong>Create Application</strong> and fill in the following settings:</p>
+    <table>
+      <thead><tr><th>Setting</th><th>Value to Enter</th><th>Explanation</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Node.js Version</strong></td>
+          <td>18.x or 20.x (latest LTS)</td>
+          <td>Latest stable version — compatible with Express 4</td>
+        </tr>
+        <tr>
+          <td><strong>Application Mode</strong></td>
+          <td>Production</td>
+          <td>Use Production for live website</td>
+        </tr>
+        <tr>
+          <td><strong>Application Root</strong></td>
+          <td>/public_html</td>
+          <td>Where your files are uploaded</td>
+        </tr>
+        <tr>
+          <td><strong>Application URL</strong></td>
+          <td>yourdomain.com</td>
+          <td>Your website's domain or subdomain</td>
+        </tr>
+        <tr>
+          <td><strong>Application Startup File</strong></td>
+          <td>server.js</td>
+          <td>Your main Node.js file</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Click <strong>Create</strong> to save the application.</p>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">3</span>
+  <span class="step-title">Install Node.js Dependencies (npm install)</span>
+  <div class="step-body">
+    <p>After creating the application, hPanel will show a button to run commands. Click <strong>Run NPM Install</strong> or open the <strong>Terminal</strong> in hPanel:</p>
+    <p>In hPanel → <strong>Advanced</strong> → <strong>SSH Access</strong> (or Terminal), then run:</p>
+    <div class="code">cd public_html
+npm install</div>
+    <p>This will install all dependencies listed in <span class="inline-code">package.json</span>:</p>
+    <ul>
+      <li>express</li>
+      <li>multer</li>
+      <li>express-session</li>
+      <li>cors</li>
+    </ul>
+    <p>Wait until you see <strong>"added X packages"</strong> — this confirms all packages are installed.</p>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">4</span>
+  <span class="step-title">Change the Port Number in server.js</span>
+  <div class="step-body">
+    <div class="warning-box">
+      <strong>Required Change:</strong> Your <span class="inline-code">server.js</span> currently listens on port 3000. On Hostinger, Node.js apps must use the port provided by the environment variable <span class="inline-code">process.env.PORT</span>. You must update this line.
+    </div>
+    <p>In hPanel File Manager, open <span class="inline-code">public_html/server.js</span> → Edit.</p>
+    <p>Find this line (line 8 in your file):</p>
+    <div class="code">const PORT = 3000;</div>
+    <p>Replace it with:</p>
+    <div class="code">const PORT = process.env.PORT || 3000;</div>
+    <p>Save the file. This ensures the app works both locally (port 3000) and on Hostinger's server.</p>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">5</span>
+  <span class="step-title">Start the Node.js Application</span>
+  <div class="step-body">
+    <p>Go back to hPanel → <strong>Advanced</strong> → <strong>Node.js</strong>.</p>
+    <p>Find your application in the list and click the <strong>Start</strong> (▶) button.</p>
+    <p>The status should change to <strong>"Running"</strong> (green indicator).</p>
+    <div class="success-box">
+      <strong>Success indicator:</strong> When the status shows "Running" in green, your Node.js CMS server is live and serving your website.
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">6</span>
+  <span class="step-title">Verify the Application is Working</span>
+  <div class="step-body">
+    <p>Open your browser and navigate to your domain (e.g., <span class="inline-code">https://svie5.com</span>).</p>
+    <p>Test the following URLs to confirm everything is working:</p>
+    <table>
+      <thead><tr><th>URL</th><th>Expected Result</th></tr></thead>
+      <tbody>
+        <tr><td>yourdomain.com</td><td>SVIE Home page loads</td></tr>
+        <tr><td>yourdomain.com/admin</td><td>CMS Admin login page loads</td></tr>
+        <tr><td>yourdomain.com/contact.html</td><td>Contact form works</td></tr>
+        <tr><td>yourdomain.com/gallery.html</td><td>Gallery loads correctly</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 5 ═══════════════════════ -->
+<h1>Section 5 — Domain Setup (Point svie5.com to Hostinger)</h1>
+
+<p>If your domain (svie5.com) is registered with another provider (e.g., GoDaddy, Namecheap, current Wix), you need to point it to Hostinger.</p>
+
+<h2>5.1 Option A — Update Nameservers (Recommended)</h2>
+
+<div class="step">
+  <span class="step-number">1</span>
+  <span class="step-title">Get Hostinger's Nameservers</span>
+  <div class="step-body">
+    <p>In hPanel → <strong>Domains</strong> → Click on your domain → <strong>DNS / Nameservers</strong>.</p>
+    <p>Hostinger's nameservers are:</p>
+    <div class="code">ns1.dns-parking.com
+ns2.dns-parking.com</div>
+    <p>Or the ones shown in your specific hPanel account.</p>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">2</span>
+  <span class="step-title">Update Nameservers at Your Current Domain Registrar</span>
+  <div class="step-body">
+    <p>Login to wherever you registered svie5.com (GoDaddy, Namecheap, etc.).</p>
+    <p>Go to Domain Settings → <strong>Nameservers</strong> → Switch to <strong>Custom Nameservers</strong>.</p>
+    <p>Replace existing nameservers with Hostinger's nameservers shown above.</p>
+    <p>Save the changes.</p>
+    <div class="note-box">
+      <strong>DNS Propagation Time:</strong> After changing nameservers, it takes <strong>24–48 hours</strong> for the change to fully propagate worldwide. During this time, some visitors may see the old site. This is normal.
+    </div>
+  </div>
+</div>
+
+<h2>5.2 Option B — Point DNS Records Only (Faster)</h2>
+
+<div class="step">
+  <span class="step-number">1</span>
+  <span class="step-title">Get Your Hostinger Server IP Address</span>
+  <div class="step-body">
+    <p>In hPanel → <strong>Hosting</strong> → click on your hosting plan → Look for <strong>Server IP Address</strong> (e.g., 185.x.x.x).</p>
+    <p>Write this IP down — you will need it in the next step.</p>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">2</span>
+  <span class="step-title">Update DNS A Records at Your Registrar</span>
+  <div class="step-body">
+    <p>At your domain registrar, go to <strong>DNS Management</strong> and update:</p>
+    <table>
+      <thead><tr><th>Record Type</th><th>Host / Name</th><th>Value / Points To</th><th>TTL</th></tr></thead>
+      <tbody>
+        <tr><td>A Record</td><td>@ (or blank)</td><td>Your Hostinger Server IP</td><td>3600</td></tr>
+        <tr><td>A Record</td><td>www</td><td>Your Hostinger Server IP</td><td>3600</td></tr>
+        <tr><td>CNAME</td><td>www</td><td>yourdomain.com</td><td>3600</td></tr>
+      </tbody>
+    </table>
+    <p>Propagation via this method typically takes <strong>1–4 hours</strong>.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 6 ═══════════════════════ -->
+<h1>Section 6 — Enable Free SSL Certificate</h1>
+
+<div class="step">
+  <span class="step-number">1</span>
+  <span class="step-title">Install SSL in hPanel</span>
+  <div class="step-body">
+    <p>In hPanel → <strong>Security</strong> → <strong>SSL Certificates</strong>.</p>
+    <p>You will see your domain listed. Click <strong>Install</strong> next to the <strong>Free (Let's Encrypt)</strong> option.</p>
+    <p>Hostinger will automatically generate and install the SSL certificate for your domain.</p>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">2</span>
+  <span class="step-title">Enable Force HTTPS</span>
+  <div class="step-body">
+    <p>After SSL is installed, in the same SSL page, toggle on <strong>"Force HTTPS"</strong>.</p>
+    <p>This automatically redirects all <span class="inline-code">http://</span> visitors to <span class="inline-code">https://</span> — essential for security and Google ranking.</p>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 7 ═══════════════════════ -->
+<h1>Section 7 — Set Up Automatic Backups</h1>
+
+<div class="step">
+  <span class="step-number">1</span>
+  <span class="step-title">Enable Daily Backups (Business Plan Feature)</span>
+  <div class="step-body">
+    <p>In hPanel → <strong>Files</strong> → <strong>Backups</strong>.</p>
+    <p>The Business plan includes <strong>daily automated backups</strong>. Enable this feature and keep at least 7 days of backup history.</p>
+    <p>This protects your CMS content data stored in <span class="inline-code">data/content.json</span>, <span class="inline-code">data/enquiries.json</span>, and your gallery images.</p>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">2</span>
+  <span class="step-title">Download Manual Backup via SVIE Admin Panel</span>
+  <div class="step-body">
+    <p>Your SVIE CMS admin panel has a built-in backup feature. Use it before and after any major changes:</p>
+    <p>Login to <span class="inline-code">yourdomain.com/admin</span> → Go to <strong>Settings</strong> → Click <strong>Download Backup</strong>.</p>
+    <p>This downloads a <span class="inline-code">svie-backup-YYYY-MM-DD.json</span> file containing all your content. Store this file safely on your computer or Google Drive.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 8 ═══════════════════════ -->
+<h1>Section 8 — Update the CMS Admin Password</h1>
+
+<div class="warning-box">
+  <strong>Security Warning:</strong> Before going live, change your admin password. The current default password is stored in <span class="inline-code">data/config.json</span>. Use the admin panel to change it immediately after first login on the live server.
+</div>
+
+<div class="step">
+  <span class="step-number">1</span>
+  <span class="step-title">Login to Admin Panel on Live Server</span>
+  <div class="step-body">
+    <p>Go to: <span class="inline-code">https://yourdomain.com/admin</span></p>
+    <p>Login with current credentials:</p>
+    <table>
+      <thead><tr><th>Field</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Username</td><td>admin</td></tr>
+        <tr><td>Password</td><td>svie@2024 (or your current password)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-number">2</span>
+  <span class="step-title">Change Admin Password Immediately</span>
+  <div class="step-body">
+    <p>After login → go to <strong>Settings</strong> tab in the Admin Panel → <strong>Change Password</strong>.</p>
+    <p>Set a strong new password (minimum 12 characters, mix of letters, numbers, symbols).</p>
+    <p>Save the new password in a secure password manager.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 9 ═══════════════════════ -->
+<h1>Section 9 — Test Everything After Deployment</h1>
+
+<p>Use this checklist after deployment is complete to verify everything is working correctly.</p>
+
+<h2>Website Functionality</h2>
+<ul class="checklist">
+  <li>Home page (index.html) loads with all images and animations</li>
+  <li>Navigation links work across all 8 pages</li>
+  <li>About page loads team and company content</li>
+  <li>Services page shows all 3 service categories</li>
+  <li>Products page shows all brand logos</li>
+  <li>Furniture page (Green Nest) loads correctly</li>
+  <li>Electronics page (Venus World) loads correctly</li>
+  <li>Gallery page loads with filter buttons working</li>
+  <li>Contact page form submits successfully</li>
+  <li>Website shows HTTPS padlock in browser address bar</li>
+</ul>
+
+<h2>CMS Admin Panel</h2>
+<ul class="checklist">
+  <li>Admin login page loads at /admin</li>
+  <li>Login with credentials works</li>
+  <li>Dashboard shows correct stats (pages: 8, etc.)</li>
+  <li>Content editor can save text changes</li>
+  <li>Gallery upload accepts images</li>
+  <li>Contact enquiries appear in admin inbox</li>
+  <li>Backup download works (downloads JSON file)</li>
+  <li>Activity log shows recent actions</li>
+  <li>Password change works correctly</li>
+</ul>
+
+<h2>Technical Checks</h2>
+<ul class="checklist">
+  <li>SSL certificate is active (green padlock in browser)</li>
+  <li>HTTP automatically redirects to HTTPS</li>
+  <li>www.yourdomain.com redirects to yourdomain.com (or vice versa)</li>
+  <li>Page load time is under 3 seconds</li>
+  <li>Mobile view is responsive on phone and tablet</li>
+  <li>Node.js app status shows "Running" in hPanel</li>
+  <li>Daily backup is enabled in hPanel</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 10 ═══════════════════════ -->
+<h1>Section 10 — Troubleshooting Common Issues</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Problem</th>
+      <th>Likely Cause</th>
+      <th>Solution</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Website shows "500 Internal Server Error"</td>
+      <td>Node.js app crashed or not started</td>
+      <td>Go to hPanel → Node.js → Restart the application. Check error logs.</td>
+    </tr>
+    <tr>
+      <td>Website shows blank/white page</td>
+      <td>index.html not in public_html root</td>
+      <td>Check File Manager — make sure index.html is directly inside public_html, not in a subfolder.</td>
+    </tr>
+    <tr>
+      <td>"Cannot find module" error</td>
+      <td>npm install was not run</td>
+      <td>Go to hPanel Terminal → cd public_html → npm install</td>
+    </tr>
+    <tr>
+      <td>Admin panel not loading (/admin returns 404)</td>
+      <td>admin/ folder not uploaded, or Node.js not running</td>
+      <td>Verify admin/ folder exists in public_html. Restart Node.js app.</td>
+    </tr>
+    <tr>
+      <td>Images not showing on website</td>
+      <td>Images folder not uploaded or wrong path</td>
+      <td>Ensure images/ folder was uploaded to public_html. Image paths in HTML are relative.</td>
+    </tr>
+    <tr>
+      <td>Contact form not saving enquiries</td>
+      <td>data/ folder missing or not writable</td>
+      <td>Check data/ folder exists in public_html. In hPanel File Manager, right-click data/ → Permissions → set to 755.</td>
+    </tr>
+    <tr>
+      <td>Domain still showing old Wix site</td>
+      <td>DNS not propagated yet</td>
+      <td>Wait 24–48 hours. Check propagation at dnschecker.org</td>
+    </tr>
+    <tr>
+      <td>SSL not working (http only)</td>
+      <td>SSL not installed or Force HTTPS not enabled</td>
+      <td>hPanel → Security → SSL Certificates → Install Let's Encrypt → Enable Force HTTPS</td>
+    </tr>
+    <tr>
+      <td>Node.js app keeps stopping</td>
+      <td>App crashing due to unhandled error</td>
+      <td>Check error logs in hPanel. The app may need PM2 process manager — contact Hostinger support to enable.</td>
+    </tr>
+    <tr>
+      <td>Slow page load speeds</td>
+      <td>Large unoptimized images</td>
+      <td>Compress images using squoosh.app before uploading. Enable Hostinger CDN in hPanel → Speed section.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════ SECTION 11 ═══════════════════════ -->
+<h1>Section 11 — Total Annual Cost Summary</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Provider</th>
+      <th>Annual Cost</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Hostinger Business Hosting</strong></td>
+      <td>Hostinger</td>
+      <td><strong>$47.88/yr</strong></td>
+      <td>Includes Node.js, SSL, daily backups, CDN</td>
+    </tr>
+    <tr>
+      <td><strong>Domain (svie5.com)</strong></td>
+      <td>Hostinger (free yr 1)</td>
+      <td><strong>$0 yr 1 / ~$15.99 yr 2+</strong></td>
+      <td>Free with Business plan first year</td>
+    </tr>
+    <tr>
+      <td><strong>SSL Certificate</strong></td>
+      <td>Hostinger (Let's Encrypt)</td>
+      <td><strong>$0 / yr</strong></td>
+      <td>Included free, auto-renews</td>
+    </tr>
+    <tr>
+      <td><strong>Backups</strong></td>
+      <td>Hostinger</td>
+      <td><strong>$0 / yr</strong></td>
+      <td>Daily backups included in Business plan</td>
+    </tr>
+    <tr>
+      <td><strong>CDN</strong></td>
+      <td>Hostinger</td>
+      <td><strong>$0 / yr</strong></td>
+      <td>Cloudflare CDN included</td>
+    </tr>
+    <tr style="background:#fff8ec;">
+      <td><strong>TOTAL (Year 1)</strong></td>
+      <td></td>
+      <td><strong>~$47.88 / yr</strong></td>
+      <td>~$4 / month — extremely cost-effective</td>
+    </tr>
+    <tr style="background:#fff8ec;">
+      <td><strong>TOTAL (Year 2+)</strong></td>
+      <td></td>
+      <td><strong>~$63.87 / yr</strong></td>
+      <td>Includes domain renewal at $15.99/yr</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="success-box">
+  <strong>Summary:</strong> For approximately <strong>$4 per month ($47.88/year)</strong>, your entire SVIE website + Node.js CMS will be fully hosted on Hostinger with SSL, daily backups, CDN, and Node.js support — all included.
+</div>
+
+<!-- ═══════════════════════ SECTION 12 ═══════════════════════ -->
+<h1>Section 12 — Quick Reference Card</h1>
+
+<table>
+  <thead><tr><th>What</th><th>Where / How</th></tr></thead>
+  <tbody>
+    <tr><td>Login to Hostinger Control Panel</td><td>hpanel.hostinger.com</td></tr>
+    <tr><td>Upload Files</td><td>hPanel → Files → File Manager → public_html</td></tr>
+    <tr><td>Manage Node.js App</td><td>hPanel → Advanced → Node.js</td></tr>
+    <tr><td>FTP Details</td><td>hPanel → Files → FTP Accounts</td></tr>
+    <tr><td>Install SSL</td><td>hPanel → Security → SSL Certificates</td></tr>
+    <tr><td>Point Domain</td><td>Update nameservers at your domain registrar</td></tr>
+    <tr><td>View Error Logs</td><td>hPanel → Advanced → Node.js → Logs</td></tr>
+    <tr><td>Restore Backup</td><td>hPanel → Files → Backups → Restore</td></tr>
+    <tr><td>Access SVIE Admin</td><td>https://yourdomain.com/admin</td></tr>
+    <tr><td>Check DNS Propagation</td><td>dnschecker.org</td></tr>
+    <tr><td>Hostinger Support</td><td>24/7 Live Chat at hostinger.com → Help</td></tr>
+  </tbody>
+</table>
+
+<!-- ─── FOOTER ─── -->
+<div class="footer">
+  <span><strong>SVIE</strong> — Space · Vision · Interior · Excellence</span>
+  <span>Hostinger Deployment Guide · June 2026</span>
+  <span>Confidential · Internal Document</span>
+</div>
+
+</body>
+</html>

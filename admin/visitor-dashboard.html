@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SVIE Visitor Dashboard</title>
+<link rel="icon" href="../images/logo.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,600;1,400&family=Raleway:wght@400;500;600;700;800&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
+
+/* ── Layout ── */
+.cms{display:flex;height:100vh}
+
+/* ── Sidebar ── */
+.sb{width:248px;flex-shrink:0;background:#0C2C1B;display:flex;flex-direction:column;border-right:1px solid rgba(201,160,90,.12);overflow:hidden}
+.sb-brand{padding:18px 18px 14px;border-bottom:1px solid rgba(201,160,90,.1);display:flex;align-items:center;gap:10px}
+.sb-brand img{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}
+.sb-brand-name{font-family:'Cormorant',serif;font-size:.98rem;font-weight:600;color:#F5EFE6}
+.sb-brand-sub{font-size:.42rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#C9A05A}
+.sb-nav{flex:1;padding:10px 0;overflow-y:auto}
+.sb-nav::-webkit-scrollbar{width:3px}
+.sb-nav::-webkit-scrollbar-thumb{background:#C9A05A;border-radius:2px}
+.nav-hd{font-size:.52rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,239,230,.5);padding:12px 18px 5px}
+.nav-btn{display:flex;align-items:center;gap:9px;padding:9px 18px;font-size:.82rem;font-weight:500;color:rgba(245,239,230,.82);cursor:pointer;border:none;background:none;width:100%;text-align:left;border-left:2.5px solid transparent;transition:all .18s;text-decoration:none}
+.nav-btn:hover{background:rgba(201,160,90,.08);color:rgba(245,239,230,.9)}
+.nav-btn.on{background:rgba(201,160,90,.13);color:#C9A05A;border-left-color:#C9A05A}
+.nav-btn svg{flex-shrink:0;opacity:.65}
+.nav-btn.on svg,.nav-btn:hover svg{opacity:1}
+.sb-foot{padding:14px 18px;border-top:1px solid rgba(201,160,90,.1);display:flex;align-items:center;gap:9px}
+.sb-foot-info{flex:1}
+.sb-foot-name{font-size:.78rem;font-weight:600;color:#F5EFE6}
+.sb-foot-role{font-size:.62rem;color:rgba(245,239,230,.65)}
+.btn-ico{width:30px;height:30px;border-radius:7px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);color:rgba(245,239,230,.78);transition:all .2s;flex-shrink:0}
+.btn-ico:hover{background:rgba(220,50,50,.2);color:#ff8080}
+
+/* ── Main ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:58px;flex-shrink:0;background:#fff;border-bottom:1px solid #e8e4dd;display:flex;align-items:center;justify-content:space-between;padding:0 26px;box-shadow:0 2px 8px rgba(26,69,48,.04)}
+.topbar-title{font-family:'Cormorant',serif;font-size:1.35rem;font-weight:600;color:#1A4530;display:flex;align-items:center;gap:8px}
+.topbar-badge{font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:linear-gradient(135deg,#C9A05A,#E0C07E);color:#0C2C1B;padding:3px 8px;border-radius:20px}
+.topbar-r{display:flex;align-items:center;gap:8px}
+.period-tabs{display:flex;gap:2px;background:#f5f1eb;border-radius:8px;padding:3px}
+.period-tab{padding:5px 12px;border-radius:6px;border:none;font-family:'Raleway',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;background:none;color:#6a6460;transition:all .18s}
+.period-tab.on{background:#fff;color:#1A4530;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.btn-refresh{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:8px;border:1.5px solid #e8e4dd;background:#fff;color:#1A4530;font-family:'Raleway',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-refresh:hover{border-color:#C9A05A;color:#C9A05A}
+.btn-refresh.spinning svg{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Area ── */
+.area{flex:1;overflow-y:auto;padding:22px 26px}
+.area::-webkit-scrollbar{width:5px}
+.area::-webkit-scrollbar-thumb{background:#C9A05A;border-radius:3px}
+
+/* ── KPI Cards ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.kpi{background:#fff;border-radius:14px;padding:18px 20px;border:1px solid #e8e4dd;display:flex;align-items:center;gap:14px;transition:box-shadow .2s}
+.kpi:hover{box-shadow:0 4px 18px rgba(26,69,48,.07)}
+.kpi-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem}
+.kpi-n{font-family:'Cormorant',serif;font-size:1.85rem;font-weight:600;color:#1A4530;line-height:1}
+.kpi-l{font-size:.65rem;color:#8a7e72;font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:.06em}
+.kpi-trend{font-size:.7rem;margin-top:4px}
+.kpi-trend.up{color:#16a34a}
+.kpi-trend.nt{color:#8a7e72}
+
+/* ── Map ── */
+.map-card{background:#fff;border-radius:14px;border:1px solid #e8e4dd;margin-bottom:18px;overflow:hidden}
+.map-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0}
+.card-title{font-family:'Cormorant',serif;font-size:1.15rem;font-weight:600;color:#1A4530}
+.card-sub{font-size:.72rem;color:#8a7e72;margin-top:1px}
+.map-legend{display:flex;align-items:center;gap:14px;font-size:.68rem;color:#6a6460}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:4px}
+#visitor-map{height:360px;width:100%}
+
+/* ── Charts grid ── */
+.charts-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-bottom:18px}
+.chart-card{background:#fff;border-radius:14px;border:1px solid #e8e4dd;padding:18px}
+.chart-title{font-family:'Cormorant',serif;font-size:1.05rem;font-weight:600;color:#1A4530;margin-bottom:3px}
+.chart-sub{font-size:.68rem;color:#8a7e72;margin-bottom:14px}
+.chart-wrap{position:relative;height:180px}
+
+/* ── Two col grid ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.list-card{background:#fff;border-radius:14px;border:1px solid #e8e4dd;padding:18px}
+.ranked-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.ranked-row{display:flex;align-items:center;gap:10px}
+.ranked-num{width:20px;font-size:.72rem;font-weight:700;color:#C9A05A;text-align:right;flex-shrink:0;font-family:'Cormorant',serif}
+.ranked-bar-wrap{flex:1;height:6px;background:#f0ebe3;border-radius:3px;overflow:hidden}
+.ranked-bar{height:100%;background:linear-gradient(90deg,#C9A05A,#1A4530);border-radius:3px;transition:width .6s ease}
+.ranked-label{font-size:.76rem;color:#1A4530;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.ranked-count{font-size:.72rem;font-weight:600;color:#8a7e72;flex-shrink:0}
+.flag{font-size:.9rem}
+
+/* ── Visitors table ── */
+.table-card{background:#fff;border-radius:14px;border:1px solid #e8e4dd;margin-bottom:18px;overflow:hidden}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0ebe3}
+.table-actions{display:flex;gap:8px}
+.btn-sm{padding:6px 13px;border-radius:7px;font-family:'Raleway',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .18s;border:1.5px solid transparent}
+.btn-outline{background:#fff;color:#1A4530;border-color:#e8e4dd}
+.btn-outline:hover{border-color:#C9A05A;color:#C9A05A}
+.btn-danger{background:#fff;color:#ef4444;border-color:#fecaca}
+.btn-danger:hover{background:#fef2f2}
+.btn-gold{background:linear-gradient(135deg,#C9A05A,#E0C07E);color:#0C2C1B;border:none}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 3px 12px rgba(201,160,90,.3)}
+table{width:100%;border-collapse:collapse}
+thead tr{border-bottom:2px solid #f0ebe3}
+thead th{padding:10px 16px;font-family:'Raleway',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8a7e72;text-align:left;white-space:nowrap}
+tbody tr{border-bottom:1px solid #f8f5f0;transition:background .15s}
+tbody tr:hover{background:#faf8f5}
+tbody td{padding:10px 16px;font-size:.8rem;color:#4a5568;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis}
+td.city-col{color:#1A4530;font-weight:500}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.badge-mobile{background:rgba(16,185,129,.1);color:#059669}
+.badge-desktop{background:rgba(99,102,241,.1);color:#4f46e5}
+.badge-tablet{background:rgba(245,158,11,.1);color:#d97706}
+.badge-new{background:rgba(201,160,90,.12);color:#92400e}
+.badge-ret{background:#f5f1eb;color:#8a7e72}
+.pager{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid #f0ebe3;font-size:.75rem;color:#8a7e72}
+.pager-btns{display:flex;gap:6px}
+.pager-btn{padding:5px 10px;border-radius:6px;border:1.5px solid #e8e4dd;background:#fff;color:#1A4530;font-size:.7rem;cursor:pointer;transition:all .18s}
+.pager-btn:hover:not(:disabled){border-color:#C9A05A;color:#C9A05A}
+.pager-btn:disabled{opacity:.4;cursor:default}
+
+/* ── Settings card ── */
+.settings-card{background:#fff;border-radius:14px;border:1px solid #e8e4dd;padding:20px;margin-bottom:18px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f5f1eb}
+.settings-row:last-child{border-bottom:none;padding-bottom:0}
+.settings-row:first-child{padding-top:0}
+.setting-label{font-size:.85rem;font-weight:600;color:#1A4530}
+.setting-desc{font-size:.72rem;color:#8a7e72;margin-top:2px}
+.toggle{position:relative;width:42px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:#e8e4dd;border-radius:12px;cursor:pointer;transition:.3s}
+.toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+input:checked + .toggle-slider{background:linear-gradient(135deg,#C9A05A,#E0C07E)}
+input:checked + .toggle-slider:before{transform:translateX(18px)}
+.phone-input{display:flex;gap:8px;margin-top:10px}
+.phone-input input{flex:1;padding:8px 12px;border:1.5px solid #ddd8d0;border-radius:7px;font-family:'Jost',sans-serif;font-size:.85rem;color:#1A4530;outline:none;transition:border-color .2s}
+.phone-input input:focus{border-color:#C9A05A;box-shadow:0 0 0 3px rgba(201,160,90,.1)}
+.twilio-note{margin-top:10px;padding:12px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:.75rem;color:#92400e;line-height:1.6}
+.twilio-note code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:.8em}
+
+/* ── Empty / Loading states ── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;color:#8a7e72;text-align:center;gap:8px}
+.empty svg{opacity:.35}
+.empty h3{font-family:'Cormorant',serif;font-size:1.2rem;font-weight:600;color:#1A4530}
+.skeleton{background:linear-gradient(90deg,#f0ebe3 25%,#e8e3da 50%,#f0ebe3 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-msg{padding:12px 18px;border-radius:10px;font-size:.82rem;font-weight:500;color:#fff;background:#1A4530;box-shadow:0 4px 20px rgba(0,0,0,.18);transform:translateX(120%);transition:transform .3s ease;pointer-events:auto}
+.toast-msg.show{transform:translateX(0)}
+.toast-msg.err{background:#ef4444}
+.toast-msg.warn{background:#f59e0b}
+
+/* ── GDPR notice bar ── */
+.gdpr-bar{background:linear-gradient(135deg,rgba(201,160,90,.08),rgba(14,26,20,.04));border:1px solid rgba(201,160,90,.2);border-radius:10px;padding:12px 16px;display:flex;align-items:flex-start;gap:10px;margin-bottom:18px;font-size:.76rem;color:#6a6460;line-height:1.55}
+.gdpr-bar svg{flex-shrink:0;margin-top:1px;opacity:.7}
+.gdpr-bar strong{color:#1A4530}
+
+/* ── Compliance badge ── */
+.compliance-badges{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.comp-badge{font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px;border:1px solid currentColor}
+.comp-badge.gdpr{color:#1d4ed8;background:rgba(29,78,216,.07)}
+.comp-badge.dpdpa{color:#7c3aed;background:rgba(124,58,237,.07)}
+
+/* ── Responsive ── */
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.charts-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:800px){.sb{display:none}.kpi-grid{grid-template-columns:1fr 1fr}.charts-grid{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="cms">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sb">
+  <div class="sb-brand">
+    <img src="../images/logo.png" alt="SVIE" onerror="this.style.display='none'">
+    <div>
+      <div class="sb-brand-name">SVIE CMS</div>
+      <div class="sb-brand-sub">Visitor Intelligence</div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-hd">CMS</div>
+    <a href="/admin/dashboard" class="nav-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+
+    <div class="nav-hd">Analytics</div>
+    <a href="/admin/visitor-dashboard" class="nav-btn on">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      Visitor Dashboard
+    </a>
+
+    <div class="nav-hd">Quick Access</div>
+    <a href="/admin/dashboard#enquiries" class="nav-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Enquiries
+    </a>
+    <a href="/admin/dashboard" class="nav-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Content Editor
+    </a>
+    <a href="/" target="_blank" class="nav-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      View Website
+    </a>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-foot-info">
+      <div class="sb-foot-name" id="sbUser">Admin</div>
+      <div class="sb-foot-role">Site Owner</div>
+    </div>
+    <button class="btn-ico" title="Sign out" onclick="logout()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      SVIE Visitor Dashboard
+      <span class="topbar-badge">Intelligence</span>
+    </div>
+    <div class="topbar-r">
+      <div class="period-tabs" id="periodTabs">
+        <button class="period-tab" onclick="setPeriod(7,this)">7 Days</button>
+        <button class="period-tab on" onclick="setPeriod(30,this)">30 Days</button>
+        <button class="period-tab" onclick="setPeriod(90,this)">90 Days</button>
+        <button class="period-tab" onclick="setPeriod(365,this)">1 Year</button>
+        <button class="period-tab" onclick="setPeriod(400,this)">All Time</button>
+      </div>
+      <button class="btn-refresh" id="btnRefresh" onclick="loadAll()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="area" id="area">
+
+    <!-- Auth check overlay -->
+    <div id="authWall" style="display:none;position:absolute;inset:0;background:#f0ebe3;z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <div style="font-family:'Cormorant',serif;font-size:1.5rem;font-weight:600;color:#1A4530">Session Expired</div>
+      <div style="font-size:.85rem;color:#8a7e72">Please sign in to the CMS first.</div>
+      <a href="/admin" style="padding:10px 22px;border-radius:8px;background:linear-gradient(135deg,#C9A05A,#E0C07E);color:#0C2C1B;font-family:'Raleway',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none">Go to Login</a>
+    </div>
+
+    <!-- GDPR / Compliance bar -->
+    <div class="gdpr-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div>
+        <strong>Privacy-First Analytics</strong> — Only anonymised data is stored: country, city, browser type, and device. Full IP addresses are never saved. Visitors are asked for consent before any tracking begins.
+        <div class="compliance-badges">
+          <span class="comp-badge gdpr">GDPR Compliant</span>
+          <span class="comp-badge dpdpa">DPDPA Compliant</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── KPI Cards ── -->
+    <div class="kpi-grid" id="kpiGrid">
+      <div class="kpi"><div class="kpi-icon" style="background:rgba(201,160,90,.1)">🌐</div><div><div class="kpi-n skeleton" id="k-total" style="width:60px;height:28px"> </div><div class="kpi-l">Total Visits</div><div class="kpi-trend nt" id="k-total-sub">Loading…</div></div></div>
+      <div class="kpi"><div class="kpi-icon" style="background:rgba(26,69,48,.08)">👤</div><div><div class="kpi-n skeleton" id="k-sessions" style="width:60px;height:28px"> </div><div class="kpi-l">New Sessions</div><div class="kpi-trend nt" id="k-sessions-sub"> </div></div></div>
+      <div class="kpi"><div class="kpi-icon" style="background:rgba(16,185,129,.08)">🗺️</div><div><div class="kpi-n skeleton" id="k-countries" style="width:60px;height:28px"> </div><div class="kpi-l">Countries Reached</div><div class="kpi-trend up" id="k-countries-sub"> </div></div></div>
+      <div class="kpi"><div class="kpi-icon" style="background:rgba(245,158,11,.08)">📅</div><div><div class="kpi-n skeleton" id="k-today" style="width:60px;height:28px"> </div><div class="kpi-l">Today's Visits</div><div class="kpi-trend nt" id="k-today-sub">IST</div></div></div>
+    </div>
+
+    <!-- ── World Map ── -->
+    <div class="map-card">
+      <div class="map-header">
+        <div>
+          <div class="card-title">Visitor World Map</div>
+          <div class="card-sub">Geographic distribution of your visitors — circle size = visit count</div>
+        </div>
+        <div class="map-legend">
+          <span><span class="legend-dot" style="background:#C9A05A"></span>1–10 visits</span>
+          <span><span class="legend-dot" style="background:#1A4530"></span>11–50 visits</span>
+          <span><span class="legend-dot" style="background:#0e4d2a"></span>50+ visits</span>
+        </div>
+      </div>
+      <div id="visitor-map"></div>
+    </div>
+
+    <!-- ── Charts Row ── -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Visitor Trend</div>
+        <div class="chart-sub">Daily visits over selected period</div>
+        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Devices</div>
+        <div class="chart-sub">Desktop · Mobile · Tablet</div>
+        <div class="chart-wrap"><canvas id="deviceChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Traffic Sources</div>
+        <div class="chart-sub">Where visitors come from</div>
+        <div class="chart-wrap"><canvas id="sourceChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ── Top Countries + Top Pages ── -->
+    <div class="two-col">
+      <div class="list-card">
+        <div class="chart-title">Top Countries</div>
+        <div class="chart-sub">Ranked by visit count</div>
+        <div class="ranked-list" id="countryList">
+          <div style="height:16px;border-radius:4px" class="skeleton"></div>
+          <div style="height:16px;border-radius:4px" class="skeleton"></div>
+          <div style="height:16px;border-radius:4px" class="skeleton"></div>
+        </div>
+      </div>
+      <div class="list-card">
+        <div class="chart-title">Top Pages</div>
+        <div class="chart-sub">Most visited URLs</div>
+        <div class="ranked-list" id="pageList">
+          <div style="height:16px;border-radius:4px" class="skeleton"></div>
+          <div style="height:16px;border-radius:4px" class="skeleton"></div>
+          <div style="height:16px;border-radius:4px" class="skeleton"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Top Cities + Browsers ── -->
+    <div class="two-col">
+      <div class="list-card">
+        <div class="chart-title">Top Cities</div>
+        <div class="chart-sub">City-level breakdown</div>
+        <div class="ranked-list" id="cityList"></div>
+      </div>
+      <div class="list-card">
+        <div class="chart-title">Browsers</div>
+        <div class="chart-sub">Browser usage breakdown</div>
+        <div class="ranked-list" id="browserList"></div>
+      </div>
+    </div>
+
+    <!-- ── Recent Visitors Table ── -->
+    <div class="table-card">
+      <div class="table-header">
+        <div>
+          <div class="card-title">Recent Visitors</div>
+          <div class="card-sub" id="tableSubtitle">Last 50 visit records</div>
+        </div>
+        <div class="table-actions">
+          <button class="btn-sm btn-outline" onclick="exportCSV()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+          <button class="btn-sm btn-danger" onclick="clearVisitors()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            Clear Data
+          </button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Time (IST)</th>
+              <th>Location</th>
+              <th>Page</th>
+              <th>Device</th>
+              <th>Browser</th>
+              <th>Session</th>
+            </tr>
+          </thead>
+          <tbody id="visitorTbody">
+            <tr><td colspan="6"><div class="empty"><div class="skeleton" style="width:200px;height:14px"></div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <span id="pagerInfo">Loading…</span>
+        <div class="pager-btns">
+          <button class="pager-btn" id="btnPrev" onclick="changePage(-1)" disabled>← Prev</button>
+          <button class="pager-btn" id="btnNext" onclick="changePage(1)" disabled>Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Notification Settings ── -->
+    <div class="settings-card">
+      <div class="chart-title" style="margin-bottom:4px">SMS / WhatsApp Notifications</div>
+      <div class="chart-sub" style="margin-bottom:16px">Receive an alert on your phone when a new visitor arrives on the website</div>
+
+      <div class="settings-row">
+        <div>
+          <div class="setting-label">Enable Visitor Alerts</div>
+          <div class="setting-desc">Send SMS/WhatsApp when a new session begins (not per page view)</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="smsToggle" onchange="saveSmsSettings()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="settings-row">
+        <div style="width:100%">
+          <div class="setting-label">Notify Number</div>
+          <div class="setting-desc">Your mobile number to receive alerts (with country code)</div>
+          <div class="phone-input">
+            <input type="tel" id="notifyPhone" placeholder="+919513961740" value="+919513961740">
+            <button class="btn-sm btn-gold" onclick="saveSmsSettings()">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="twilio-note">
+        <strong>Setup required:</strong> SMS alerts use Twilio. Add these to your <code>.env</code> file:<br>
+        <code>TWILIO_ACCOUNT_SID=ACxxxxxxx</code><br>
+        <code>TWILIO_AUTH_TOKEN=xxxxxxx</code><br>
+        <code>TWILIO_FROM=+1xxxxxxxxxx</code> &nbsp;(your Twilio number)<br>
+        Then run <code>npm install twilio</code> and restart the server.<br><br>
+        <strong>For India:</strong> WhatsApp via Twilio works best. Use <code>TWILIO_FROM=whatsapp:+14155238886</code> for the sandbox, or your registered WhatsApp Business number.
+      </div>
+    </div>
+
+    <!-- ── Compliance note ── -->
+    <div style="text-align:center;padding:16px 0 8px;font-size:.72rem;color:#8a7e72">
+      SVIE Visitor Dashboard collects only anonymised analytics data. Compliant with
+      <strong>GDPR</strong> (EU Regulation 2016/679) and <strong>DPDPA 2023</strong> (India).
+      Visitor consent is obtained before any data is recorded. No cookies, no personal identifiers.
+    </div>
+
+  </div><!-- /area -->
+</div><!-- /main -->
+</div><!-- /cms -->
+
+<div id="toast"></div>
+
+<script>
+// ═══ State ═══════════════════════════════════════
+let csrfToken = '';
+let currentDays = 30;
+let currentPage = 1;
+let totalPages  = 1;
+let statsData   = null;
+let charts      = {};
+let leafMap     = null;
+let mapLayer    = null;
+
+// ═══ Boot ════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  const auth = await api('GET', '/api/auth/check');
+  if (!auth.loggedIn) {
+    document.getElementById('authWall').style.display = 'flex';
+    return;
+  }
+  document.getElementById('sbUser').textContent = auth.user || 'Admin';
+  try {
+    const r = await api('GET', '/api/csrf-token');
+    csrfToken = r.token || '';
+  } catch(_) {}
+  await loadAll();
+});
+
+// ═══ API helper ══════════════════════════════════
+async function api(method, url, body) {
+  const opts = { method, headers: { 'Content-Type':'application/json' } };
+  if (csrfToken && method !== 'GET') opts.headers['X-CSRF-Token'] = csrfToken;
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+// ═══ Period selector ═════════════════════════════
+function setPeriod(days, btn) {
+  currentDays = days;
+  currentPage = 1;
+  document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  loadAll();
+}
+
+// ═══ Load all data ═══════════════════════════════
+async function loadAll() {
+  const btn = document.getElementById('btnRefresh');
+  btn.classList.add('spinning');
+  try {
+    const [stats, visits] = await Promise.all([
+      api('GET', `/api/visitor-stats?days=${currentDays}`),
+      api('GET', `/api/visitors?days=${currentDays}&page=${currentPage}&limit=50`),
+    ]);
+    statsData = stats;
+    renderKPIs(stats);
+    renderMap(stats.mapPoints);
+    renderCharts(stats);
+    renderRankedLists(stats);
+    renderTable(visits);
+    syncSmsSettings(stats);
+  } catch(e) {
+    toast('Failed to load data: ' + e.message, 'err');
+  } finally {
+    btn.classList.remove('spinning');
+  }
+}
+
+// ═══ KPI Cards ═══════════════════════════════════
+function renderKPIs(s) {
+  setText('k-total', s.total.toLocaleString('en-IN'));
+  setText('k-sessions', s.newSessions.toLocaleString('en-IN'));
+  setText('k-countries', s.countries.toLocaleString('en-IN'));
+  setText('k-today', s.today.toLocaleString('en-IN'));
+  document.getElementById('k-total-sub').textContent = `in last ${currentDays === 400 ? 'all time' : currentDays+' days'}`;
+  document.getElementById('k-sessions-sub').textContent = `${s.total > 0 ? Math.round(s.newSessions/s.total*100) : 0}% of total`;
+  document.getElementById('k-countries-sub').textContent = s.countries > 0 ? '🌍 Global reach' : 'No data yet';
+  document.getElementById('k-today-sub').textContent = 'visits today (IST)';
+  document.querySelectorAll('.kpi-n.skeleton').forEach(el => el.classList.remove('skeleton'));
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) { el.classList.remove('skeleton'); el.style.width = ''; el.style.height = ''; el.textContent = val; }
+}
+
+// ═══ World Map ═══════════════════════════════════
+function renderMap(points) {
+  if (!window.L) { setTimeout(() => renderMap(points), 300); return; }
+  if (!leafMap) {
+    leafMap = L.map('visitor-map', {
+      center: [20, 0], zoom: 2, minZoom: 1, maxZoom: 8,
+      scrollWheelZoom: false, zoomControl: true,
+    });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap © CARTO',
+      subdomains: 'abcd', maxZoom: 19,
+    }).addTo(leafMap);
+  }
+  if (mapLayer) { mapLayer.clearLayers(); }
+  mapLayer = L.layerGroup().addTo(leafMap);
+
+  if (!points || !points.length) return;
+
+  const maxCount = Math.max(...points.map(p => p.count));
+  points.forEach(p => {
+    if (!p.lat && !p.lon) return;
+    const r = 6 + (p.count / maxCount) * 22;
+    const color = p.count >= 50 ? '#0e4d2a' : p.count >= 11 ? '#1A4530' : '#C9A05A';
+    const circle = L.circleMarker([p.lat, p.lon], {
+      radius: r, fillColor: color, color: '#fff',
+      weight: 1.5, opacity: .9, fillOpacity: .7,
+    });
+    const flag = countryFlag(p.countryCode);
+    circle.bindPopup(
+      `<div style="font-family:Jost,sans-serif;min-width:130px">` +
+        `<div style="font-weight:600;font-size:.9rem;color:#1A4530;margin-bottom:3px">${flag} ${p.city || '—'}</div>` +
+        `<div style="font-size:.78rem;color:#6a6460">${p.country || ''}</div>` +
+        `<div style="font-size:.82rem;font-weight:700;color:#C9A05A;margin-top:6px">${p.count} visit${p.count !== 1 ? 's' : ''}</div>` +
+      `</div>`,
+      { maxWidth: 200 }
+    );
+    mapLayer.addLayer(circle);
+  });
+
+  // Fit to visible markers
+  if (points.filter(p => p.lat || p.lon).length > 0) {
+    const valid = points.filter(p => p.lat || p.lon);
+    const bounds = L.latLngBounds(valid.map(p => [p.lat, p.lon]));
+    leafMap.fitBounds(bounds.pad(0.2), { maxZoom: 6 });
+  }
+}
+
+// ═══ Charts ══════════════════════════════════════
+const PALETTE = {
+  gold:      '#C9A05A',
+  green:     '#1A4530',
+  darkgreen: '#0C2C1B',
+  cream:     '#F5EFE6',
+  muted:     ['#C9A05A','#1A4530','#7B9E87','#E0C07E','#4a7c59','#2d6a4f'],
+};
+
+function renderCharts(s) {
+  // ── Trend line ──
+  destroyChart('trendChart');
+  charts.trend = new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: s.byDate.map(d => {
+        const dt = new Date(d.date + 'T00:00:00');
+        return dt.toLocaleDateString('en-IN', { day:'numeric', month:'short' });
+      }),
+      datasets: [{
+        label: 'Visits',
+        data:  s.byDate.map(d => d.count),
+        fill:  true,
+        backgroundColor: 'rgba(201,160,90,.12)',
+        borderColor:     '#C9A05A',
+        borderWidth:     2,
+        pointBackgroundColor: '#C9A05A',
+        pointRadius:     s.byDate.length > 30 ? 0 : 3,
+        tension:         0.35,
+      }],
+    },
+    options: chartOpts({ legend: false }),
+  });
+
+  // ── Device donut ──
+  destroyChart('deviceChart');
+  const devData = s.byDevice;
+  charts.device = new Chart(document.getElementById('deviceChart'), {
+    type: 'doughnut',
+    data: {
+      labels: devData.map(d => d.name),
+      datasets: [{
+        data:            devData.map(d => d.count),
+        backgroundColor: ['#1A4530','#C9A05A','#7B9E87','#E0C07E'],
+        borderWidth:     2,
+        borderColor:     '#fff',
+      }],
+    },
+    options: donutOpts(),
+  });
+
+  // ── Source donut ──
+  destroyChart('sourceChart');
+  const srcData = s.bySource;
+  charts.source = new Chart(document.getElementById('sourceChart'), {
+    type: 'doughnut',
+    data: {
+      labels: srcData.map(d => d.name),
+      datasets: [{
+        data:            srcData.map(d => d.count),
+        backgroundColor: ['#1A4530','#C9A05A','#7B9E87','#4a7c59'],
+        borderWidth:     2,
+        borderColor:     '#fff',
+      }],
+    },
+    options: donutOpts(),
+  });
+}
+
+function chartOpts({ legend } = {}) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: !!legend, labels: { font: { family: 'Jost', size: 11 }, color: '#4a5568' } },
+      tooltip: {
+        backgroundColor: '#0C2C1B', titleFont: { family: 'Cormorant', size: 14 },
+        bodyFont: { family: 'Jost', size: 12 }, cornerRadius: 8,
+      },
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { family: 'Jost', size: 10 }, color: '#8a7e72', maxTicksLimit: 8 } },
+      y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { family: 'Jost', size: 10 }, color: '#8a7e72' }, beginAtZero: true },
+    },
+  };
+}
+
+function donutOpts() {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { family: 'Jost', size: 11 }, color: '#4a5568', boxWidth: 10, padding: 10 } },
+      tooltip: { backgroundColor: '#0C2C1B', bodyFont: { family: 'Jost', size: 12 }, cornerRadius: 8 },
+    },
+  };
+}
+
+function destroyChart(id) {
+  const key = id.replace('Chart','');
+  if (charts[key]) { charts[key].destroy(); delete charts[key]; }
+}
+
+// ═══ Ranked Lists ════════════════════════════════
+function renderRankedLists(s) {
+  renderRanked('countryList', s.byCountry, d => {
+    const flag = countryFlag(s.byCity.find(c => c.country === d.name)?.countryCode || '');
+    return `<span class="flag">${flag}</span> ${d.name}`;
+  }, d => d.count, s.byCountry[0]?.count || 1);
+
+  renderRanked('pageList', s.byPage, d => {
+    const label = d.page === '/' ? '/ (Home)' : d.page;
+    return `<span title="${d.page}">${label}</span>`;
+  }, d => d.count, s.byPage[0]?.count || 1);
+
+  renderRanked('cityList', s.byCity, d => {
+    const flag = countryFlag(d.countryCode);
+    return `<span class="flag">${flag}</span> ${d.city}${d.region ? ', ' + d.region : ''}`;
+  }, d => d.count, s.byCity[0]?.count || 1);
+
+  renderRanked('browserList', s.byBrowser, d => d.name, d => d.count, s.byBrowser[0]?.count || 1);
+}
+
+function renderRanked(id, items, labelFn, countFn, max) {
+  const el = document.getElementById(id);
+  if (!items || !items.length) {
+    el.innerHTML = '<div class="empty" style="padding:20px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><small>No data yet</small></div>';
+    return;
+  }
+  el.innerHTML = items.slice(0, 8).map((d, i) => {
+    const pct = Math.round((countFn(d) / max) * 100);
+    return `<div class="ranked-row">
+      <span class="ranked-num">${i + 1}</span>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span class="ranked-label">${labelFn(d)}</span>
+          <span class="ranked-count">${countFn(d).toLocaleString('en-IN')}</span>
+        </div>
+        <div class="ranked-bar-wrap"><div class="ranked-bar" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══ Visitor Table ═══════════════════════════════
+function renderTable(data) {
+  totalPages = data.pages || 1;
+  currentPage = data.page || 1;
+  const tbody = document.getElementById('visitorTbody');
+  const sub   = document.getElementById('tableSubtitle');
+  document.getElementById('pagerInfo').textContent = `Showing ${((currentPage-1)*50)+1}–${Math.min(currentPage*50,data.total)} of ${data.total.toLocaleString('en-IN')} records`;
+  document.getElementById('btnPrev').disabled = currentPage <= 1;
+  document.getElementById('btnNext').disabled = currentPage >= totalPages;
+  sub.textContent = `${data.total.toLocaleString('en-IN')} visit records in selected period`;
+
+  if (!data.data || !data.data.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><h3>No visitors recorded yet</h3><p style="font-size:.78rem">Visitors who accept analytics will appear here once they arrive.</p></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.data.map(v => {
+    const ist  = new Date(v.timestamp).toLocaleString('en-IN', { timeZone:'Asia/Kolkata', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', hour12:true });
+    const flag = countryFlag(v.countryCode);
+    const devBadge = v.device === 'Mobile' ? 'badge-mobile' : v.device === 'Tablet' ? 'badge-tablet' : 'badge-desktop';
+    const sesBadge = v.isNewSession ? 'badge-new' : 'badge-ret';
+    const sesLabel = v.isNewSession ? 'New' : 'Return';
+    const pageLabel = v.page === '/' ? 'Home' : v.page;
+    return `<tr>
+      <td>${ist}</td>
+      <td class="city-col">${flag} ${v.city || '—'}, <span style="color:#8a7e72">${v.country || 'Unknown'}</span></td>
+      <td title="${esc(v.page)}">${esc(pageLabel)}</td>
+      <td><span class="badge ${devBadge}">${v.device||'?'}</span></td>
+      <td>${esc(v.browser||'?')}</td>
+      <td><span class="badge ${sesBadge}">${sesLabel}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+async function changePage(delta) {
+  currentPage = Math.max(1, Math.min(totalPages, currentPage + delta));
+  try {
+    const visits = await api('GET', `/api/visitors?days=${currentDays}&page=${currentPage}&limit=50`);
+    renderTable(visits);
+  } catch(e) { toast('Error loading page: ' + e.message, 'err'); }
+}
+
+// ═══ SMS Settings ════════════════════════════════
+function syncSmsSettings(stats) {
+  document.getElementById('smsToggle').checked = !!stats.smsEnabled;
+  if (stats.notifyPhone) document.getElementById('notifyPhone').value = stats.notifyPhone;
+}
+
+async function saveSmsSettings() {
+  try {
+    await api('PATCH', '/api/visitor-settings', {
+      smsEnabled:  document.getElementById('smsToggle').checked,
+      notifyPhone: document.getElementById('notifyPhone').value.trim(),
+    });
+    toast('Settings saved', 'ok');
+  } catch(e) { toast('Save failed: ' + e.message, 'err'); }
+}
+
+// ═══ Export / Clear ══════════════════════════════
+function exportCSV() {
+  window.open(`/api/visitor-export?days=${currentDays}`, '_blank');
+  toast('CSV download started');
+}
+
+async function clearVisitors() {
+  if (!confirm('Clear ALL visitor analytics data? This cannot be undone.')) return;
+  try {
+    await api('DELETE', '/api/visitors');
+    toast('Visitor data cleared');
+    currentPage = 1;
+    await loadAll();
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+// ═══ Auth / Logout ═══════════════════════════════
+async function logout() {
+  try { await api('POST', '/api/auth/logout'); } catch(_) {}
+  location.href = '/admin';
+}
+
+// ═══ Helpers ═════════════════════════════════════
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function countryFlag(cc) {
+  if (!cc || cc.length !== 2 || cc === 'LH' || cc === '??') return '🌐';
+  try {
+    return String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1E0 + c.charCodeAt(0) - 65));
+  } catch { return '🌐'; }
+}
+
+function toast(msg, type = 'ok') {
+  const wrap = document.getElementById('toast');
+  const el   = document.createElement('div');
+  el.className = 'toast-msg' + (type === 'err' ? ' err' : type === 'warn' ? ' warn' : '');
+  el.textContent = msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(() => { requestAnimationFrame(() => el.classList.add('show')); });
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }, 3500);
+}
+</script>
+</body>
+</html>

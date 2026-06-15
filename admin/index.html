@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SVIE CMS — Login</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,600;1,400&family=Raleway:wght@400;500;600;700&family=Jost:wght@300;400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Jost',sans-serif;
+  background:#0C2C1B;
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+body::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 60% at 30% 50%,rgba(45,107,82,.4) 0%,transparent 65%),
+             radial-gradient(ellipse 50% 40% at 80% 80%,rgba(17,53,36,.5) 0%,transparent 55%);
+}
+.login-card{
+  position:relative;z-index:1;
+  width:440px;max-width:92vw;
+  background:rgba(17,53,36,.6);
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(201,160,90,.2);
+  border-radius:20px;
+  padding:52px 48px;
+  box-shadow:0 32px 80px rgba(0,0,0,.4);
+}
+.logo-wrap{
+  display:flex;align-items:center;justify-content:center;
+  gap:14px;margin-bottom:36px;
+}
+.logo-wrap img{width:52px;height:52px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,.3))}
+.logo-text{display:flex;flex-direction:column;gap:3px;border-left:1.5px solid rgba(201,160,90,.4);padding-left:14px}
+.logo-name{font-family:'Cormorant',serif;font-size:1.3rem;font-weight:600;color:#F5EFE6;letter-spacing:.02em}
+.logo-sub{font-family:'Raleway',sans-serif;font-size:.46rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#C9A05A}
+.login-title{
+  font-family:'Cormorant',serif;
+  font-size:1.8rem;font-weight:600;
+  color:#F5EFE6;text-align:center;
+  margin-bottom:6px;
+}
+.login-sub{
+  font-size:.82rem;color:rgba(245,239,230,.78);
+  text-align:center;margin-bottom:36px;
+}
+.form-group{margin-bottom:20px}
+.form-label{
+  font-family:'Raleway',sans-serif;
+  font-size:.62rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(245,239,230,.8);
+  margin-bottom:8px;display:block;
+}
+.form-input{
+  width:100%;padding:13px 16px;
+  background:rgba(255,255,255,.06);
+  border:1.5px solid rgba(201,160,90,.2);
+  border-radius:10px;
+  font-family:'Jost',sans-serif;
+  font-size:.92rem;color:#F5EFE6;
+  transition:border-color .25s,background .25s;
+  outline:none;
+}
+.form-input::placeholder{color:rgba(245,239,230,.4)}
+.form-input:focus{border-color:rgba(201,160,90,.7);background:rgba(255,255,255,.09)}
+.btn-login{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,#C9A05A,#E0C07E);
+  color:#0C2C1B;
+  border:none;border-radius:10px;
+  font-family:'Raleway',sans-serif;
+  font-size:.78rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;
+  transition:opacity .25s,transform .25s,box-shadow .25s;
+  margin-top:8px;
+}
+.btn-login:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,160,90,.35)}
+.btn-login:active{transform:translateY(0)}
+.error-msg{
+  background:rgba(220,50,50,.15);
+  border:1px solid rgba(220,50,50,.3);
+  border-radius:8px;padding:10px 14px;
+  font-size:.82rem;color:#ff8080;
+  text-align:center;margin-bottom:16px;
+  display:none;
+}
+.back-link{
+  text-align:center;margin-top:24px;
+  font-size:.78rem;color:rgba(245,239,230,.65);
+}
+.back-link a{color:#C9A05A;text-decoration:none}
+.back-link a:hover{text-decoration:underline}
+.loading{opacity:.6;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="login-card">
+  <div class="logo-wrap">
+    <img src="../images/logo.png" alt="SVIE Logo">
+    <div class="logo-text">
+      <span class="logo-name">Sri Vasavi Interiors and Exteriors</span>
+      <span class="logo-sub">Innovative Ideas · Stylish Designs</span>
+    </div>
+  </div>
+
+  <h1 class="login-title">Content Manager</h1>
+  <p class="login-sub">Sign in to manage your website</p>
+
+  <div class="error-msg" id="error"></div>
+
+  <form id="loginForm">
+    <div class="form-group">
+      <label class="form-label" for="username">Username</label>
+      <input type="text" id="username" class="form-input" placeholder="Enter username" autocomplete="username" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="password">Password</label>
+      <input type="password" id="password" class="form-input" placeholder="Enter password" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn-login" id="loginBtn">Sign In to CMS</button>
+  </form>
+
+  <p class="back-link">← <a href="../index.html">Back to website</a></p>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('error');
+  btn.textContent = 'Signing in…';
+  btn.classList.add('loading');
+  err.style.display = 'none';
+
+  try {
+    const r = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value
+      })
+    });
+    const data = await r.json();
+    if (data.success) {
+      window.location.href = '/admin/dashboard';
+    } else {
+      err.textContent = 'Invalid username or password.';
+      err.style.display = 'block';
+      btn.textContent = 'Sign In to CMS';
+      btn.classList.remove('loading');
+    }
+  } catch {
+    err.textContent = 'Connection error. Is the server running?';
+    err.style.display = 'block';
+    btn.textContent = 'Sign In to CMS';
+    btn.classList.remove('loading');
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,837 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="images/logo.png" type="image/png">
+<link rel="apple-touch-icon" href="images/logo.png">
+<meta name="theme-color" content="#0C2C1B">
+<meta name="author" content="Sri Vasavi Interiors and Exteriors">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="SVIE Portfolio — Our premium interior design, construction, and modular furniture projects across Bengaluru since 2017.">
+<title>Portfolio — SVIE | Sri Vasavi Interiors and Exteriors</title>
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://svie5.com/gallery.html">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/fonts.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sri Vasavi Interiors and Exteriors">
+<meta property="og:locale" content="en_IN">
+<meta property="og:title" content="Portfolio — SVIE | Sri Vasavi Interiors and Exteriors">
+<meta property="og:description" content="SVIE Portfolio — Our premium interior design, construction, and modular furniture projects across Bengaluru since 2017.">
+<meta property="og:url" content="https://svie5.com/gallery.html">
+<meta property="og:image" content="https://svie5.com/images/og-default.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SVIE Interior Design Portfolio — Bengaluru">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@kiran4u1982">
+<meta name="twitter:title" content="Portfolio — SVIE | Sri Vasavi Interiors and Exteriors">
+<meta name="twitter:description" content="SVIE Portfolio — Our premium interior design, construction, and modular furniture projects across Bengaluru since 2017.">
+<meta name="twitter:image" content="https://svie5.com/images/og-default.jpg">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"ImageGallery","@id":"https://svie5.com/gallery.html#webpage","url":"https://svie5.com/gallery.html","name":"SVIE Portfolio Gallery","description":"Premium interior design, construction, and modular furniture projects across Bengaluru since 2017.","isPartOf":{"@id":"https://svie5.com/#website"},"about":{"@id":"https://svie5.com/#business"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://svie5.com/"},{"@type":"ListItem","position":2,"name":"Portfolio","item":"https://svie5.com/gallery.html"}]}]}
+</script>
+<link rel="stylesheet" href="styles.css">
+<style>
+
+/* ── Page Hero ── */
+.gal-hero {
+  padding: 155px 0 68px;
+  background: var(--forest-deep);
+  position: relative; overflow: hidden;
+}
+.gal-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 55% 55% at 78% 38%, rgba(43,80,64,.52) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 48% at 12% 72%, rgba(21,40,32,.38) 0%, transparent 52%);
+}
+.gal-hero-content { position: relative; z-index: 1; }
+
+/* ── Filter Bar ── */
+.gal-filters {
+  display: flex; align-items: center;
+  gap: 8px; flex-wrap: wrap;
+  margin-bottom: 44px;
+}
+.gal-chip {
+  padding: 9px 22px;
+  border-radius: var(--r-full);
+  font-family: var(--font-sans);
+  font-size: .68rem; font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase;
+  border: 1.5px solid var(--light-gray);
+  color: var(--mid-gray); background: var(--white);
+  cursor: pointer;
+  transition: all .22s var(--ease);
+  white-space: nowrap;
+}
+.gal-chip:hover { border-color: var(--forest-mid); color: var(--forest-mid); }
+.gal-chip.active {
+  background: var(--forest-deep); border-color: var(--forest-deep);
+  color: var(--cream); box-shadow: 0 4px 16px rgba(12,44,27,.2);
+}
+.gal-count {
+  margin-left: auto; align-self: center;
+  font-family: var(--font-sans);
+  font-size: .68rem; font-weight: 600;
+  color: var(--mid-gray);
+}
+
+/* ── Masonry ── */
+.gal-masonry { columns: 3; column-gap: 16px; }
+@media(max-width:900px){ .gal-masonry { columns: 2; } }
+@media(max-width:500px){ .gal-masonry { columns: 1; } }
+
+/* ── Card ── */
+.gal-card {
+  break-inside: avoid; margin-bottom: 16px;
+  border-radius: var(--r-lg); overflow: hidden;
+  position: relative; cursor: pointer;
+  background: var(--forest-mid);
+  box-shadow: 0 3px 18px rgba(12,44,27,.1);
+  transition: transform .36s var(--ease), box-shadow .36s var(--ease);
+}
+.gal-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 28px 64px rgba(12,44,27,.22);
+}
+.gal-card img {
+  width: 100%; height: auto; display: block;
+  transition: transform .6s var(--ease);
+}
+.gal-card:hover img { transform: scale(1.06); }
+
+/* Overlay */
+.gal-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(12,44,27,.9) 0%,
+    rgba(12,44,27,.3) 44%,
+    transparent 68%
+  );
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px 18px;
+  opacity: 0; transition: opacity .3s var(--ease);
+}
+.gal-card:hover .gal-overlay { opacity: 1; }
+
+.gal-label {
+  font-family: var(--font-sans);
+  font-size: .58rem; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--gold);
+  display: flex; align-items: center; gap: 7px;
+  margin-bottom: 5px;
+}
+.gal-label::before { content: ''; width: 14px; height: 1px; background: var(--gold); }
+.gal-title {
+  font-family: var(--font-display);
+  font-size: 1rem; font-weight: 600;
+  color: var(--cream); line-height: 1.3;
+}
+
+/* Expand icon */
+.gal-expand {
+  position: absolute; top: 13px; right: 13px;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(245,239,230,.12);
+  border: 1px solid rgba(245,239,230,.2);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cream); opacity: 0;
+  transition: opacity .28s, background .18s;
+}
+.gal-card:hover .gal-expand { opacity: 1; }
+.gal-expand:hover { background: rgba(201,160,90,.35) !important; }
+
+/* SVIE badge on cards */
+.svie-badge {
+  position: absolute; top: 13px; left: 13px;
+  padding: 4px 10px;
+  background: rgba(201,160,90,.9);
+  border-radius: var(--r-full);
+  font-family: var(--font-sans);
+  font-size: .55rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--forest-deep);
+  opacity: 0; transition: opacity .28s;
+}
+.gal-card:hover .svie-badge { opacity: 1; }
+
+/* ── Lightbox ── */
+.lightbox {
+  position: fixed; inset: 0;
+  background: rgba(10,36,22,.97);
+  backdrop-filter: blur(30px);
+  z-index: 9000;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .28s var(--ease);
+}
+.lightbox.open { opacity: 1; pointer-events: all; }
+
+.lb-bar {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 18px 22px; z-index: 2;
+  display: flex; align-items: center;
+  background: linear-gradient(to bottom, rgba(10,36,22,.85), transparent);
+}
+.lb-index {
+  font-family: var(--font-sans);
+  font-size: .62rem; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: rgba(245,239,230,.72);
+}
+.lb-close {
+  margin-left: auto;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(245,239,230,.08);
+  border: 1px solid rgba(245,239,230,.14);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cream); font-size: 1.1rem; cursor: pointer;
+  transition: background .18s;
+}
+.lb-close:hover { background: rgba(201,160,90,.28); color: var(--gold); }
+
+.lb-wrap { max-width: 90vw; max-height: 80vh; }
+.lb-img {
+  max-width: 100%; max-height: 78vh;
+  object-fit: contain; border-radius: var(--r);
+  transform: scale(.93); transition: transform .36s var(--spring);
+  box-shadow: 0 40px 100px rgba(0,0,0,.75);
+}
+.lightbox.open .lb-img { transform: scale(1); }
+
+.lb-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(245,239,230,.07);
+  border: 1px solid rgba(245,239,230,.13);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cream); cursor: pointer; z-index: 2;
+  transition: background .18s, transform .22s var(--spring);
+}
+.lb-nav:hover { background: rgba(201,160,90,.24); transform: translateY(-50%) scale(1.1); }
+#lb-prev { left: 18px; }
+#lb-next { right: 18px; }
+
+.lb-caption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 18px 28px; text-align: center; z-index: 2;
+  background: linear-gradient(to top, rgba(10,36,22,.85), transparent);
+}
+.lb-cap-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem; font-weight: 500;
+  color: var(--cream); margin-bottom: 4px;
+}
+.lb-cap-cat {
+  font-family: var(--font-sans);
+  font-size: .6rem; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--gold);
+}
+</style>
+
+<!-- Google Analytics 4 | replace G-XXXXXXXXXX with your Measurement ID after GSC setup -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js',new Date());
+  gtag('config','G-XXXXXXXXXX');
+</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"SVIE Interior Design Portfolio","description":"Premium interior design, construction, and modular furniture projects across Bengaluru.","url":"https://svie5.com/gallery.html","numberOfItems":18,"itemListElement":[{"@type":"ListItem","position":1,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g01.jpg","name":"Luxury Living Room Interior Design","description":"Top class interior design project by SVIE Bengaluru"}},{"@type":"ListItem","position":2,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g02.jpg","name":"Premium Master Bedroom Interior","description":"Premium interior design work by SVIE Bengaluru"}},{"@type":"ListItem","position":3,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g03.jpg","name":"Quality Construction Project","description":"Quality construction project by SVIE Bengaluru"}},{"@type":"ListItem","position":4,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g04.jpg","name":"Modern Kitchen Interior Design","description":"SVIE craftsmanship interior design Bengaluru"}},{"@type":"ListItem","position":5,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g05.jpg","name":"Elegant Dining Area Design","description":"Quality interior design by SVIE Bengaluru"}},{"@type":"ListItem","position":6,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g06.jpg","name":"Contemporary Office Interior","description":"Premium interiors design by SVIE Bengaluru"}},{"@type":"ListItem","position":7,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g07.jpg","name":"Commercial Construction Project","description":"SVIE project execution construction Bengaluru"}},{"@type":"ListItem","position":8,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g08.webp","name":"Stylish Apartment Interior","description":"Stylish interior design project by SVIE Bengaluru"}},{"@type":"ListItem","position":9,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g09.jpg","name":"Crafted Living Space Design","description":"Crafted interior spaces by SVIE Bengaluru"}},{"@type":"ListItem","position":10,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g10.jpg","name":"Premium Interior Finishing Work","description":"Premium interior finish work by SVIE Bengaluru"}},{"@type":"ListItem","position":11,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g11.jpg","name":"SVIE Construction Site Work","description":"SVIE construction site work Bengaluru project"}},{"@type":"ListItem","position":12,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g12.jpg","name":"Exterior Design and Façade Work","description":"Exterior design work by SVIE Bengaluru"}},{"@type":"ListItem","position":13,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g13.jpg","name":"Designer Interior Showcase","description":"SVIE designer showcase interior Bengaluru"}},{"@type":"ListItem","position":14,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g14.jpg","name":"Premium Exterior Finish","description":"Premium exterior finish by SVIE Bengaluru"}},{"@type":"ListItem","position":15,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g15.jpg","name":"Interior Detailing and Finishing","description":"Interior detailing work by SVIE Bengaluru"}},{"@type":"ListItem","position":16,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g16.jpg","name":"SVIE Signature Design Project","description":"SVIE project showcase design Bengaluru"}},{"@type":"ListItem","position":17,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g17.jpg","name":"SVIE Planning and Execution","description":"SVIE planning and execution construction Bengaluru"}},{"@type":"ListItem","position":18,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g18.jpg","name":"Completed Interior Design Project","description":"Finished interior project completed by SVIE Bengaluru"}}]}</script>
+</head>
+<body>
+
+<div class="cursor"></div>
+<div class="cursor-ring"></div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <div class="lb-bar">
+    <span class="lb-index" id="lb-index">1 / 18</span>
+    <button class="lb-close" id="lb-close" aria-label="Close">✕</button>
+  </div>
+  <button class="lb-nav" id="lb-prev" aria-label="Previous">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <div class="lb-wrap">
+    <img class="lb-img" id="lb-img" src="" alt="">
+  </div>
+  <button class="lb-nav" id="lb-next" aria-label="Next">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+  <div class="lb-caption">
+    <div class="lb-cap-title" id="lb-title"></div>
+    <div class="lb-cap-cat"   id="lb-cat"></div>
+  </div>
+</div>
+
+<!-- WhatsApp -->
+<a href="https://wa.me/919513961740" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="wrap"><div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+        <div class="nav-logo-img-wrap">
+          <img src="images/logo.png" alt="SVIE Logo" class="nav-logo-img">
+        </div>
+        <div class="nav-logo-sep"></div>
+        <div class="nav-logo-text">
+          <span class="nav-logo-name">Sri Vasavi Interiors and Exteriors</span>
+          <span class="nav-logo-sub">Innovative Ideas · Stylish Designs</span>
+        </div>
+      </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-a">Home</a>
+      <a href="about.html" class="nav-a">About</a>
+      <a href="services.html" class="nav-a">Services</a>
+      <div class="nav-drop">
+        <a href="products.html" class="nav-a">Products
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-left:3px"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+        <div class="nav-drop-panel">
+          <a href="products.html" class="nav-drop-a">Our Range of Products</a>
+          <a href="furniture.html" class="nav-drop-a">Modular Furniture</a>
+          <a href="electronics.html" class="nav-drop-a">Electronics &amp; Appliances</a>
+        </div>
+      </div>
+      <a href="gallery.html" class="nav-a on">Gallery</a>
+      <a href="contact.html" class="nav-a">Contact</a>
+    </div>
+    <div class="nav-cta">
+      <a href="contact.html" class="btn btn-gold">Book Consultation
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+    <button class="nav-burger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div></div>
+</nav>
+<div class="nav-drawer">
+  <button class="nav-close">✕</button>
+  <a href="index.html" class="nav-drawer-link">Home</a>
+  <a href="about.html" class="nav-drawer-link">About</a>
+  <a href="services.html" class="nav-drawer-link">Services</a>
+  <a href="products.html" class="nav-drawer-link">Products</a>
+  <a href="furniture.html" class="nav-drawer-sub">↳ Modular Furniture</a>
+  <a href="electronics.html" class="nav-drawer-sub">↳ Electronics &amp; Appliances</a>
+  <a href="gallery.html" class="nav-drawer-link on">Gallery</a>
+  <a href="contact.html" class="nav-drawer-link">Contact</a>
+  <div style="margin-top:32px"><a href="contact.html" class="btn btn-gold">Book Consultation</a></div>
+</div>
+
+<!-- PAGE HERO -->
+<div class="gal-hero">
+  <div class="wrap">
+    <div class="gal-hero-content">
+      <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>Portfolio</span>
+      </div>
+      <h1 style="font-family:var(--font-display);font-size:clamp(2.8rem,6vw,4.5rem);font-weight:600;color:var(--cream);line-height:1.05;margin-bottom:16px">
+        Our <em style="font-style:italic;color:var(--gold)">Portfolio</em>
+      </h1>
+      <p style="font-size:.97rem;color:rgba(245,239,230,.85);max-width:540px;line-height:1.75" data-cms="gallery_page.hero_sub">
+        Real work. Real spaces. Every photo is from an actual SVIE project — our premium interior designs, construction work, and finishes delivered across Bengaluru since 2017.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<section class="sec">
+  <div class="wrap">
+
+    <!-- Filter bar -->
+    <div class="gal-filters">
+      <button class="gal-chip active" data-f="all">All Projects</button>
+      <button class="gal-chip" data-f="interior">Interiors</button>
+      <button class="gal-chip" data-f="design">Premium Design</button>
+      <button class="gal-chip" data-f="construction">Construction</button>
+      <button class="gal-chip" data-f="exterior">Exteriors</button>
+      <span class="gal-count" id="gal-count">18 Projects</span>
+    </div>
+
+    <!-- 18 photos directly from svie5.com (g01–g18) -->
+    <div class="gal-masonry" id="gal-masonry">
+
+      <!-- 1 -->
+      <div class="gal-card reveal" data-cat="interior"
+           data-title="Top Class Interiors — SVIE" data-tag="SVIE Project · Interior Design">
+        <img src="images/gallery/g01.jpg" alt="Top class interior design project by SVIE Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Interior Design</div>
+          <div class="gal-title">Top Class Interiors</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 2 -->
+      <div class="gal-card reveal d2" data-cat="design"
+           data-title="Premium Design — SVIE" data-tag="SVIE Project · Premium Design">
+        <img src="images/gallery/g02.jpg" alt="Premium interior design work by SVIE Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Premium Design</div>
+          <div class="gal-title">Premium Design — SVIE</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 3 -->
+      <div class="gal-card reveal d3" data-cat="construction"
+           data-title="Quality Construction Project" data-tag="SVIE Project · Construction">
+        <img src="images/gallery/g03.jpg" alt="Quality construction project by SVIE Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Construction</div>
+          <div class="gal-title">Quality Construction Project</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 4 -->
+      <div class="gal-card reveal" data-cat="interior"
+           data-title="SVIE Craftsmanship" data-tag="SVIE Project · Interior Design">
+        <img src="images/gallery/g04.jpg" alt="SVIE craftsmanship interior design Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Interior Design</div>
+          <div class="gal-title">SVIE Craftsmanship</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 5 -->
+      <div class="gal-card reveal d2" data-cat="design"
+           data-title="Quality Design — Bengaluru" data-tag="SVIE Project · Quality Design">
+        <img src="images/gallery/g05.jpg" alt="Quality interior design by SVIE Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Quality Design</div>
+          <div class="gal-title">Quality Design — Bengaluru</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 6 -->
+      <div class="gal-card reveal d3" data-cat="design"
+           data-title="Premium Interiors — SVIE" data-tag="SVIE Project · Premium Interiors">
+        <img src="images/gallery/g06.jpg" alt="Premium interiors design by SVIE Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Premium Interiors</div>
+          <div class="gal-title">Premium Interiors — SVIE</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 7 -->
+      <div class="gal-card reveal" data-cat="construction"
+           data-title="Project Execution — SVIE" data-tag="SVIE Project · Construction">
+        <img src="images/gallery/g07.jpg" alt="SVIE project execution construction Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Construction</div>
+          <div class="gal-title">Project Execution — SVIE</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 8 (webp) -->
+      <div class="gal-card reveal d2" data-cat="design"
+           data-title="Stylish Design — SVIE" data-tag="SVIE Project · Stylish Design">
+        <img src="images/gallery/g08.webp" alt="Stylish interior design project by SVIE Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Stylish Design</div>
+          <div class="gal-title">Stylish Design — SVIE</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 9 -->
+      <div class="gal-card reveal d3" data-cat="interior"
+           data-title="Crafted Spaces — SVIE" data-tag="SVIE Project · Interior Design">
+        <img src="images/gallery/g09.jpg" alt="Crafted interior spaces by SVIE Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Interior Design</div>
+          <div class="gal-title">Crafted Spaces — SVIE</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 10 -->
+      <div class="gal-card reveal" data-cat="interior"
+           data-title="Premium Interior Finish" data-tag="SVIE Project · Interior Finish">
+        <img src="images/gallery/g10.jpg" alt="Premium interior finish work by SVIE Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Interior Finish</div>
+          <div class="gal-title">Premium Interior Finish</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 11 -->
+      <div class="gal-card reveal d2" data-cat="construction"
+           data-title="Site &amp; Construction Work" data-tag="SVIE Project · Construction">
+        <img src="images/gallery/g11.jpg" alt="SVIE construction site work Bengaluru project" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Construction</div>
+          <div class="gal-title">Site &amp; Construction Work</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 12 -->
+      <div class="gal-card reveal d3" data-cat="exterior"
+           data-title="Exterior Design — SVIE" data-tag="SVIE Project · Exterior">
+        <img src="images/gallery/g12.jpg" alt="Exterior design work by SVIE Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Exterior Design</div>
+          <div class="gal-title">Exterior Design — SVIE</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 13 -->
+      <div class="gal-card reveal" data-cat="design"
+           data-title="Designer Showcase — SVIE" data-tag="SVIE Project · Design Showcase">
+        <img src="images/gallery/g13.jpg" alt="SVIE designer showcase interior Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Design Showcase</div>
+          <div class="gal-title">Designer Showcase — SVIE</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 14 -->
+      <div class="gal-card reveal d2" data-cat="exterior"
+           data-title="Premium Exterior Finish" data-tag="SVIE Project · Exterior">
+        <img src="images/gallery/g14.jpg" alt="Premium exterior finish by SVIE Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Exterior Finish</div>
+          <div class="gal-title">Premium Exterior Finish</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 15 -->
+      <div class="gal-card reveal d3" data-cat="interior"
+           data-title="Interior Detailing — SVIE" data-tag="SVIE Project · Interior Detail">
+        <img src="images/gallery/g15.jpg" alt="Interior detailing work by SVIE Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Interior Detail</div>
+          <div class="gal-title">Interior Detailing — SVIE</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 16 -->
+      <div class="gal-card reveal" data-cat="design"
+           data-title="SVIE Project Showcase" data-tag="SVIE Project · Design">
+        <img src="images/gallery/g16.jpg" alt="SVIE project showcase design Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Design</div>
+          <div class="gal-title">SVIE Project Showcase</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 17 -->
+      <div class="gal-card reveal d2" data-cat="construction"
+           data-title="Planning &amp; Execution" data-tag="SVIE Project · Construction">
+        <img src="images/gallery/g17.jpg" alt="SVIE planning and execution construction Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Construction</div>
+          <div class="gal-title">Planning &amp; Execution</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+      <!-- 18 -->
+      <div class="gal-card reveal d3" data-cat="interior"
+           data-title="Finished Interior — SVIE" data-tag="SVIE Project · Completed Interior">
+        <img src="images/gallery/g18.jpg" alt="Finished interior project completed by SVIE Bengaluru" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-label">Completed Interior</div>
+          <div class="gal-title">Finished Interior — SVIE</div>
+        </div>
+        <div class="svie-badge">SVIE Project</div>
+        <div class="gal-expand">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+      </div>
+
+    </div><!-- /gal-masonry -->
+
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec">
+  <div class="wrap"><div class="cta-inner">
+    <div class="eyebrow reveal" style="justify-content:center">Your Space Next</div>
+    <h2 class="cta-quote reveal d1">
+      Like what you see?<br>
+      <em>Let's build yours in Bengaluru.</em>
+    </h2>
+    <p class="cta-body reveal d2" data-cms="gallery_page.cta_body">
+      Every photo above is a real SVIE project. Contact us to start yours — from concept to completion, we deliver quality that lasts.
+    </p>
+    <div class="cta-btns reveal d3">
+      <a href="contact.html" class="btn btn-gold">
+        Book Free Consultation
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="services.html" class="btn btn-ghost">Our Services</a>
+    </div>
+  </div></div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer"><div class="footer-topline"></div><div class="wrap">
+  <div class="footer-grid">
+    <div class="footer-brand-col">
+      <div class="footer-brand-name" data-cms="site.name">Sri Vasavi Interiors and Exteriors</div>
+      <div class="footer-brand-tag" data-cms="site.tagline">Innovative Ideas · Stylish Designs</div>
+      <div class="footer-brand-pip"></div>
+      <p class="footer-brand-desc" data-cms="site.description">Bengaluru's trusted interior design and construction company, delivering exceptional spaces since 2017 with ISO-certified quality and sustainable practices.</p>
+      <p class="footer-follow-label">Follow Us</p>
+      <div class="footer-socials">
+        <a href="https://www.facebook.com/SVIEBLR/" class="footer-soc" target="_blank" rel="noopener" aria-label="Facebook"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        <a href="https://instagram.com/svie.blr" class="footer-soc" target="_blank" rel="noopener" aria-label="Instagram"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+        <a href="https://twitter.com/kiran4u1982" class="footer-soc" target="_blank" rel="noopener" aria-label="Twitter / X"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+        <a href="https://wa.me/919513961740" class="footer-soc" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-contact-col">
+      <div class="footer-col-head">Get In Touch</div>
+      <a href="https://maps.google.com/?q=Venus+World,+172+A+B+%26+E,+Link+Road,+5th+Cross+Rd,+Malleshwaram,+Bengaluru,+Karnataka+560003" class="f-contact-item f-clink" target="_blank" rel="noopener"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="f-contact-text"><strong>Visit Us</strong><span data-cms="site.address">172 A, B &amp; E, Link Road, 5th Cross Rd, Malleshwaram, Bengaluru, Karnataka 560003</span></div></a>
+      <a href="tel:+919513961740" class="f-contact-item f-clink"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 19z"/></svg></div><div class="f-contact-text"><strong>Call Us</strong><span data-cms="site.phone1">+91 95139 61740</span> / <span data-cms="site.phone2">+91 98455 81156</span></div></a>
+      <a href="mailto:svie.blr5@gmail.com" class="f-contact-item f-clink"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="f-contact-text"><strong>Email Us</strong><span data-cms="site.email">svie.blr5@gmail.com</span></div></a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Sri Vasavi Interiors and Exteriors. All rights reserved.</div>
+        <div class="footer-btm-links">
+      <a href="privacy-policy.html" class="footer-btm-link">Privacy Policy</a>
+      <a href="terms-of-service.html" class="footer-btm-link">Terms of Service</a>
+    </div>
+  </div>
+</div></footer>
+
+<script src="script.js"></script>
+<script src="cms-loader.js"></script>
+<script>
+(function(){
+  var lb    = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lb-img');
+  var lbTit = document.getElementById('lb-title');
+  var lbCat = document.getElementById('lb-cat');
+  var lbIdx = document.getElementById('lb-index');
+  var cur=0, vis=[];
+
+  /* ── Escape HTML ── */
+  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  /* ── Build a card HTML string from a CMS gallery item ── */
+  var delays = ['','d2','d3','','d2','d3'];
+  function cardHtml(item, i){
+    return '<div class="gal-card reveal '+delays[i%delays.length]+'" '+
+      'data-cat="'+esc(item.category||'design')+'" '+
+      'data-title="'+esc(item.title)+'" '+
+      'data-tag="SVIE Project · '+esc(item.tag)+'">' +
+      '<img src="'+esc(item.src)+'" alt="'+esc(item.title)+' — SVIE Bengaluru" loading="lazy">' +
+      '<div class="gal-overlay">' +
+        '<div class="gal-label">'+esc(item.tag)+'</div>' +
+        '<div class="gal-title">'+esc(item.title)+'</div>' +
+      '</div>' +
+      '<div class="svie-badge">SVIE Project</div>' +
+      '<div class="gal-expand">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
+          '<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>' +
+          '<line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>' +
+        '</svg>' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* ── Init filter + lightbox (called after any render) ── */
+  function initGallery(){
+    var chips = document.querySelectorAll('.gal-chip');
+    var cards = document.querySelectorAll('.gal-card[data-cat]');
+    var countEl = document.getElementById('gal-count');
+
+    function recount(f){
+      var n = f==='all' ? cards.length : [].filter.call(cards,function(c){return c.dataset.cat===f;}).length;
+      countEl.textContent = n + ' Project' + (n!==1?'s':'');
+    }
+
+    chips.forEach(function(chip){
+      chip.addEventListener('click',function(){
+        chips.forEach(function(c){c.classList.remove('active');});
+        chip.classList.add('active');
+        var f = chip.dataset.f;
+        cards.forEach(function(card){
+          var show = f==='all'||card.dataset.cat===f;
+          card.style.display = show?'':'none';
+          if(show){ card.style.opacity='0'; setTimeout(function(){ card.style.opacity='1'; card.style.transition='opacity .38s ease'; },12); }
+        });
+        recount(f);
+      });
+    });
+
+    /* Lightbox */
+    function openLb(i){
+      cur=i; var c=vis[i];
+      var img=c.querySelector('img');
+      lbImg.src=img.src; lbImg.alt=img.alt;
+      lbTit.textContent=c.dataset.title;
+      lbCat.textContent=c.dataset.tag;
+      lbIdx.textContent=(i+1)+' / '+vis.length;
+      lb.classList.add('open');
+      document.body.style.overflow='hidden';
+    }
+    function closeLb(){
+      lb.classList.remove('open');
+      document.body.style.overflow='';
+      setTimeout(function(){lbImg.src='';},300);
+    }
+    function step(d){ cur=(cur+d+vis.length)%vis.length; openLb(cur); }
+
+    cards.forEach(function(c){
+      c.addEventListener('click',function(){
+        vis=[].filter.call(cards,function(x){return x.style.display!=='none';});
+        openLb(vis.indexOf(c));
+      });
+    });
+
+    document.getElementById('lb-close').onclick = closeLb;
+    document.getElementById('lb-prev').onclick = function(){step(-1);};
+    document.getElementById('lb-next').onclick = function(){step(1);};
+    lb.onclick = function(e){ if(e.target===lb) closeLb(); };
+
+    /* Count badge */
+    recount('all');
+  }
+
+  /* ── Try to render from CMS, fall back to static HTML ── */
+  fetch('/data/content.json')
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(data){
+      var items = data && data.gallery;
+      if(!items || !items.length){ initGallery(); return; }
+
+      var masonry = document.getElementById('gal-masonry');
+      masonry.innerHTML = items.map(cardHtml).join('');
+
+      /* Re-run script.js reveal observer on new cards */
+      if(window.revealObserver){
+        document.querySelectorAll('.gal-card.reveal').forEach(function(el){
+          window.revealObserver.observe(el);
+        });
+      }
+
+      initGallery();
+    })
+    .catch(function(){ initGallery(); }); /* static fallback on error */
+
+  /* ── Keyboard nav ── */
+  document.addEventListener('keydown',function(e){
+    if(!lb.classList.contains('open')) return;
+    if(e.key==='Escape'){ lb.classList.remove('open'); document.body.style.overflow=''; }
+    if(e.key==='ArrowLeft'){ cur=(cur-1+vis.length)%vis.length; }
+    if(e.key==='ArrowRight'){ cur=(cur+1)%vis.length; }
+    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
+      var img=vis[cur].querySelector('img');
+      lbImg.src=img.src; lbImg.alt=img.alt;
+      lbTit.textContent=vis[cur].dataset.title;
+      lbCat.textContent=vis[cur].dataset.tag;
+      lbIdx.textContent=(cur+1)+' / '+vis.length;
+    }
+  });
+})();
+</script>
+
+<script>
+/* GA4 engagement event tracking */
+document.addEventListener('DOMContentLoaded',function(){
+  /* WhatsApp float */
+  var wa=document.querySelector('.wa-float');
+  if(wa)wa.addEventListener('click',function(){if(typeof gtag!=='undefined')gtag('event','click',{event_category:'engagement',event_label:'whatsapp_float',value:1});});
+  /* Call float */
+  var cf=document.querySelector('.call-float');
+  if(cf)cf.addEventListener('click',function(){if(typeof gtag!=='undefined')gtag('event','click',{event_category:'engagement',event_label:'call_float',value:1});});
+  /* Tel links */
+  document.querySelectorAll('a[href^="tel:"]').forEach(function(el){
+    el.addEventListener('click',function(){if(typeof gtag!=='undefined')gtag('event','click',{event_category:'conversion',event_label:'phone_click',value:1});});
+  });
+  /* Email links */
+  document.querySelectorAll('a[href^="mailto:"]').forEach(function(el){
+    el.addEventListener('click',function(){if(typeof gtag!=='undefined')gtag('event','click',{event_category:'conversion',event_label:'email_click',value:1});});
+  });
+  /* Contact form submit */
+  var form=document.getElementById('contact-form');
+  if(form)form.addEventListener('submit',function(){if(typeof gtag!=='undefined')gtag('event','generate_lead',{event_category:'conversion',event_label:'contact_form',value:1});});
+});
+</script>
+<script src="/visitor-tracker.js" defer></script>
+</body>
+</html>

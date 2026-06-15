@@ -1,0 +1,537 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="images/logo.png" type="image/png">
+<link rel="apple-touch-icon" href="images/logo.png">
+<meta name="theme-color" content="#0C2C1B">
+<meta name="author" content="Sri Vasavi Interiors and Exteriors">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Venus World — Electronics and Home Appliances in Malleswaram, Bengaluru. 38+ years of legacy, top brands Samsung, LG, Sony, Bosch and more.">
+<title>Electronics &amp; Appliances — Venus World by SVIE</title>
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://svie5.com/electronics.html">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/fonts.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sri Vasavi Interiors and Exteriors">
+<meta property="og:locale" content="en_IN">
+<meta property="og:title" content="Electronics & Appliances — Venus World by SVIE">
+<meta property="og:description" content="Venus World — Electronics and Home Appliances in Malleswaram, Bengaluru. 38+ years of legacy, top brands Samsung, LG, Sony, Bosch and more.">
+<meta property="og:url" content="https://svie5.com/electronics.html">
+<meta property="og:image" content="https://svie5.com/images/og-default.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Venus World Electronics — Malleswaram, Bengaluru">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@kiran4u1982">
+<meta name="twitter:title" content="Electronics & Appliances — Venus World by SVIE">
+<meta name="twitter:description" content="Venus World — Electronics and Home Appliances in Malleswaram, Bengaluru. 38+ years of legacy, top brands Samsung, LG, Sony, Bosch and more.">
+<meta name="twitter:image" content="https://svie5.com/images/og-default.jpg">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":["Store","ElectronicsStore"],"name":"Venus World","description":"Electronics and Home Appliances in Malleswaram, Bengaluru. 38+ years of legacy.","parentOrganization":{"@id":"https://svie5.com/#business"},"address":{"@type":"PostalAddress","streetAddress":"172 A, B & E, Link Road, 5th Cross Rd, Malleshwaram","addressLocality":"Bengaluru","addressRegion":"Karnataka","postalCode":"560003","addressCountry":"IN"},"telephone":"+919513961740","url":"https://svie5.com/electronics.html"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://svie5.com/"},{"@type":"ListItem","position":2,"name":"Products","item":"https://svie5.com/products.html"},{"@type":"ListItem","position":3,"name":"Electronics & Appliances","item":"https://svie5.com/electronics.html"}]}]}
+</script>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ── Electronics Category Photo Cards ── */
+.elec-cat-photo{
+  margin:-28px -30px 22px;
+  height:190px;
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
+  overflow:hidden;
+  position:relative;
+}
+.elec-cat-photo img{
+  width:100%;height:100%;
+  object-fit:cover;display:block;
+  transition:transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.elec-cat:hover .elec-cat-photo img{transform:scale(1.06)}
+.elec-cat-photo-badge{
+  position:absolute;bottom:10px;left:12px;
+  display:flex;gap:6px;flex-wrap:wrap;
+}
+.elec-cat-photo-brand{
+  font-family:var(--font-sans);font-size:0.6rem;font-weight:800;
+  letter-spacing:0.1em;text-transform:uppercase;
+  background:rgba(9,17,12,0.72);
+  color:rgba(255,255,255,0.9);
+  backdrop-filter:blur(4px);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:4px;padding:3px 8px;
+}
+
+/* ── Editorial Legacy Card ── */
+.elec-legacy-card{
+  position:relative;height:480px;
+  border-radius:var(--r-xl);overflow:hidden;
+  box-shadow:0 24px 64px rgba(12,44,27,0.4);
+}
+.elec-legacy-card-bg{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;object-position:80% center;
+  display:block;
+}
+.elec-legacy-card-grad{
+  position:absolute;inset:0;
+  background:linear-gradient(to right,
+    rgba(9,17,12,0.99) 0%,
+    rgba(9,17,12,0.95) 35%,
+    rgba(9,17,12,0.72) 58%,
+    rgba(9,17,12,0.2) 78%,
+    transparent 100%
+  );
+}
+.elec-legacy-card-content{
+  position:absolute;inset:0;
+  padding:44px 48px;
+  display:flex;flex-direction:column;
+  justify-content:center;
+  width:58%;
+}
+.elec-legacy-eyebrow{
+  font-family:var(--font-sans);font-size:0.6rem;
+  font-weight:700;letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:rgba(201,160,90,0.65);
+  white-space:nowrap;
+  margin-bottom:8px;
+}
+.elec-legacy-num{
+  font-family:var(--font-display);
+  font-size:7rem;font-weight:700;
+  color:var(--gold);line-height:0.85;
+  margin-bottom:8px;
+}
+.elec-legacy-yrs{
+  font-family:var(--font-sans);font-size:0.63rem;
+  font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+  color:rgba(245,239,230,0.42);
+  white-space:nowrap;
+  margin-bottom:24px;
+}
+.elec-legacy-rule{
+  width:40px;height:2px;
+  background:var(--gold);opacity:0.45;
+  margin-bottom:24px;
+}
+.elec-legacy-stats{
+  display:flex;align-items:flex-start;
+  gap:0;margin-bottom:24px;
+}
+.elec-legacy-stat{
+  flex:1;padding-right:16px;
+}
+.elec-legacy-stat+.elec-legacy-stat{
+  padding-left:16px;padding-right:0;
+  border-left:1px solid rgba(201,160,90,0.18);
+}
+.elec-legacy-sv{
+  font-family:var(--font-display);
+  font-size:2rem;font-weight:700;
+  color:var(--gold);line-height:1;
+  margin-bottom:4px;
+}
+.elec-legacy-sl{
+  font-family:var(--font-sans);font-size:0.57rem;
+  font-weight:600;letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:rgba(245,239,230,0.38);
+  line-height:1.4;
+}
+.elec-legacy-pills{
+  display:flex;flex-wrap:wrap;gap:6px;
+}
+.elec-legacy-pill{
+  font-family:var(--font-sans);font-size:0.58rem;
+  font-weight:700;letter-spacing:0.09em;text-transform:uppercase;
+  color:rgba(201,160,90,0.85);
+  background:rgba(201,160,90,0.08);
+  border:1px solid rgba(201,160,90,0.2);
+  border-radius:var(--r-full);
+  padding:3px 11px;
+}
+.elec-legacy-caption{
+  position:absolute;bottom:16px;right:20px;
+  font-family:var(--font-sans);font-size:0.55rem;
+  font-weight:600;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(245,239,230,0.22);
+}
+
+/* Brand tiles — enhance for showroom premium feel */
+.brand-tile-logo{
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:6px;
+  padding:18px 12px;
+  background:var(--white);
+  border:1px solid var(--light-gray);
+  border-radius:var(--r-lg);
+  transition:var(--t);cursor:default;
+  min-height:80px;
+}
+.brand-tile-logo:hover{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(201,160,90,0.1);
+  transform:translateY(-3px);
+}
+.brand-tile-logo-name{
+  font-family:var(--font-sans);font-size:0.72rem;
+  font-weight:800;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--charcoal);
+}
+.brand-tile-logo-cat{
+  font-family:var(--font-body);font-size:0.65rem;
+  color:#2B4437;
+}
+
+@media(max-width:1024px){
+  .elec-legacy-card-content{width:70%;padding:36px 38px}
+  .elec-legacy-num{font-size:5.5rem}
+  .elec-legacy-eyebrow{font-size:0.55rem;white-space:normal}
+}
+@media(max-width:700px){
+  .elec-cat-photo{height:150px}
+  .elec-legacy-card{height:auto;min-height:400px}
+  .elec-legacy-card-bg{object-position:center}
+  .elec-legacy-card-grad{
+    background:linear-gradient(to bottom,
+      rgba(9,17,12,0.97) 0%,rgba(9,17,12,0.9) 60%,rgba(9,17,12,0.5) 100%
+    );
+  }
+  .elec-legacy-card-content{width:100%;padding:28px 24px;position:relative;inset:auto}
+  .elec-legacy-eyebrow{white-space:normal}
+  .elec-legacy-num{font-size:4.5rem}
+  .elec-legacy-yrs{white-space:normal}
+  .elec-legacy-caption{display:none}
+}
+</style>
+
+<!-- Google Analytics 4 | replace G-XXXXXXXXXX with your Measurement ID after GSC setup -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js',new Date());
+  gtag('config','G-XXXXXXXXXX');
+</script>
+</head>
+<body>
+<div class="cursor"></div><div class="cursor-ring"></div>
+<a href="https://wa.me/919513961740" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+<a href="tel:+919513961740" class="call-float" id="callFloat" aria-label="Call Us"><div class="call-float-pulse"></div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 19z"/></svg><span class="call-float-tooltip">Call Us &middot; +91 95139 61740</span></a>
+<nav class="nav" id="nav"><div class="wrap"><div class="nav-inner">
+  <a href="index.html" class="nav-logo">
+        <div class="nav-logo-img-wrap">
+          <img src="images/logo.png" alt="SVIE Logo" class="nav-logo-img">
+        </div>
+        <div class="nav-logo-sep"></div>
+        <div class="nav-logo-text">
+          <span class="nav-logo-name">Sri Vasavi Interiors and Exteriors</span>
+          <span class="nav-logo-sub">Innovative Ideas · Stylish Designs</span>
+        </div>
+      </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-a">Home</a><a href="about.html" class="nav-a">About</a><a href="services.html" class="nav-a">Services</a>
+    <div class="nav-drop"><a href="products.html" class="nav-a on">Products <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-left:3px"><polyline points="6 9 12 15 18 9"/></svg></a><div class="nav-drop-panel"><a href="products.html" class="nav-drop-a">Our Range of Products</a><a href="furniture.html" class="nav-drop-a">Modular Furniture</a><a href="electronics.html" class="nav-drop-a">Electronics &amp; Appliances</a></div></div>
+    <a href="gallery.html" class="nav-a">Gallery</a><a href="contact.html" class="nav-a">Contact</a>
+  </div>
+  <div class="nav-cta"><a href="contact.html" class="btn btn-gold">Book Consultation <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+  <button class="nav-burger" aria-label="Open menu"><span></span><span></span><span></span></button>
+</div></div></nav>
+<div class="nav-drawer"><button class="nav-close">✕</button><a href="index.html" class="nav-drawer-link">Home</a><a href="about.html" class="nav-drawer-link">About</a><a href="services.html" class="nav-drawer-link">Services</a><a href="products.html" class="nav-drawer-link">Products</a><a href="furniture.html" class="nav-drawer-sub">↳ Modular Furniture</a><a href="electronics.html" class="nav-drawer-sub">↳ Electronics &amp; Appliances</a><a href="gallery.html" class="nav-drawer-link">Gallery</a><a href="contact.html" class="nav-drawer-link">Contact</a><div style="margin-top:32px"><a href="contact.html" class="btn btn-gold">Book Consultation</a></div></div>
+
+<section class="pg-hero" style="background:linear-gradient(135deg,#0C2C1B,#1a1a35)">
+  <div class="wrap"><div class="pg-hero-inner">
+    <div class="breadcrumb"><a href="index.html">Home</a><span class="breadcrumb-sep">/</span><a href="products.html">Products</a><span class="breadcrumb-sep">/</span><span>Electronics &amp; Appliances</span></div>
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(201,160,90,.1);border:1px solid rgba(201,160,90,.25);border-radius:var(--r-full);padding:5px 14px;margin-bottom:20px">
+      <span style="font-family:var(--font-sans);font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)">⚡ Venus World — Partner Showroom</span>
+    </div>
+    <h1 class="pg-hero-title">Electronics &amp;<br><em style="font-style:italic;color:var(--gold)">Home Appliances</em></h1>
+    <p class="pg-hero-sub" data-cms="electronics_page.hero_sub">38+ years of legacy in Malleswaram. Your trusted destination for top-brand electronics in Bengaluru.</p>
+  </div></div>
+</section>
+
+<!-- LEGACY -->
+<section class="sec">
+  <div class="wrap">
+    <div class="resp-split">
+      <div>
+        <div class="eyebrow reveal">Venus World</div>
+        <h2 class="d2 reveal d1">Our<br><em class="italic-gold">38-Year Legacy</em></h2>
+        <div class="pip reveal d2"></div>
+        <p class="body-lg reveal d3" style="margin-bottom:16px" data-cms="electronics_page.legacy_body1">Located in the heart of Malleswaram, Venus World has been serving the people of Bengaluru for over 38 years with an unwavering focus on customer satisfaction, competitive pricing, quality service, and swift delivery.</p>
+        <p class="body-md reveal d3" style="margin-bottom:16px" data-cms="electronics_page.legacy_body2">Venus World is owned by one of the partners of Sri Vasavi Interiors and Exteriors, making it a trusted part of the SVIE family. Together, we offer a truly comprehensive solution for your home and office needs.</p>
+        <p class="body-md reveal d3" data-cms="electronics_page.legacy_body3">We serve customers across the Karnataka region, with two showroom locations in Malleswaram — the second near Sai Baba Temple, specialising in Duroflex mattresses and bedding solutions.</p>
+
+        <!-- Stats -->
+        <div style="display:flex;gap:32px;margin-top:36px;padding-top:32px;border-top:1px solid var(--light-gray);align-items:flex-end">
+          <div class="reveal d3">
+            <div style="font-family:var(--font-display);font-size:2.5rem;font-weight:700;color:var(--gold-dark);line-height:1" data-count="38" data-suf="+" data-cms="electronics_page.stat1_value">38+</div>
+            <div style="font-family:var(--font-sans);font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#2B4437;margin-top:4px" data-cms="electronics_page.stat1_label">Years of Legacy</div>
+          </div>
+          <div class="reveal d4">
+            <div style="font-family:var(--font-display);font-size:2.5rem;font-weight:700;color:var(--gold-dark);line-height:1" data-cms="electronics_page.stat2_value">2</div>
+            <div style="font-family:var(--font-sans);font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#2B4437;margin-top:4px" data-cms="electronics_page.stat2_label">Showrooms</div>
+          </div>
+          <div class="reveal d5">
+            <div style="font-family:var(--font-sans);font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2B4437;line-height:1.5">Top Leading Brands<br>Across India</div>
+          </div>
+        </div>
+      </div>
+      <div class="elec-legacy-card reveal reveal-r">
+        <img class="elec-legacy-card-bg"
+          src="images/venus-world-showroom.png"
+          data-cms-src="electronics_page.images.showroom"
+          alt="Venus World Electronics Showroom — LG Samsung Sony Malleswaram Bengaluru"
+          loading="lazy">
+        <div class="elec-legacy-card-grad"></div>
+        <div class="elec-legacy-card-content">
+          <div class="elec-legacy-eyebrow">Venus World &nbsp;·&nbsp; Est. 1986 &nbsp;·&nbsp; Malleswaram</div>
+          <div class="elec-legacy-num">38</div>
+          <div class="elec-legacy-yrs">Years of Trusted Service</div>
+          <div class="elec-legacy-rule"></div>
+          <div class="elec-legacy-stats">
+            <div class="elec-legacy-stat">
+              <div class="elec-legacy-sv">2</div>
+              <div class="elec-legacy-sl">Showrooms<br>in Bengaluru</div>
+            </div>
+            <div class="elec-legacy-stat">
+              <div class="elec-legacy-sv" style="font-size:1rem;line-height:1.25;margin-bottom:4px;font-family:var(--font-sans);font-weight:800;color:var(--gold)">Top Leading<br>Brands</div>
+              <div class="elec-legacy-sl">Across India</div>
+            </div>
+            <div class="elec-legacy-stat">
+              <div class="elec-legacy-sv" style="font-size:1rem;line-height:1.25;margin-bottom:4px;font-family:var(--font-sans);font-weight:700;color:rgba(245,239,230,0.75)">Malleswaram<br>Bengaluru</div>
+              <div class="elec-legacy-sl">Our Location</div>
+            </div>
+          </div>
+          <div class="elec-legacy-pills">
+            <span class="elec-legacy-pill">LG</span>
+            <span class="elec-legacy-pill">Samsung</span>
+            <span class="elec-legacy-pill">Sony</span>
+            <span class="elec-legacy-pill">Bosch</span>
+            <span class="elec-legacy-pill">IFB</span>
+            <span class="elec-legacy-pill">Whirlpool</span>
+            <span class="elec-legacy-pill">Bajaj</span>
+            <span class="elec-legacy-pill">Prestige</span>
+          </div>
+        </div>
+        <div class="elec-legacy-caption">Venus World · Malleswaram, Bengaluru</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT CATEGORIES -->
+<section class="sec sec-cream">
+  <div class="wrap">
+    <div style="text-align:center;max-width:560px;margin:0 auto">
+      <div class="eyebrow reveal" style="justify-content:center">What We Offer</div>
+      <h2 class="d2 reveal d1">Our Product<br><em class="italic-gold">Categories</em></h2>
+    </div>
+    <div class="elec-cats">
+      <div class="elec-cat reveal">
+        <div class="elec-cat-photo">
+          <img
+            src="https://images.pexels.com/photos/18495290/pexels-photo-18495290.jpeg?auto=compress&cs=tinysrgb&w=700"
+            alt="Samsung LG Sony MI Smart TV wall-mounted black screen — Entertainment Electronics Venus World"
+            loading="lazy">
+          <div class="elec-cat-photo-badge">
+            <span class="elec-cat-photo-brand">Samsung</span>
+            <span class="elec-cat-photo-brand">Sony</span>
+            <span class="elec-cat-photo-brand">LG</span>
+            <span class="elec-cat-photo-brand">MI</span>
+          </div>
+        </div>
+        <div class="elec-cat-hd">
+          <div class="elec-cat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="elec-cat-title" data-cms="electronics_page.cat1_title">Entertainment &amp; Audio</div>
+        </div>
+        <div class="elec-cat-items" data-cms="electronics_page.cat1_items">Televisions (Smart, OLED, QLED), music systems, DVD players, home theatre systems, and multimedia accessories.</div>
+        <div class="elec-brands">
+          <span class="elec-brand-tag">Samsung</span><span class="elec-brand-tag">Sony</span><span class="elec-brand-tag">LG</span><span class="elec-brand-tag">MI</span>
+        </div>
+      </div>
+      <div class="elec-cat reveal d2">
+        <div class="elec-cat-photo">
+          <img
+            src="https://images.pexels.com/photos/7587369/pexels-photo-7587369.jpeg?auto=compress&cs=tinysrgb&w=700"
+            alt="Elica Faber Bosch kitchen chimney range hood — Kitchen Cooking Appliances Venus World"
+            loading="lazy">
+          <div class="elec-cat-photo-badge">
+            <span class="elec-cat-photo-brand">Bosch</span>
+            <span class="elec-cat-photo-brand">IFB</span>
+            <span class="elec-cat-photo-brand">Prestige</span>
+            <span class="elec-cat-photo-brand">Elica</span>
+            <span class="elec-cat-photo-brand">Faber</span>
+          </div>
+        </div>
+        <div class="elec-cat-hd">
+          <div class="elec-cat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2h18v4H3z"/><path d="M5 6v14a1 1 0 001 1h12a1 1 0 001-1V6"/><path d="M9 6v4m6-4v4"/></svg>
+          </div>
+          <div class="elec-cat-title" data-cms="electronics_page.cat2_title">Kitchen &amp; Cooking</div>
+        </div>
+        <div class="elec-cat-items" data-cms="electronics_page.cat2_items">Microwave ovens, gas stoves, mixers, wet grinders, dishwashers, toasters, electric chimneys, and kitchen accessories.</div>
+        <div class="elec-brands">
+          <span class="elec-brand-tag">Bosch</span><span class="elec-brand-tag">IFB</span><span class="elec-brand-tag">Prestige</span><span class="elec-brand-tag">Elica</span><span class="elec-brand-tag">Faber</span><span class="elec-brand-tag">Bajaj</span>
+        </div>
+      </div>
+      <div class="elec-cat reveal d2">
+        <div class="elec-cat-photo">
+          <img
+            src="https://images.pexels.com/photos/19846385/pexels-photo-19846385.jpeg?auto=compress&cs=tinysrgb&w=700"
+            alt="Samsung LG Whirlpool IFB Kenstar washing machine refrigerator — Home Essentials Venus World"
+            loading="lazy">
+          <div class="elec-cat-photo-badge">
+            <span class="elec-cat-photo-brand">Samsung</span>
+            <span class="elec-cat-photo-brand">LG</span>
+            <span class="elec-cat-photo-brand">Whirlpool</span>
+            <span class="elec-cat-photo-brand">IFB</span>
+          </div>
+        </div>
+        <div class="elec-cat-hd">
+          <div class="elec-cat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div class="elec-cat-title" data-cms="electronics_page.cat3_title">Home Essentials</div>
+        </div>
+        <div class="elec-cat-items" data-cms="electronics_page.cat3_items">Refrigerators (single door, double door, side-by-side), washing machines (top-load, front-load), stabilizers, water purifiers, and geysers.</div>
+        <div class="elec-brands">
+          <span class="elec-brand-tag">Samsung</span><span class="elec-brand-tag">LG</span><span class="elec-brand-tag">Whirlpool</span><span class="elec-brand-tag">IFB</span><span class="elec-brand-tag">Kenstar</span>
+        </div>
+      </div>
+      <div class="elec-cat reveal d3">
+        <div class="elec-cat-photo">
+          <img
+            src="https://images.pexels.com/photos/7614543/pexels-photo-7614543.jpeg?auto=compress&cs=tinysrgb&w=700"
+            alt="LG Samsung Kenstar Bajaj split AC wall-mounted indoor unit — Cooling and Comfort Appliances"
+            loading="lazy">
+          <div class="elec-cat-photo-badge">
+            <span class="elec-cat-photo-brand">LG</span>
+            <span class="elec-cat-photo-brand">Samsung</span>
+            <span class="elec-cat-photo-brand">Kenstar</span>
+            <span class="elec-cat-photo-brand">Bajaj</span>
+          </div>
+        </div>
+        <div class="elec-cat-hd">
+          <div class="elec-cat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+          </div>
+          <div class="elec-cat-title" data-cms="electronics_page.cat4_title">Cooling &amp; Comfort</div>
+        </div>
+        <div class="elec-cat-items" data-cms="electronics_page.cat4_items">Air conditioners (split, window, portable), air coolers, ceiling fans, wall fans, pedestal fans, and ventilation solutions.</div>
+        <div class="elec-brands">
+          <span class="elec-brand-tag">LG</span><span class="elec-brand-tag">Samsung</span><span class="elec-brand-tag">Kenstar</span><span class="elec-brand-tag">Bajaj</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHOWROOMS -->
+<section class="sec sec-dark">
+  <div class="wrap">
+    <div style="text-align:center;max-width:560px;margin:0 auto">
+      <div class="eyebrow reveal" style="justify-content:center">Visit Us</div>
+      <h2 class="d2 text-cream reveal d1">Our<br><em class="italic-gold">Showrooms</em></h2>
+    </div>
+    <div class="resp-2col" style="margin-top:36px">
+      <div class="why-item reveal" style="flex-direction:column;gap:16px">
+        <div class="why-item-icon" style="margin:0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div>
+          <div class="why-item-title">Main Showroom — Malleswaram</div>
+          <div class="why-item-text" style="margin-top:8px">172 A, B &amp; E, Link Road, 5th Cross Rd<br>Malleshwaram, Bengaluru, Karnataka 560003<br><br>Full range of electronics, home appliances, and consumer electronics from all top brands.</div>
+        </div>
+        <a href="https://maps.google.com/?q=Venus+World,+172+A+B+%26+E,+Link+Road,+5th+Cross+Rd,+Malleshwaram,+Bengaluru,+Karnataka+560003" target="_blank" rel="noopener" class="btn btn-ghost" style="width:fit-content;margin-top:8px">Get Directions</a>
+      </div>
+      <div class="why-item reveal d2" style="flex-direction:column;gap:16px">
+        <div class="why-item-icon" style="margin:0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div>
+          <div class="why-item-title">Second Showroom — near Sai Baba Temple</div>
+          <div class="why-item-text" style="margin-top:8px">Near Sai Baba Temple, Malleswaram<br>Bengaluru, Karnataka<br><br>Specialises in <strong style="color:var(--cream)">Duroflex mattresses</strong> and premium bedding solutions for your perfect sleep.</div>
+        </div>
+        <a href="https://maps.google.com" target="_blank" rel="noopener" class="btn btn-ghost" style="width:fit-content;margin-top:8px">Get Directions</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BRANDS -->
+<section class="sec">
+  <div class="wrap">
+    <div style="text-align:center;max-width:500px;margin:0 auto">
+      <div class="eyebrow reveal" style="justify-content:center">Top Brands</div>
+      <h2 class="d2 reveal d1">Brands We<br><em class="italic-gold">Trust &amp; Carry</em></h2>
+    </div>
+    <div class="resp-6col reveal d2">
+      <div class="brand-tile-logo"><div class="brand-tile-logo-name">Samsung</div><div class="brand-tile-logo-cat">TVs · Fridges · ACs</div></div>
+      <div class="brand-tile-logo"><div class="brand-tile-logo-name">LG</div><div class="brand-tile-logo-cat">TVs · Washing Machines</div></div>
+      <div class="brand-tile-logo"><div class="brand-tile-logo-name">Sony</div><div class="brand-tile-logo-cat">TVs · Audio Systems</div></div>
+      <div class="brand-tile-logo"><div class="brand-tile-logo-name">Bosch</div><div class="brand-tile-logo-cat">Dishwashers · Ovens</div></div>
+      <div class="brand-tile-logo"><div class="brand-tile-logo-name">IFB</div><div class="brand-tile-logo-cat">Washing · Microwave</div></div>
+      <div class="brand-tile-logo"><div class="brand-tile-logo-name">Philips</div><div class="brand-tile-logo-cat">Lighting · Appliances</div></div>
+      <div class="brand-tile-logo"><div class="brand-tile-logo-name">Whirlpool</div><div class="brand-tile-logo-cat">Fridges · Washing</div></div>
+      <div class="brand-tile-logo"><div class="brand-tile-logo-name">Kenstar</div><div class="brand-tile-logo-cat">Coolers · Fans</div></div>
+      <div class="brand-tile-logo"><div class="brand-tile-logo-name">Prestige</div><div class="brand-tile-logo-cat">Cookware · Gas Stoves</div></div>
+      <div class="brand-tile-logo"><div class="brand-tile-logo-name">MI</div><div class="brand-tile-logo-cat">TVs · Electronics</div></div>
+      <div class="brand-tile-logo"><div class="brand-tile-logo-name">Bajaj</div><div class="brand-tile-logo-cat">Fans · Appliances</div></div>
+      <div class="brand-tile-logo"><div class="brand-tile-logo-name">Elica</div><div class="brand-tile-logo-cat">Chimneys · Hobs</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-sec"><div class="wrap"><div class="cta-inner">
+  <div class="eyebrow reveal" style="justify-content:center">Visit Our Showroom</div>
+  <h2 class="cta-quote reveal d1">Experience 38 years of<br><em>trust and expertise</em></h2>
+  <p class="cta-body reveal d2">Visit Venus World at Malleswaram or call us to check product availability and get the best deals.</p>
+  <div class="cta-btns reveal d3">
+    <a href="contact.html" class="btn btn-gold">Contact Us <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+    <a href="tel:+919513961740" class="btn btn-ghost">📞 +91 95139 61740</a>
+  </div>
+</div></div></section>
+
+<footer class="footer"><div class="footer-topline"></div><div class="wrap">
+  <div class="footer-grid">
+    <div class="footer-brand-col"><div class="footer-brand-name" data-cms="site.name">Sri Vasavi Interiors and Exteriors</div><div class="footer-brand-tag" data-cms="site.tagline">Innovative Ideas · Stylish Designs</div><div class="footer-brand-pip"></div><p class="footer-brand-desc" data-cms="site.description">Bengaluru's trusted interior design and construction company, delivering exceptional spaces since 2017 with ISO-certified quality and sustainable practices.</p><p class="footer-follow-label">Follow Us</p><div class="footer-socials"><a href="https://www.facebook.com/SVIEBLR/" class="footer-soc" target="_blank" rel="noopener" aria-label="Facebook"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a><a href="https://instagram.com/svie.blr" class="footer-soc" target="_blank" rel="noopener" aria-label="Instagram"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a><a href="https://twitter.com/kiran4u1982" class="footer-soc" target="_blank" rel="noopener" aria-label="Twitter / X"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a><a href="https://wa.me/919513961740" class="footer-soc" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a></div></div>
+    <div class="footer-contact-col"><div class="footer-col-head">Get In Touch</div><a href="https://maps.google.com/?q=Venus+World,+172+A+B+%26+E,+Link+Road,+5th+Cross+Rd,+Malleshwaram,+Bengaluru,+Karnataka+560003" class="f-contact-item f-clink" target="_blank" rel="noopener"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="f-contact-text"><strong>Visit Us</strong><span data-cms="site.address">172 A, B &amp; E, Link Road, 5th Cross Rd, Malleshwaram, Bengaluru, Karnataka 560003</span></div></a><a href="tel:+919513961740" class="f-contact-item f-clink"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 19z"/></svg></div><div class="f-contact-text"><strong>Call Us</strong><span data-cms="site.phone1">+91 95139 61740</span> / <span data-cms="site.phone2">+91 98455 81156</span></div></a><a href="mailto:svie.blr5@gmail.com" class="f-contact-item f-clink"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="f-contact-text"><strong>Email Us</strong><span data-cms="site.email">svie.blr5@gmail.com</span></div></a></div>
+  </div>
+  <div class="footer-bottom"><div class="footer-copy">© 2026 Sri Vasavi Interiors and Exteriors. All rights reserved.</div><div class="footer-btm-links"><a href="privacy-policy.html" class="footer-btm-link">Privacy Policy</a><a href="terms-of-service.html" class="footer-btm-link">Terms of Service</a></div></div>
+</div></footer>
+<script src="script.js"></script>
+<script src="cms-loader.js"></script>
+
+<script>
+/* GA4 engagement event tracking */
+document.addEventListener('DOMContentLoaded',function(){
+  /* WhatsApp float */
+  var wa=document.querySelector('.wa-float');
+  if(wa)wa.addEventListener('click',function(){if(typeof gtag!=='undefined')gtag('event','click',{event_category:'engagement',event_label:'whatsapp_float',value:1});});
+  /* Call float */
+  var cf=document.querySelector('.call-float');
+  if(cf)cf.addEventListener('click',function(){if(typeof gtag!=='undefined')gtag('event','click',{event_category:'engagement',event_label:'call_float',value:1});});
+  /* Tel links */
+  document.querySelectorAll('a[href^="tel:"]').forEach(function(el){
+    el.addEventListener('click',function(){if(typeof gtag!=='undefined')gtag('event','click',{event_category:'conversion',event_label:'phone_click',value:1});});
+  });
+  /* Email links */
+  document.querySelectorAll('a[href^="mailto:"]').forEach(function(el){
+    el.addEventListener('click',function(){if(typeof gtag!=='undefined')gtag('event','click',{event_category:'conversion',event_label:'email_click',value:1});});
+  });
+  /* Contact form submit */
+  var form=document.getElementById('contact-form');
+  if(form)form.addEventListener('submit',function(){if(typeof gtag!=='undefined')gtag('event','generate_lead',{event_category:'conversion',event_label:'contact_form',value:1});});
+});
+</script>
+<script src="/visitor-tracker.js" defer></script>
+</body>
+</html>
+

@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /data/
+Disallow: /node_modules/
+
+# Image crawling allowed
+User-agent: Googlebot-Image
+Allow: /images/
+
+# Sitemap
+Sitemap: https://svie5.com/sitemap.xml

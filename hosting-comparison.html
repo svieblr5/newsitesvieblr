@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SVIE CMS Hosting Platform Comparison Report</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Raleway:wght@400;500;600;700&family=Jost:wght@300;400;500&display=swap');
+
+    :root {
+      --forest: #0E1A14;
+      --cream: #F5EFE6;
+      --gold: #C9A05A;
+      --gold-light: #e8c97e;
+      --dark-card: #162318;
+      --mid: #1e2f22;
+      --text-light: #c8bfb0;
+      --green-badge: #2d6a4f;
+      --red-badge: #8b1a1a;
+      --amber-badge: #7a5c1e;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      background: var(--cream);
+      color: var(--forest);
+      font-size: 11pt;
+      line-height: 1.6;
+    }
+
+    /* ─── COVER PAGE ─── */
+    .cover {
+      background: var(--forest);
+      color: var(--cream);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 60px 40px;
+      page-break-after: always;
+    }
+
+    .cover-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 48pt;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 6px;
+      margin-bottom: 8px;
+    }
+
+    .cover-tagline {
+      font-family: 'Raleway', sans-serif;
+      font-size: 9pt;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 60px;
+    }
+
+    .cover-divider {
+      width: 80px;
+      height: 1px;
+      background: var(--gold);
+      margin: 0 auto 50px;
+    }
+
+    .cover-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28pt;
+      font-weight: 600;
+      color: var(--cream);
+      line-height: 1.3;
+      margin-bottom: 16px;
+      max-width: 600px;
+    }
+
+    .cover-subtitle {
+      font-family: 'Raleway', sans-serif;
+      font-size: 10pt;
+      color: var(--text-light);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 60px;
+    }
+
+    .cover-meta {
+      font-family: 'Jost', sans-serif;
+      font-size: 9pt;
+      color: var(--text-light);
+      border-top: 1px solid rgba(201,160,90,0.3);
+      padding-top: 30px;
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .cover-meta span { display: block; }
+    .cover-meta .label {
+      font-size: 7pt;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+
+    /* ─── SECTIONS ─── */
+    .page {
+      padding: 50px 50px 40px;
+      page-break-after: always;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .page:last-child { page-break-after: avoid; }
+
+    .section-eyebrow {
+      font-family: 'Raleway', sans-serif;
+      font-size: 7pt;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22pt;
+      font-weight: 700;
+      color: var(--forest);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .section-desc {
+      font-family: 'Jost', sans-serif;
+      font-size: 10pt;
+      color: #4a5a4e;
+      margin-bottom: 30px;
+      max-width: 680px;
+    }
+
+    .gold-rule {
+      width: 50px;
+      height: 2px;
+      background: var(--gold);
+      margin-bottom: 30px;
+    }
+
+    /* ─── PLATFORM CARDS ─── */
+    .platform-card {
+      background: var(--forest);
+      color: var(--cream);
+      border-radius: 8px;
+      padding: 28px 30px;
+      margin-bottom: 20px;
+      position: relative;
+      page-break-inside: avoid;
+    }
+
+    .platform-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      border-bottom: 1px solid rgba(201,160,90,0.25);
+      padding-bottom: 14px;
+    }
+
+    .platform-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18pt;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .platform-type {
+      font-family: 'Raleway', sans-serif;
+      font-size: 7.5pt;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-top: 3px;
+    }
+
+    .rank-badge {
+      background: var(--gold);
+      color: var(--forest);
+      font-family: 'Raleway', sans-serif;
+      font-size: 8pt;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+
+    .platform-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .platform-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .info-block { }
+
+    .info-label {
+      font-family: 'Raleway', sans-serif;
+      font-size: 7pt;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 5px;
+    }
+
+    .info-value {
+      font-family: 'Jost', sans-serif;
+      font-size: 9.5pt;
+      color: var(--cream);
+      line-height: 1.5;
+    }
+
+    .info-value strong {
+      color: var(--gold-light);
+      font-weight: 500;
+    }
+
+    .plan-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 9pt;
+    }
+
+    .plan-table th {
+      font-family: 'Raleway', sans-serif;
+      font-size: 7pt;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      padding: 6px 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(201,160,90,0.3);
+    }
+
+    .plan-table td {
+      padding: 8px 10px;
+      color: var(--cream);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-family: 'Jost', sans-serif;
+      vertical-align: top;
+    }
+
+    .plan-table tr:last-child td { border-bottom: none; }
+
+    .plan-table .plan-name {
+      font-weight: 500;
+      color: var(--gold-light);
+    }
+
+    .plan-table .price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13pt;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .free-badge {
+      display: inline-block;
+      background: var(--green-badge);
+      color: #a8e6c1;
+      font-size: 7pt;
+      font-family: 'Raleway', sans-serif;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+    }
+
+    .popular-badge {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--forest);
+      font-size: 7pt;
+      font-family: 'Raleway', sans-serif;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      margin-left: 6px;
+    }
+
+    /* ─── COMPARISON TABLE ─── */
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9pt;
+    }
+
+    .comparison-table th {
+      background: var(--forest);
+      color: var(--gold);
+      font-family: 'Raleway', sans-serif;
+      font-size: 7.5pt;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 10px 12px;
+      text-align: center;
+      border: 1px solid rgba(201,160,90,0.2);
+    }
+
+    .comparison-table th:first-child { text-align: left; }
+
+    .comparison-table td {
+      padding: 9px 12px;
+      border: 1px solid #ddd5c8;
+      text-align: center;
+      font-family: 'Jost', sans-serif;
+      color: var(--forest);
+      vertical-align: middle;
+    }
+
+    .comparison-table td:first-child {
+      text-align: left;
+      font-family: 'Raleway', sans-serif;
+      font-weight: 600;
+      font-size: 9pt;
+      background: #f0e9df;
+    }
+
+    .comparison-table tr:nth-child(even) td:not(:first-child) {
+      background: #faf6f0;
+    }
+
+    .check { color: #2d7d52; font-weight: 700; font-size: 13pt; }
+    .cross { color: #b33a3a; font-weight: 700; font-size: 13pt; }
+    .partial { color: #b07800; font-weight: 700; font-size: 13pt; }
+
+    .star-score {
+      font-size: 11pt;
+      letter-spacing: 1px;
+    }
+
+    /* ─── DOMAIN SECTION ─── */
+    .domain-card {
+      background: #f0e9df;
+      border-left: 3px solid var(--gold);
+      border-radius: 4px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+      page-break-inside: avoid;
+    }
+
+    .domain-provider {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15pt;
+      font-weight: 700;
+      color: var(--forest);
+      margin-bottom: 2px;
+    }
+
+    .domain-sub {
+      font-family: 'Raleway', sans-serif;
+      font-size: 7.5pt;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .domain-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .domain-tld {
+      background: var(--forest);
+      color: var(--cream);
+      border-radius: 4px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+
+    .domain-tld .tld-name {
+      font-family: 'Raleway', sans-serif;
+      font-size: 9pt;
+      font-weight: 700;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .domain-tld .tld-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 12pt;
+      color: #fff;
+    }
+
+    .domain-tld .tld-note {
+      font-size: 7.5pt;
+      color: var(--text-light);
+      margin-top: 2px;
+      display: block;
+    }
+
+    /* ─── VERDICT ─── */
+    .verdict-box {
+      background: var(--forest);
+      color: var(--cream);
+      border-radius: 8px;
+      padding: 30px;
+      margin-top: 24px;
+      page-break-inside: avoid;
+    }
+
+    .verdict-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18pt;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .verdict-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .verdict-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+    .verdict-rank {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22pt;
+      font-weight: 700;
+      color: var(--gold);
+      min-width: 36px;
+      line-height: 1;
+    }
+
+    .verdict-name {
+      font-family: 'Raleway', sans-serif;
+      font-size: 10pt;
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 3px;
+    }
+
+    .verdict-why {
+      font-family: 'Jost', sans-serif;
+      font-size: 9pt;
+      color: var(--text-light);
+    }
+
+    /* ─── FOOTER ─── */
+    .report-footer {
+      background: var(--forest);
+      color: var(--text-light);
+      padding: 20px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Raleway', sans-serif;
+      font-size: 7.5pt;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .footer-brand { color: var(--gold); font-weight: 700; }
+
+    /* ─── PRINT ─── */
+    @media print {
+      body { background: white; }
+      .page { padding: 30px 40px; }
+      .cover { min-height: auto; padding: 80px 40px; }
+      @page { margin: 0; size: A4; }
+    }
+
+    /* ─── NOTICE BAR ─── */
+    .print-notice {
+      background: var(--gold);
+      color: var(--forest);
+      text-align: center;
+      padding: 10px;
+      font-family: 'Raleway', sans-serif;
+      font-size: 9pt;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    @media print { .print-notice { display: none; } }
+  </style>
+</head>
+<body>
+
+<!-- Print Notice -->
+<div class="print-notice">
+  To save as PDF: Press Ctrl+P (Windows) → Change Destination to "Save as PDF" → Save
+</div>
+
+<!-- ═══════════════════════════════ COVER ═══════════════════════════════ -->
+<div class="cover">
+  <div class="cover-logo">SVIE</div>
+  <div class="cover-tagline">Space · Vision · Interior · Excellence</div>
+  <div class="cover-divider"></div>
+  <div class="cover-title">Hosting Platform Comparative Report</div>
+  <div class="cover-subtitle">CMS Migration &amp; Annual Cost Analysis — 2026</div>
+  <div style="font-family:'Jost',sans-serif;font-size:9.5pt;color:var(--text-light);max-width:500px;line-height:1.8;margin-bottom:50px;">
+    A structured evaluation of five leading hosting and CMS platforms — covering annual pricing, security posture, trust credentials, and domain management — to guide SVIE's digital infrastructure decision.
+  </div>
+  <div class="cover-meta">
+    <div>
+      <span class="label">Prepared For</span>
+      <span>SVIE Management</span>
+      <span>svie5.com</span>
+    </div>
+    <div>
+      <span class="label">Platforms Reviewed</span>
+      <span>Netlify · Cloudflare</span>
+      <span>Hostinger · Webflow · WordPress</span>
+    </div>
+    <div>
+      <span class="label">Report Date</span>
+      <span>June 2026</span>
+      <span>Annual Billing Basis</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ PAGE 1 — NETLIFY ═══════════════════════ -->
+<div class="page">
+  <div class="section-eyebrow">Platform 01 of 05</div>
+  <div class="section-title">Netlify</div>
+  <div class="gold-rule"></div>
+  <div class="section-desc">A cloud hosting platform built for modern static and Jamstack websites. Offers automatic CDN deployment, serverless functions, and a built-in CMS — all on globally distributed infrastructure.</div>
+
+  <div class="platform-card">
+    <div class="platform-header">
+      <div>
+        <div class="platform-name">Netlify</div>
+        <div class="platform-type">Static / Jamstack Hosting + Headless CMS</div>
+      </div>
+      <div class="rank-badge">#1 Recommended</div>
+    </div>
+
+    <table class="plan-table">
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Monthly (Annual Billing)</th>
+          <th>Annual Total</th>
+          <th>Key Features</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="plan-name">Starter <span class="free-badge">Free</span></td>
+          <td><span class="price">$0</span></td>
+          <td><span class="price">$0 / yr</span></td>
+          <td>100GB bandwidth, SSL, CDN, custom domain, 300 build min/mo</td>
+        </tr>
+        <tr>
+          <td class="plan-name">Pro <span class="popular-badge">Popular</span></td>
+          <td><span class="price">$19</span> /mo</td>
+          <td><span class="price">$228 / yr</span></td>
+          <td>1TB bandwidth, password protection, 25k form submissions, analytics</td>
+        </tr>
+        <tr>
+          <td class="plan-name">Business</td>
+          <td><span class="price">$99</span> /mo</td>
+          <td><span class="price">$1,188 / yr</span></td>
+          <td>SAML SSO, advanced roles, 99.99% SLA, priority support</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:18px;" class="platform-grid">
+      <div class="info-block">
+        <div class="info-label">Security</div>
+        <div class="info-value">
+          <strong>Auto HTTPS/TLS</strong> on all domains<br>
+          DDoS mitigation via Fastly CDN<br>
+          No server to compromise<br>
+          OWASP-aligned headers<br>
+          SOC 2 Type II certified
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">Trust &amp; Compliance</div>
+        <div class="info-value">
+          <strong>SOC 2 Type II</strong> certified<br>
+          GDPR &amp; CCPA compliant<br>
+          ISO 27001 aligned<br>
+          99.99% uptime SLA (paid)<br>
+          Used by: Nike, Twilio, Figma
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">CMS / Domain</div>
+        <div class="info-value">
+          <strong>Netlify CMS</strong> included free<br>
+          Visual content editor<br>
+          Git-based version control<br>
+          Domain: external provider<br>
+          (see Domain Section)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ PAGE 2 — CLOUDFLARE ═══════════════════════ -->
+<div class="page">
+  <div class="section-eyebrow">Platform 02 of 05</div>
+  <div class="section-title">Cloudflare Pages</div>
+  <div class="gold-rule"></div>
+  <div class="section-desc">Cloudflare operates the world's largest CDN and security network — serving 20% of all internet traffic. Cloudflare Pages is their static hosting product, backed by enterprise-grade security infrastructure.</div>
+
+  <div class="platform-card">
+    <div class="platform-header">
+      <div>
+        <div class="platform-name">Cloudflare Pages</div>
+        <div class="platform-type">Static Hosting + Enterprise CDN + Security</div>
+      </div>
+      <div class="rank-badge">#2 Best Security</div>
+    </div>
+
+    <table class="plan-table">
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Monthly (Annual Billing)</th>
+          <th>Annual Total</th>
+          <th>Key Features</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="plan-name">Pages Free <span class="free-badge">Free</span></td>
+          <td><span class="price">$0</span></td>
+          <td><span class="price">$0 / yr</span></td>
+          <td>Unlimited bandwidth, SSL, global CDN, unlimited sites</td>
+        </tr>
+        <tr>
+          <td class="plan-name">Pro (CF Plan) <span class="popular-badge">Popular</span></td>
+          <td><span class="price">$20</span> /mo</td>
+          <td><span class="price">$240 / yr</span></td>
+          <td>WAF firewall, advanced DDoS, image optimization, Page Rules</td>
+        </tr>
+        <tr>
+          <td class="plan-name">Business</td>
+          <td><span class="price">$200</span> /mo</td>
+          <td><span class="price">$2,400 / yr</span></td>
+          <td>Custom WAF rules, 100% SLA uptime, custom SSL, priority support</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:18px;" class="platform-grid">
+      <div class="info-block">
+        <div class="info-label">Security</div>
+        <div class="info-value">
+          <strong>World's #1 DDoS protection</strong><br>
+          Web Application Firewall (WAF)<br>
+          Zero-Trust architecture<br>
+          Bot management<br>
+          Always-on HTTPS + HSTS
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">Trust &amp; Compliance</div>
+        <div class="info-value">
+          <strong>SOC 2 Type II</strong> certified<br>
+          ISO 27001 certified<br>
+          PCI DSS Level 1<br>
+          GDPR, HIPAA compliant<br>
+          Used by: Discord, Shopify, Canva
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">Infrastructure</div>
+        <div class="info-value">
+          <strong>310+ data centers</strong> globally<br>
+          Protects 20% of internet<br>
+          No CMS built-in<br>
+          Domain registrar included<br>
+          .com at cost (~$10.44/yr)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ PAGE 3 — HOSTINGER ═══════════════════════ -->
+<div class="page">
+  <div class="section-eyebrow">Platform 03 of 05</div>
+  <div class="section-title">Hostinger</div>
+  <div class="gold-rule"></div>
+  <div class="section-desc">One of the world's fastest-growing web hosting providers, offering affordable shared and cloud hosting with cPanel, one-click WordPress installs, and free domain + SSL included on most annual plans.</div>
+
+  <div class="platform-card">
+    <div class="platform-header">
+      <div>
+        <div class="platform-name">Hostinger</div>
+        <div class="platform-type">Traditional Shared / Cloud Hosting with cPanel</div>
+      </div>
+      <div class="rank-badge">#3 Best Value</div>
+    </div>
+
+    <table class="plan-table">
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Monthly (Annual Billing)</th>
+          <th>Annual Total</th>
+          <th>Key Features</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="plan-name">Premium</td>
+          <td><span class="price">$2.99</span> /mo</td>
+          <td><span class="price">$35.88 / yr</span></td>
+          <td>100 websites, 100GB SSD, free domain, free SSL, weekly backups</td>
+        </tr>
+        <tr>
+          <td class="plan-name">Business <span class="popular-badge">Popular</span></td>
+          <td><span class="price">$3.99</span> /mo</td>
+          <td><span class="price">$47.88 / yr</span></td>
+          <td>200GB SSD, daily backups, free domain, CDN, better performance</td>
+        </tr>
+        <tr>
+          <td class="plan-name">Cloud Starter</td>
+          <td><span class="price">$7.99</span> /mo</td>
+          <td><span class="price">$95.88 / yr</span></td>
+          <td>Dedicated resources, 200GB NVMe, 3x CPU, priority support</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:18px;" class="platform-grid">
+      <div class="info-block">
+        <div class="info-label">Security</div>
+        <div class="info-value">
+          <strong>Free SSL</strong> on all plans<br>
+          Cloudflare-powered CDN<br>
+          BitNinja server security<br>
+          Malware scanner<br>
+          DDoS protection included
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">Trust &amp; Compliance</div>
+        <div class="info-value">
+          <strong>ISO/IEC 27001</strong> certified<br>
+          GDPR compliant<br>
+          99.9% uptime guarantee<br>
+          3M+ customers worldwide<br>
+          Founded: 2004 (Lithuania)
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">CMS / Domain</div>
+        <div class="info-value">
+          <strong>WordPress 1-click</strong> install<br>
+          hPanel (custom control panel)<br>
+          Free domain 1st year included<br>
+          .com renewal ~$15/yr<br>
+          Suitable for non-technical users
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ PAGE 4 — WEBFLOW ═══════════════════════ -->
+<div class="page">
+  <div class="section-eyebrow">Platform 04 of 05</div>
+  <div class="section-title">Webflow</div>
+  <div class="gold-rule"></div>
+  <div class="section-desc">A professional no-code website builder and CMS platform designed for designers. Webflow combines visual design control with a robust CMS, making it ideal for design-forward brands where non-technical staff need to manage content.</div>
+
+  <div class="platform-card">
+    <div class="platform-header">
+      <div>
+        <div class="platform-name">Webflow</div>
+        <div class="platform-type">Visual Website Builder + Full CMS</div>
+      </div>
+      <div class="rank-badge">#4 Design First</div>
+    </div>
+
+    <table class="plan-table">
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Monthly (Annual Billing)</th>
+          <th>Annual Total</th>
+          <th>Key Features</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="plan-name">Basic</td>
+          <td><span class="price">$14</span> /mo</td>
+          <td><span class="price">$168 / yr</span></td>
+          <td>50 pages, 25GB bandwidth, SSL, custom domain, no CMS</td>
+        </tr>
+        <tr>
+          <td class="plan-name">CMS <span class="popular-badge">Popular</span></td>
+          <td><span class="price">$23</span> /mo</td>
+          <td><span class="price">$276 / yr</span></td>
+          <td>Full CMS (2k items), 100GB bandwidth, 3 editors, form submissions</td>
+        </tr>
+        <tr>
+          <td class="plan-name">Business</td>
+          <td><span class="price">$39</span> /mo</td>
+          <td><span class="price">$468 / yr</span></td>
+          <td>10 editors, 10k CMS items, 400GB bandwidth, advanced analytics</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:18px;" class="platform-grid">
+      <div class="info-block">
+        <div class="info-label">Security</div>
+        <div class="info-value">
+          <strong>AWS-backed infrastructure</strong><br>
+          Auto SSL (Let's Encrypt)<br>
+          AWS CloudFront CDN<br>
+          DDoS protection<br>
+          SOC 2 Type II certified
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">Trust &amp; Compliance</div>
+        <div class="info-value">
+          <strong>SOC 2 Type II</strong> certified<br>
+          GDPR compliant<br>
+          99.99% uptime SLA<br>
+          Used by: Dell, Upwork, Lattice<br>
+          Founded: 2012 (San Francisco)
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">CMS / Domain</div>
+        <div class="info-value">
+          <strong>Full visual CMS</strong> included<br>
+          Non-technical editor friendly<br>
+          Content version history<br>
+          Domain: via Webflow or external<br>
+          Note: Requires site rebuild
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ PAGE 5 — WORDPRESS ═══════════════════════ -->
+<div class="page">
+  <div class="section-eyebrow">Platform 05 of 05</div>
+  <div class="section-title">WordPress.com</div>
+  <div class="gold-rule"></div>
+  <div class="section-desc">The world's most popular CMS, powering 43% of all websites. WordPress.com is the managed hosted version — no server management required. Ideal for content-heavy sites with frequent updates, blogs, and team-managed content.</div>
+
+  <div class="platform-card">
+    <div class="platform-header">
+      <div>
+        <div class="platform-name">WordPress.com</div>
+        <div class="platform-type">Managed CMS Hosting — 43% of the Web</div>
+      </div>
+      <div class="rank-badge">#5 Most Popular</div>
+    </div>
+
+    <table class="plan-table">
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Monthly (Annual Billing)</th>
+          <th>Annual Total</th>
+          <th>Key Features</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="plan-name">Personal</td>
+          <td><span class="price">$4</span> /mo</td>
+          <td><span class="price">$48 / yr</span></td>
+          <td>Free domain 1yr, 6GB storage, SSL, basic themes, email support</td>
+        </tr>
+        <tr>
+          <td class="plan-name">Premium <span class="popular-badge">Popular</span></td>
+          <td><span class="price">$8</span> /mo</td>
+          <td><span class="price">$96 / yr</span></td>
+          <td>13GB storage, premium themes, payments, Google Analytics</td>
+        </tr>
+        <tr>
+          <td class="plan-name">Business</td>
+          <td><span class="price">$25</span> /mo</td>
+          <td><span class="price">$300 / yr</span></td>
+          <td>50GB storage, all plugins, SEO tools, live chat support, install themes</td>
+        </tr>
+        <tr>
+          <td class="plan-name">Commerce</td>
+          <td><span class="price">$45</span> /mo</td>
+          <td><span class="price">$540 / yr</span></td>
+          <td>Full e-commerce, WooCommerce, premium support, no transaction fees</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:18px;" class="platform-grid">
+      <div class="info-block">
+        <div class="info-label">Security</div>
+        <div class="info-value">
+          <strong>Automattic-managed</strong> servers<br>
+          Built-in malware scanning<br>
+          Jetpack security suite<br>
+          Brute-force protection<br>
+          2FA + SFTP access
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">Trust &amp; Compliance</div>
+        <div class="info-value">
+          <strong>SOC 2 Type II</strong> certified<br>
+          GDPR, CCPA compliant<br>
+          ISO 27001 aligned<br>
+          99.9% uptime SLA<br>
+          Powers 43% of all websites
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">CMS / Domain</div>
+        <div class="info-value">
+          <strong>Full CMS</strong> — most powerful<br>
+          Gutenberg block editor<br>
+          50,000+ plugins available<br>
+          Free domain 1st year<br>
+          .com renewal ~$18/yr
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ PAGE 6 — MASTER COMPARISON ═══════════════════ -->
+<div class="page">
+  <div class="section-eyebrow">Side-by-Side Analysis</div>
+  <div class="section-title">Master Comparison Table</div>
+  <div class="gold-rule"></div>
+  <div class="section-desc">All five platforms evaluated across pricing, security, compliance, CMS capability, and domain support.</div>
+
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th style="width:160px;">Feature</th>
+        <th>Netlify</th>
+        <th>Cloudflare</th>
+        <th>Hostinger</th>
+        <th>Webflow</th>
+        <th>WordPress</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Starting Price / yr</td>
+        <td><strong>$0</strong></td>
+        <td><strong>$0</strong></td>
+        <td><strong>$35.88</strong></td>
+        <td><strong>$168</strong></td>
+        <td><strong>$48</strong></td>
+      </tr>
+      <tr>
+        <td>Recommended Plan / yr</td>
+        <td>$228 (Pro)</td>
+        <td>$240 (Pro)</td>
+        <td>$47.88 (Biz)</td>
+        <td>$276 (CMS)</td>
+        <td>$96 (Premium)</td>
+      </tr>
+      <tr>
+        <td>Free SSL Certificate</td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>DDoS Protection</td>
+        <td><span class="check">✓</span> CDN-level</td>
+        <td><span class="check">✓✓</span> Best-in-class</td>
+        <td><span class="check">✓</span> Via Cloudflare</td>
+        <td><span class="check">✓</span> AWS-level</td>
+        <td><span class="partial">◑</span> Basic</td>
+      </tr>
+      <tr>
+        <td>WAF Firewall</td>
+        <td><span class="partial">◑</span> Paid</td>
+        <td><span class="check">✓</span> Included</td>
+        <td><span class="check">✓</span> BitNinja</td>
+        <td><span class="check">✓</span> AWS WAF</td>
+        <td><span class="partial">◑</span> Plugin needed</td>
+      </tr>
+      <tr>
+        <td>SOC 2 Type II</td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>ISO 27001</td>
+        <td><span class="partial">◑</span> Aligned</td>
+        <td><span class="check">✓</span> Certified</td>
+        <td><span class="check">✓</span> Certified</td>
+        <td><span class="partial">◑</span> Aligned</td>
+        <td><span class="partial">◑</span> Aligned</td>
+      </tr>
+      <tr>
+        <td>GDPR Compliant</td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>Uptime SLA</td>
+        <td>99.99% (paid)</td>
+        <td>100% (Biz)</td>
+        <td>99.9%</td>
+        <td>99.99%</td>
+        <td>99.9%</td>
+      </tr>
+      <tr>
+        <td>Built-in CMS</td>
+        <td><span class="check">✓</span> Free</td>
+        <td><span class="cross">✗</span> None</td>
+        <td><span class="partial">◑</span> WP install</td>
+        <td><span class="check">✓</span> Visual</td>
+        <td><span class="check">✓</span> Full</td>
+      </tr>
+      <tr>
+        <td>Non-Technical Editing</td>
+        <td><span class="partial">◑</span> Moderate</td>
+        <td><span class="cross">✗</span> No</td>
+        <td><span class="check">✓</span> hPanel</td>
+        <td><span class="check">✓✓</span> Excellent</td>
+        <td><span class="check">✓</span> Good</td>
+      </tr>
+      <tr>
+        <td>Domain Registrar</td>
+        <td><span class="cross">✗</span> External</td>
+        <td><span class="check">✓</span> At cost</td>
+        <td><span class="check">✓</span> Free 1yr</td>
+        <td><span class="partial">◑</span> Or external</td>
+        <td><span class="check">✓</span> Free 1yr</td>
+      </tr>
+      <tr>
+        <td>Migration from HTML</td>
+        <td><span class="check">✓</span> Easy</td>
+        <td><span class="check">✓</span> Easy</td>
+        <td><span class="check">✓</span> Easy</td>
+        <td><span class="cross">✗</span> Full rebuild</td>
+        <td><span class="cross">✗</span> Full rebuild</td>
+      </tr>
+      <tr>
+        <td>Global CDN</td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓✓</span> 310+ PoPs</td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span> AWS CF</td>
+        <td><span class="partial">◑</span> Limited</td>
+      </tr>
+      <tr>
+        <td>Security Rating</td>
+        <td><span class="star-score">★★★★☆</span></td>
+        <td><span class="star-score">★★★★★</span></td>
+        <td><span class="star-score">★★★★☆</span></td>
+        <td><span class="star-score">★★★★☆</span></td>
+        <td><span class="star-score">★★★☆☆</span></td>
+      </tr>
+      <tr>
+        <td>Value Rating</td>
+        <td><span class="star-score">★★★★★</span></td>
+        <td><span class="star-score">★★★★★</span></td>
+        <td><span class="star-score">★★★★★</span></td>
+        <td><span class="star-score">★★★☆☆</span></td>
+        <td><span class="star-score">★★★★☆</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════ PAGE 7 — DOMAIN ═══════════════════════ -->
+<div class="page">
+  <div class="section-eyebrow">Domain Pricing Analysis</div>
+  <div class="section-title">Domain Registration Costs</div>
+  <div class="gold-rule"></div>
+  <div class="section-desc">Annual domain registration and renewal pricing by platform. Note: first-year prices are often promotional — renewal prices are more representative of long-term cost.</div>
+
+  <div class="domain-card">
+    <div class="domain-provider">Cloudflare Registrar</div>
+    <div class="domain-sub">At-cost pricing — No markup, No hidden fees</div>
+    <div class="domain-grid">
+      <div class="domain-tld">
+        <span class="tld-name">.com</span>
+        <span class="tld-price">$10.44/yr</span>
+        <span class="tld-note">Registration &amp; Renewal</span>
+      </div>
+      <div class="domain-tld">
+        <span class="tld-name">.net</span>
+        <span class="tld-price">$11.04/yr</span>
+        <span class="tld-note">Registration &amp; Renewal</span>
+      </div>
+      <div class="domain-tld">
+        <span class="tld-name">.org</span>
+        <span class="tld-price">$10.44/yr</span>
+        <span class="tld-note">Registration &amp; Renewal</span>
+      </div>
+      <div class="domain-tld">
+        <span class="tld-name">.co</span>
+        <span class="tld-price">$27.00/yr</span>
+        <span class="tld-note">Registration &amp; Renewal</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-provider">Hostinger Domains</div>
+    <div class="domain-sub">Free 1st year with hosting — Renewal price applies year 2+</div>
+    <div class="domain-grid">
+      <div class="domain-tld">
+        <span class="tld-name">.com</span>
+        <span class="tld-price">Free yr 1</span>
+        <span class="tld-note">Renews ~$15.99/yr</span>
+      </div>
+      <div class="domain-tld">
+        <span class="tld-name">.net</span>
+        <span class="tld-price">Free yr 1</span>
+        <span class="tld-note">Renews ~$14.99/yr</span>
+      </div>
+      <div class="domain-tld">
+        <span class="tld-name">.org</span>
+        <span class="tld-price">Free yr 1</span>
+        <span class="tld-note">Renews ~$12.99/yr</span>
+      </div>
+      <div class="domain-tld">
+        <span class="tld-name">.store</span>
+        <span class="tld-price">Free yr 1</span>
+        <span class="tld-note">Renews ~$29.99/yr</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-provider">WordPress.com Domains</div>
+    <div class="domain-sub">Free 1st year on Personal+ plans</div>
+    <div class="domain-grid">
+      <div class="domain-tld">
+        <span class="tld-name">.com</span>
+        <span class="tld-price">Free yr 1</span>
+        <span class="tld-note">Renews ~$18.00/yr</span>
+      </div>
+      <div class="domain-tld">
+        <span class="tld-name">.net</span>
+        <span class="tld-price">Free yr 1</span>
+        <span class="tld-note">Renews ~$18.00/yr</span>
+      </div>
+      <div class="domain-tld">
+        <span class="tld-name">.org</span>
+        <span class="tld-price">Free yr 1</span>
+        <span class="tld-note">Renews ~$18.00/yr</span>
+      </div>
+      <div class="domain-tld">
+        <span class="tld-name">.blog</span>
+        <span class="tld-price">~$25.00</span>
+        <span class="tld-note">Registration &amp; Renewal</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="domain-card">
+    <div class="domain-provider">Netlify &amp; Webflow</div>
+    <div class="domain-sub">No built-in registrar — Use external provider (Namecheap, Cloudflare recommended)</div>
+    <div class="domain-grid">
+      <div class="domain-tld">
+        <span class="tld-name">Namecheap .com</span>
+        <span class="tld-price">~$10.98/yr</span>
+        <span class="tld-note">Incl. WhoisGuard privacy</span>
+      </div>
+      <div class="domain-tld">
+        <span class="tld-name">GoDaddy .com</span>
+        <span class="tld-price">$12–20/yr</span>
+        <span class="tld-note">Renewal often higher</span>
+      </div>
+      <div class="domain-tld">
+        <span class="tld-name">Porkbun .com</span>
+        <span class="tld-price">~$9.73/yr</span>
+        <span class="tld-note">Cheapest .com option</span>
+      </div>
+      <div class="domain-tld">
+        <span class="tld-name">Google Domains .com</span>
+        <span class="tld-price">~$12.00/yr</span>
+        <span class="tld-note">(Now Squarespace)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ PAGE 8 — VERDICT ═══════════════════════ -->
+<div class="page">
+  <div class="section-eyebrow">Final Recommendation</div>
+  <div class="section-title">Verdict for SVIE</div>
+  <div class="gold-rule"></div>
+  <div class="section-desc">Based on SVIE's 8-page static HTML redesign, budget considerations, security requirements, and the need for occasional content updates — here is the ranked recommendation.</div>
+
+  <div class="verdict-box">
+    <div class="verdict-title">Ranked Recommendations for svie5.com</div>
+
+    <div class="verdict-row">
+      <div class="verdict-rank">1</div>
+      <div>
+        <div class="verdict-name">Netlify Free + Cloudflare Domain</div>
+        <div class="verdict-why">$0/yr hosting + $10.44/yr domain = ~$10–11/yr total. Fastest migration (drag &amp; drop), free CMS for team editing, auto SSL, and SOC 2 certified. Best balance of cost, security, and ease for SVIE's current static site.</div>
+      </div>
+    </div>
+
+    <div class="verdict-row">
+      <div class="verdict-rank">2</div>
+      <div>
+        <div class="verdict-name">Cloudflare Pages Free + Cloudflare Domain</div>
+        <div class="verdict-why">~$10.44/yr total. Absolute best-in-class security and CDN performance. Choose this if security is top priority. Slightly more technical setup, no built-in CMS.</div>
+      </div>
+    </div>
+
+    <div class="verdict-row">
+      <div class="verdict-rank">3</div>
+      <div>
+        <div class="verdict-name">Hostinger Business Plan</div>
+        <div class="verdict-why">$47.88/yr with free domain included. Best traditional hosting value — familiar cPanel, daily backups, non-technical management. Good if team prefers a classic hosting control panel.</div>
+      </div>
+    </div>
+
+    <div class="verdict-row">
+      <div class="verdict-rank">4</div>
+      <div>
+        <div class="verdict-name">WordPress.com Premium</div>
+        <div class="verdict-why">$96/yr + ~$18/yr domain renewal = ~$114/yr. Best if SVIE plans to add a blog, news section, or team manages content daily. Requires site migration/rebuild.</div>
+      </div>
+    </div>
+
+    <div class="verdict-row">
+      <div class="verdict-rank">5</div>
+      <div>
+        <div class="verdict-name">Webflow CMS Plan</div>
+        <div class="verdict-why">$276/yr. Best editorial aesthetic and visual CMS — closest match to SVIE's design direction. However requires full site rebuild and is the most expensive option for this use case.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:#f0e9df;border-left:3px solid var(--gold);border-radius:4px;padding:18px 22px;margin-top:22px;">
+    <div style="font-family:'Raleway',sans-serif;font-size:8pt;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Summary: Estimated Annual Cost</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;text-align:center;">
+      <div><div style="font-family:'Cormorant Garamond',serif;font-size:16pt;font-weight:700;color:var(--forest);">~$11</div><div style="font-family:'Raleway',sans-serif;font-size:7.5pt;color:#4a5a4e;">Netlify + CF Domain</div></div>
+      <div><div style="font-family:'Cormorant Garamond',serif;font-size:16pt;font-weight:700;color:var(--forest);">~$10</div><div style="font-family:'Raleway',sans-serif;font-size:7.5pt;color:#4a5a4e;">Cloudflare Pages</div></div>
+      <div><div style="font-family:'Cormorant Garamond',serif;font-size:16pt;font-weight:700;color:var(--forest);">~$48</div><div style="font-family:'Raleway',sans-serif;font-size:7.5pt;color:#4a5a4e;">Hostinger Biz</div></div>
+      <div><div style="font-family:'Cormorant Garamond',serif;font-size:16pt;font-weight:700;color:var(--forest);">~$114</div><div style="font-family:'Raleway',sans-serif;font-size:7.5pt;color:#4a5a4e;">WordPress Premium</div></div>
+      <div><div style="font-family:'Cormorant Garamond',serif;font-size:16pt;font-weight:700;color:var(--forest);">~$294</div><div style="font-family:'Raleway',sans-serif;font-size:7.5pt;color:#4a5a4e;">Webflow CMS</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<div class="report-footer">
+  <span class="footer-brand">SVIE</span>
+  <span>Hosting Platform Comparative Report · June 2026</span>
+  <span>Confidential · For Internal Use Only</span>
+</div>
+
+</body>
+</html>
