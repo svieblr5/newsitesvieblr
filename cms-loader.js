@@ -74,7 +74,7 @@
       var phoneEl = document.getElementById('phone');
       if (phoneEl && cfg.require_phone === false) phoneEl.removeAttribute('required');
 
-    } catch (_) {}
+    } catch {}
   }
 
   /* ── Deep key resolver: "furniture_page.images.hero_bg" → value ── */
@@ -117,7 +117,7 @@
       applyPhone(stored.phone1);
       applyContent({ site: stored });
     }
-  } catch (_) {}
+  } catch {}
 
   applyFormSettings();
 
@@ -130,7 +130,7 @@
       electronics_page: JSON.parse(localStorage.getItem('svie_content_electronics_page') || 'null'),
     };
     applyContent(lsContent);
-  } catch (_) {}
+  } catch {}
 
   // ── 3. Also fetch from CMS backend if available (overrides localStorage) ──
   fetch('/api/site-content')

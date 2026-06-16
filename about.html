@@ -255,7 +255,7 @@
     </div>
     <script>
     /* Dynamically render extra team members added via CMS (beyond the 2 hardcoded) */
-    fetch('/data/content.json').then(r=>r.json()).then(data=>{
+    fetch('/api/site-content').then(r=>r.json()).then(data=>{
       const team = data && data.about && data.about.team;
       if (!team || team.length <= 2) return;
       const grid = document.getElementById('teamGrid');

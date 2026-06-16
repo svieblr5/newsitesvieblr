@@ -68,7 +68,7 @@ app.use(helmet({
       styleSrc:       ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com', 'https://unpkg.com'],
       fontSrc:        ["'self'", 'https://fonts.gstatic.com'],
       imgSrc:         ["'self'", 'data:', 'https:', 'blob:'],
-      connectSrc:     ["'self'", 'https://www.google-analytics.com', 'https://region1.google-analytics.com'],
+      connectSrc:     ["'self'", 'https://www.google-analytics.com', 'https://region1.google-analytics.com', 'https://www.google.com'],
       frameSrc:       ["'self'", 'https://www.openstreetmap.org'],
       frameAncestors: ["'none'"],
     },
@@ -311,7 +311,7 @@ app.post('/api/auth/login', loginLimiter, async (req,res) => {
     } else {
       res.status(401).json({ error:'Invalid username or password' });
     }
-  } catch(e) { res.status(500).json({ error:'Server error' }); }
+  } catch { res.status(500).json({ error:'Server error' }); }
 });
 
 app.post('/api/auth/logout', (req,res) => {
@@ -340,7 +340,7 @@ app.post('/api/auth/change-password', requireAuth, csrfProtect, async (req,res) 
     req.session.csrfToken = crypto.randomBytes(32).toString('hex');
     logActivity('Changed admin password', req.session.user);
     res.json({ success:true });
-  } catch(e) { res.status(500).json({ error:'Server error' }); }
+  } catch { res.status(500).json({ error:'Server error' }); }
 });
 
 // ═══════════════════════════════════════════
@@ -739,7 +739,7 @@ async function geoIP(ip) {
         req.on('timeout', () => { req.destroy(); resolve(null); });
       });
     }
-  } catch (_) { raw = null; }
+  } catch { raw = null; }
 
   if (raw && raw.status === 'success') {
     const data = {

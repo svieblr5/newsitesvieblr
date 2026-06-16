@@ -96,12 +96,12 @@
         const existing = JSON.parse(localStorage.getItem('svie_enquiries')||'[]');
         existing.unshift(data);
         localStorage.setItem('svie_enquiries', JSON.stringify(existing));
-      } catch(_){}
+      } catch {}
 
       // ── Also try backend API if server is running ──
       try {
         await fetch('/api/enquiries',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-      } catch(_){}
+      } catch {}
 
       btn.innerHTML='<span>✓ Message Sent! We\'ll be in touch within 24 hrs.</span>';
       btn.style.background='#22c55e';
@@ -118,7 +118,7 @@
         clicks.unshift({ time: new Date().toISOString(), page: location.pathname.split('/').pop()||'index.html' });
         if (clicks.length > 200) clicks.length = 200; // keep last 200
         localStorage.setItem('svie_call_clicks', JSON.stringify(clicks));
-      } catch(_) {}
+      } catch {}
     });
   }
 

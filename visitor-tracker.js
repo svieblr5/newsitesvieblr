@@ -10,19 +10,19 @@
   var PINGED_KEY  = 'svie_pinged_' + Math.round(Date.now() / 1800000); // new key every 30 min
 
   function getConsent() {
-    try { var s = localStorage.getItem(CONSENT_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; }
+    try { var s = localStorage.getItem(CONSENT_KEY); return s ? JSON.parse(s) : null; } catch { return null; }
   }
 
   function setConsent(val) {
-    try { localStorage.setItem(CONSENT_KEY, JSON.stringify({ val: val, ts: Date.now() })); } catch (e) {}
+    try { localStorage.setItem(CONSENT_KEY, JSON.stringify({ val: val, ts: Date.now() })); } catch {}
   }
 
   function alreadyPinged() {
-    try { return !!sessionStorage.getItem(PINGED_KEY); } catch(e) { return false; }
+    try { return !!sessionStorage.getItem(PINGED_KEY); } catch { return false; }
   }
 
   function markPinged() {
-    try { sessionStorage.setItem(PINGED_KEY, '1'); } catch(e) {}
+    try { sessionStorage.setItem(PINGED_KEY, '1'); } catch {}
   }
 
   function ping() {

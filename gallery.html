@@ -773,7 +773,7 @@
   }
 
   /* ── Try to render from CMS, fall back to static HTML ── */
-  fetch('/data/content.json')
+  fetch('/api/site-content')
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(data){
       var items = data && data.gallery;
