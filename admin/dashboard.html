@@ -1602,33 +1602,35 @@ function fillAbout() {
   sv('about-mission',a.mission); sv('about-vision',a.vision); sv('about-quality',a.quality_policy);
   const tl = document.getElementById('teamEditor');
   const teamArr = Array.isArray(a.team) ? a.team : [];
+  const lbl = 'font-size:0.65rem;font-weight:600;color:#888;display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.04em';
+  const inp = 'width:100%;padding:6px 9px;font-size:0.82rem;border:1px solid #e0dbd4;border-radius:6px;box-sizing:border-box;background:#faf9f7;color:#1a1a1a';
   tl.innerHTML = teamArr.map((m,i)=>`
-    <div class="list-item" style="align-items:flex-start;gap:20px;position:relative">
-      <button onclick="removeTeamMember(${i})" title="Remove member"
-        style="position:absolute;top:0;right:0;background:rgba(220,50,50,0.08);border:1px solid rgba(220,50,50,0.2);color:#c0392b;border-radius:6px;padding:4px 8px;font-size:0.65rem;font-weight:700;cursor:pointer;line-height:1">
-        ✕ Remove
-      </button>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0;padding-top:4px">
-        <div id="tm-preview-${i}" style="width:80px;height:80px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#215840,#2D6B52);display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:1.4rem;font-weight:600;color:#C9A05A;border:2px solid rgba(201,160,90,0.3);cursor:pointer;position:relative" onclick="document.getElementById('tm-file-${i}').click()" title="Click to upload photo">
-          ${m.photo ? `<img src="../${m.photo}?t=${Date.now()}" style="width:100%;height:100%;object-fit:cover;display:block">` : `<span>${m.initials||'?'}</span>`}
-          <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          </div>
-        </div>
-        <input type="file" id="tm-file-${i}" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadTeamPhoto(${i},this)">
-        <input type="hidden" id="tm-p-${i}" value="${esc(m.photo||'')}">
-        <div style="font-size:0.6rem;color:#aaa;text-align:center">${m.photo?'Click to change':'Click to upload'}</div>
-        ${m.photo ? `<button class="btn btn-sm" style="font-size:0.6rem;padding:3px 8px;background:rgba(220,50,50,0.08);color:#c0392b;border:1px solid rgba(220,50,50,0.2)" onclick="removeTeamPhoto(${i})">Remove Photo</button>` : ''}
+    <div style="background:#fff;border:1px solid #e8e4de;border-radius:10px;padding:11px 14px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:0.6rem;font-weight:700;color:#215840;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6">Member ${i+1}</span>
+        <button onclick="removeTeamMember(${i})" style="background:rgba(220,50,50,0.07);border:1px solid rgba(220,50,50,0.18);color:#c0392b;border-radius:5px;padding:3px 9px;font-size:0.6rem;font-weight:700;cursor:pointer;line-height:1.5">✕ Remove</button>
       </div>
-      <div style="flex:1;padding-right:60px">
-        <div class="frow">
-          <div class="fg"><label>Name</label><input type="text" id="tm-n-${i}" value="${esc(m.name||'')}"></div>
-          <div class="fg"><label>Role</label><input type="text" id="tm-r-${i}" value="${esc(m.role||'')}"></div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0">
+          <div id="tm-preview-${i}" style="width:52px;height:52px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#215840,#2D6B52);display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:1rem;font-weight:600;color:#C9A05A;border:2px solid rgba(201,160,90,0.3);cursor:pointer;position:relative" onclick="document.getElementById('tm-file-${i}').click()" title="Click to upload photo">
+            ${m.photo ? `<img src="../${m.photo}?t=${Date.now()}" style="width:100%;height:100%;object-fit:cover;display:block">` : `<span>${m.initials||'?'}</span>`}
+            <div style="position:absolute;inset:0;background:rgba(0,0,0,0.38);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+          </div>
+          <input type="file" id="tm-file-${i}" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadTeamPhoto(${i},this)">
+          <input type="hidden" id="tm-p-${i}" value="${esc(m.photo||'')}">
+          <span style="font-size:0.55rem;color:#bbb;text-align:center">${m.photo?'Change':'Upload'}</span>
+          ${m.photo ? `<button style="font-size:0.55rem;padding:2px 5px;background:rgba(220,50,50,0.07);color:#c0392b;border:1px solid rgba(220,50,50,0.18);border-radius:4px;cursor:pointer" onclick="removeTeamPhoto(${i})">Remove</button>` : ''}
         </div>
-        <div class="frow">
-          <div class="fg"><label>Initials</label><input type="text" id="tm-i-${i}" value="${esc(m.initials||'')}" maxlength="4" style="max-width:100px"></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:grid;grid-template-columns:1fr 1fr 72px;gap:8px;margin-bottom:7px">
+            <div><label style="${lbl}">Name</label><input type="text" id="tm-n-${i}" value="${esc(m.name||'')}" style="${inp}"></div>
+            <div><label style="${lbl}">Role</label><input type="text" id="tm-r-${i}" value="${esc(m.role||'')}" style="${inp}"></div>
+            <div><label style="${lbl}">Initials</label><input type="text" id="tm-i-${i}" value="${esc(m.initials||'')}" maxlength="4" style="${inp};text-align:center;font-weight:600"></div>
+          </div>
+          <div><label style="${lbl}">Bio</label><textarea id="tm-b-${i}" style="${inp};height:66px;resize:none;overflow-y:auto;line-height:1.5">${esc(m.bio||'')}</textarea></div>
         </div>
-        <div class="frow full" style="margin-bottom:0"><div class="fg"><label>Bio</label><textarea id="tm-b-${i}">${esc(m.bio||'')}</textarea></div></div>
       </div>
     </div>`).join('');
 }
