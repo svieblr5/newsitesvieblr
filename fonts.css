@@ -1,0 +1,19 @@
+/* Static fallback — served from file:// or when Node server is offline.
+   On localhost, the Express /fonts.css route always takes priority over this file. */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Raleway:wght@300;400;500;600;700;800&family=Jost:wght@300;400;500;600&display=swap');
+:root{
+  --font-display:'Cormorant', Georgia, serif;
+  --font-sans:'Raleway', system-ui, sans-serif;
+  --font-body:'Jost', system-ui, sans-serif;
+  --fm-scale-hero:1;
+  --fm-scale-section:1;
+  --fm-scale-body:1;
+  --fm-scale-nav:1;
+  --fm-scale-stats:1;
+  --fm-fw-display:600;
+  --fm-fw-body:400;
+  --fm-fw-sans:600;
+  --fm-lh-body:1.75;
+  --fm-ls-heading:-0.02em;
+}
+html{font-size:16px}
