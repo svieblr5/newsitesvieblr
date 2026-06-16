@@ -31,6 +31,17 @@
   --font-display:  'Cormorant', Georgia, serif;
   --font-sans:     'Raleway', system-ui, sans-serif;
   --font-body:     'Jost', system-ui, sans-serif;
+  /* Font Manager — overridden via /fonts.css */
+  --fm-scale-hero:    1;
+  --fm-scale-section: 1;
+  --fm-scale-body:    1;
+  --fm-scale-nav:     1;
+  --fm-scale-stats:   1;
+  --fm-fw-display:    600;
+  --fm-fw-body:       400;
+  --fm-fw-sans:       600;
+  --fm-lh-body:       1.75;
+  --fm-ls-heading:    -.02em;
 
   /* Radii */
   --r-sm:  4px;
@@ -1576,6 +1587,24 @@ em.italic-gold{font-style:italic;color:var(--gold)}
 .resp-2col{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 .resp-6col{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:44px}
 .resp-feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:36px}
+
+/* ── Font Manager Overrides — set by /fonts.css via CMS Typography panel ── */
+.d1{font-size:calc(clamp(3.2rem,7.5vw,6.5rem)*var(--fm-scale-hero,1));font-weight:var(--fm-fw-display,600);letter-spacing:var(--fm-ls-heading,-.02em)}
+.d2{font-size:calc(clamp(2.4rem,5vw,4.2rem)*var(--fm-scale-section,1));font-weight:var(--fm-fw-display,600);letter-spacing:calc(var(--fm-ls-heading,-.02em)*.75)}
+.d3{font-size:calc(clamp(1.8rem,3.5vw,2.8rem)*var(--fm-scale-section,1));font-weight:var(--fm-fw-display,500)}
+.d4{font-size:calc(1.4rem*var(--fm-scale-section,1));font-weight:var(--fm-fw-display,500)}
+.body-lg{font-size:calc(1.07rem*var(--fm-scale-body,1));line-height:var(--fm-lh-body,1.82);font-weight:var(--fm-fw-body,400)}
+.body-md{font-size:calc(.96rem*var(--fm-scale-body,1));line-height:var(--fm-lh-body,1.78);font-weight:var(--fm-fw-body,400)}
+.body-sm{font-size:calc(.85rem*var(--fm-scale-body,1));line-height:var(--fm-lh-body,1.72);font-weight:var(--fm-fw-body,400)}
+.hero-title{font-size:calc(clamp(2rem,4.2vw,3.6rem)*var(--fm-scale-hero,1));font-weight:var(--fm-fw-display,600);letter-spacing:var(--fm-ls-heading,-.02em)}
+.hero-body{font-size:calc(1rem*var(--fm-scale-body,1));line-height:var(--fm-lh-body,1.75);font-weight:var(--fm-fw-body,400)}
+.h-stat-n{font-size:calc(2.4rem*var(--fm-scale-stats,1));font-weight:var(--fm-fw-display,600)}
+.st-n{font-size:calc(3.5rem*var(--fm-scale-stats,1));font-weight:var(--fm-fw-display,700)}
+.nav-a{font-size:calc(.72rem*var(--fm-scale-nav,1));font-weight:var(--fm-fw-sans,600)}
+.s-card-title{font-weight:var(--fm-fw-display,600)}
+.s-card-desc{font-size:calc(.88rem*var(--fm-scale-body,1));line-height:var(--fm-lh-body,1.7);font-weight:var(--fm-fw-body,400)}
+.team-name{font-weight:var(--fm-fw-display,600)}
+.team-bio{font-size:calc(.85rem*var(--fm-scale-body,1));line-height:var(--fm-lh-body,1.72)}
 
 /* ── 1100px — Large tablet / small desktop ── */
 @media(max-width:1100px){

@@ -1336,42 +1336,124 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
 
       <!-- ═══ TYPOGRAPHY PANEL ═══ -->
       <div class="panel" id="p-typography">
-        <div class="card" style="max-width:860px">
-          <div class="card-title">Heading Font</div>
-          <div class="card-sub" style="margin-bottom:16px">Used for page titles, section headings, and hero text across all pages</div>
-          <div id="typo-display-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
-        </div>
 
-        <div class="card" style="max-width:860px">
-          <div class="card-title">Body Text Font</div>
-          <div class="card-sub" style="margin-bottom:16px">Used for paragraphs, descriptions, and general body content</div>
-          <div id="typo-body-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
-        </div>
-
-        <div class="card" style="max-width:860px">
-          <div class="card-title">UI &amp; Navigation Font</div>
-          <div class="card-sub" style="margin-bottom:16px">Used for nav links, buttons, labels, badges, and form elements</div>
-          <div id="typo-sans-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
-        </div>
-
-        <div class="card" style="max-width:860px">
-          <div class="card-title">Font Size</div>
-          <div class="card-sub" style="margin-bottom:16px">Scales all text across the entire website proportionally</div>
-          <div id="typo-size-grid" style="display:flex;flex-wrap:wrap;gap:10px"></div>
-        </div>
-
-        <!-- Live Preview -->
-        <div class="card" style="max-width:860px;background:#0C2C1B;border:none">
-          <div class="card-title" style="color:#C9A05A;margin-bottom:18px">Live Preview</div>
-          <div style="background:rgba(245,239,230,.04);border-radius:10px;padding:28px 32px">
-            <div id="typo-prev-heading" style="color:#F5EFE6;font-size:2.4rem;font-weight:600;line-height:1.1;margin-bottom:8px">Transform Your Space</div>
-            <div id="typo-prev-sub" style="color:#C9A05A;font-size:1.4rem;font-style:italic;margin-bottom:16px">Innovative Ideas &amp; Stylish Designs</div>
-            <div id="typo-prev-body" style="color:rgba(245,239,230,.65);font-size:1rem;line-height:1.75;max-width:520px;margin-bottom:20px">From luxurious interiors to precision-crafted modular furniture, we bring your vision to life with meticulous craftsmanship and curated global brands.</div>
-            <div id="typo-prev-nav" style="color:rgba(245,239,230,.5);font-size:.75rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase">SERVICES &nbsp;•&nbsp; PRODUCTS &nbsp;•&nbsp; GALLERY &nbsp;•&nbsp; CONTACT</div>
+        <!-- ── Font Families ── -->
+        <div class="card" style="max-width:960px">
+          <div class="card-title">Font Families</div>
+          <div class="card-sub" style="margin-bottom:20px">Choose fonts for three roles — changes apply across all 8 pages instantly</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
+            <div>
+              <div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#215840;margin-bottom:10px">Heading Font</div>
+              <div class="card-sub" style="margin-bottom:10px;font-size:.75rem">Titles, hero text, section headings</div>
+              <div id="typo-display-grid" style="display:flex;flex-direction:column;gap:6px"></div>
+            </div>
+            <div>
+              <div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#215840;margin-bottom:10px">Body Font</div>
+              <div class="card-sub" style="margin-bottom:10px;font-size:.75rem">Paragraphs, descriptions, bio text</div>
+              <div id="typo-body-grid" style="display:flex;flex-direction:column;gap:6px"></div>
+            </div>
+            <div>
+              <div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#215840;margin-bottom:10px">UI &amp; Nav Font</div>
+              <div class="card-sub" style="margin-bottom:10px;font-size:.75rem">Nav links, buttons, labels, badges</div>
+              <div id="typo-sans-grid" style="display:flex;flex-direction:column;gap:6px"></div>
+            </div>
           </div>
         </div>
 
-        <div style="display:flex;gap:12px;max-width:860px">
+        <!-- ── Base Font Size ── -->
+        <div class="card" style="max-width:960px">
+          <div class="card-title">Base Font Size</div>
+          <div class="card-sub" style="margin-bottom:16px">Scales all text proportionally across every page — the foundation for all other sizes</div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <button onclick="adjustFontSize(-1)" style="width:38px;height:38px;border-radius:8px;border:1.5px solid #c5b99a;background:#fff;font-size:1.2rem;font-weight:700;color:#1A4530;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">−</button>
+            <div id="typo-size-grid" style="display:flex;flex-wrap:wrap;gap:8px;flex:1"></div>
+            <button onclick="adjustFontSize(1)"  style="width:38px;height:38px;border-radius:8px;border:1.5px solid #c5b99a;background:#fff;font-size:1.2rem;font-weight:700;color:#1A4530;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">+</button>
+          </div>
+        </div>
+
+        <!-- ── Section Sizes ── -->
+        <div class="card" style="max-width:960px">
+          <div class="card-title">Section Sizes</div>
+          <div class="card-sub" style="margin-bottom:18px">Fine-tune each section independently — Hero, Stats, Titles, Body &amp; Navigation across all pages</div>
+          <div style="display:flex;flex-direction:column;gap:14px" id="typo-scale-rows"></div>
+        </div>
+
+        <!-- ── Font Weights ── -->
+        <div class="card" style="max-width:960px">
+          <div class="card-title">Font Weights</div>
+          <div class="card-sub" style="margin-bottom:16px">Control the visual weight of each font role across all sections</div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+              <div style="width:110px;font-size:.78rem;font-weight:600;color:#1A4530;flex-shrink:0">Headings</div>
+              <div id="fw-display-row" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+              <div style="width:110px;font-size:.78rem;font-weight:600;color:#1A4530;flex-shrink:0">Body Text</div>
+              <div id="fw-body-row" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+              <div style="width:110px;font-size:.78rem;font-weight:600;color:#1A4530;flex-shrink:0">Nav &amp; UI</div>
+              <div id="fw-sans-row" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Spacing ── -->
+        <div class="card" style="max-width:960px">
+          <div class="card-title">Spacing &amp; Rhythm</div>
+          <div class="card-sub" style="margin-bottom:16px">Adjust line height and letter spacing for a tighter or more airy feel</div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+              <div style="width:130px;font-size:.78rem;font-weight:600;color:#1A4530;flex-shrink:0">Body Line Height</div>
+              <div id="lh-row" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+              <div style="width:130px;font-size:.78rem;font-weight:600;color:#1A4530;flex-shrink:0">Heading Spacing</div>
+              <div id="ls-row" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Live Preview ── -->
+        <div class="card" style="max-width:960px;background:#0C2C1B;border:none;padding:28px 32px">
+          <div class="card-title" style="color:#C9A05A;margin-bottom:4px">Live Preview</div>
+          <div class="card-sub" style="color:rgba(245,239,230,.45);margin-bottom:20px;font-size:.78rem">Updates instantly as you make changes — reflects all 8 pages</div>
+
+          <!-- Hero section preview -->
+          <div style="background:rgba(245,239,230,.04);border-radius:10px;padding:24px 28px;margin-bottom:12px">
+            <div style="font-size:.55rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#C9A05A;margin-bottom:10px;opacity:.6">Hero Section</div>
+            <div id="typo-prev-heading" style="color:#F5EFE6;line-height:1.06;margin-bottom:6px">Transform Your Space</div>
+            <div id="typo-prev-sub" style="color:#C9A05A;font-style:italic;margin-bottom:10px">Innovative Ideas &amp; Stylish Designs</div>
+            <div id="typo-prev-body" style="color:rgba(245,239,230,.6);max-width:500px">From luxurious interiors to precision-crafted modular furniture, we bring your vision to life with meticulous craftsmanship.</div>
+          </div>
+
+          <!-- Stats + Nav preview -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div style="background:rgba(245,239,230,.04);border-radius:10px;padding:20px 22px">
+              <div style="font-size:.55rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#C9A05A;margin-bottom:10px;opacity:.6">Stats / Counters</div>
+              <div style="display:flex;gap:24px">
+                <div><div id="typo-prev-stat" style="color:#C9A05A;line-height:1;margin-bottom:4px">250+</div><div id="typo-prev-stat-l" style="color:rgba(245,239,230,.38);font-weight:600;letter-spacing:.12em;text-transform:uppercase">Projects</div></div>
+                <div><div style="color:#C9A05A;line-height:1;margin-bottom:4px" class="typo-stat-clone">12+</div><div style="color:rgba(245,239,230,.38);font-weight:600;letter-spacing:.12em;text-transform:uppercase" class="typo-stat-l-clone">Years</div></div>
+              </div>
+            </div>
+            <div style="background:rgba(245,239,230,.04);border-radius:10px;padding:20px 22px">
+              <div style="font-size:.55rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#C9A05A;margin-bottom:10px;opacity:.6">Navigation</div>
+              <div id="typo-prev-nav" style="display:flex;flex-direction:column;gap:4px;color:rgba(245,239,230,.6);font-weight:600;letter-spacing:.08em;text-transform:uppercase">
+                <span>Services</span><span>Products</span><span>Gallery</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section heading preview -->
+          <div style="background:rgba(245,239,230,.04);border-radius:10px;padding:20px 22px">
+            <div style="font-size:.55rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#C9A05A;margin-bottom:10px;opacity:.6">Section Headings &amp; Cards</div>
+            <div id="typo-prev-section" style="color:#F5EFE6;line-height:1.1;margin-bottom:6px">Our Design Services</div>
+            <div id="typo-prev-card-title" style="color:#C9A05A;margin-bottom:4px">Interior Design</div>
+            <div id="typo-prev-card-body" style="color:rgba(245,239,230,.55)">Full-service design from concept to completion, curating every detail of your space.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;max-width:960px">
           <button class="btn btn-save" onclick="saveFontSettings()" style="padding:12px 32px;font-size:.95rem">Apply to Website</button>
           <button class="btn" onclick="resetFontSettings()" style="padding:12px 24px;background:#f5efe6;color:#1A4530;border:1px solid #c5b99a;border-radius:8px;cursor:pointer;font-size:.9rem">Reset to Default</button>
         </div>
@@ -3234,12 +3316,12 @@ async function loadVisitorCount() {
 //  TYPOGRAPHY & FONTS
 // ══════════════════════════════════════════
 const DISPLAY_FONTS = [
-  { name:'Cormorant',         label:'Cormorant',          preview:'Transform Your Space',             style:'italic 600 1.5rem' },
-  { name:'Playfair Display',  label:'Playfair Display',   preview:'Transform Your Space',             style:'italic 600 1.4rem' },
-  { name:'Lora',              label:'Lora',               preview:'Transform Your Space',             style:'italic 600 1.4rem' },
-  { name:'EB Garamond',       label:'EB Garamond',        preview:'Transform Your Space',             style:'italic 600 1.5rem' },
-  { name:'Libre Baskerville', label:'Libre Baskerville',  preview:'Transform Your Space',             style:'700 1.2rem' },
-  { name:'Spectral',          label:'Spectral',           preview:'Transform Your Space',             style:'italic 600 1.4rem' },
+  { name:'Cormorant',         label:'Cormorant',          preview:'Transform Your Space',  italic:true  },
+  { name:'Playfair Display',  label:'Playfair Display',   preview:'Transform Your Space',  italic:true  },
+  { name:'Lora',              label:'Lora',               preview:'Transform Your Space',  italic:true  },
+  { name:'EB Garamond',       label:'EB Garamond',        preview:'Transform Your Space',  italic:true  },
+  { name:'Libre Baskerville', label:'Libre Baskerville',  preview:'Transform Your Space',  italic:false },
+  { name:'Spectral',          label:'Spectral',           preview:'Transform Your Space',  italic:true  },
 ];
 const BODY_FONTS = [
   { name:'Jost',        label:'Jost',        preview:'Elegant interiors for every space.' },
@@ -3250,19 +3332,34 @@ const BODY_FONTS = [
   { name:'DM Sans',     label:'DM Sans',     preview:'Elegant interiors for every space.' },
 ];
 const FONT_SIZES = [
-  { px:14, label:'XS', desc:'Extra Small' },
-  { px:15, label:'S',  desc:'Small' },
-  { px:16, label:'M',  desc:'Default' },
-  { px:17, label:'L',  desc:'Large' },
-  { px:18, label:'XL', desc:'Extra Large' },
-  { px:20, label:'XXL',desc:'Huge' },
+  { px:12,label:'XS',desc:'12px' },{ px:13,label:'S−',desc:'13px' },{ px:14,label:'S',desc:'14px' },
+  { px:15,label:'M−',desc:'15px' },{ px:16,label:'M',desc:'16px (default)' },{ px:17,label:'M+',desc:'17px' },
+  { px:18,label:'L',desc:'18px' }, { px:19,label:'L+',desc:'19px' },{ px:20,label:'XL',desc:'20px' },
+  { px:21,label:'XL+',desc:'21px' },{ px:22,label:'XXL',desc:'22px' },{ px:24,label:'MAX',desc:'24px' },
 ];
+const SCALE_ROWS = [
+  { key:'scaleHero',    label:'Hero Headings',    desc:'Home hero, page hero titles',      min:0.6,max:1.6,step:0.05 },
+  { key:'scaleSection', label:'Section Titles',   desc:'h2/h3 headings on all 8 pages',   min:0.6,max:1.6,step:0.05 },
+  { key:'scaleBody',    label:'Body Text',        desc:'Paragraphs, bios, descriptions',  min:0.7,max:1.5,step:0.05 },
+  { key:'scaleNav',     label:'Nav &amp; Labels', desc:'Navigation links, eyebrows, tags',min:0.7,max:1.5,step:0.05 },
+  { key:'scaleStats',   label:'Stat Numbers',     desc:'Hero stats, about stats band',    min:0.6,max:1.6,step:0.05 },
+];
+const FW_DISPLAY_OPTIONS = [{v:300,l:'Light'},{v:400,l:'Regular'},{v:500,l:'Medium'},{v:600,l:'SemiBold'},{v:700,l:'Bold'}];
+const FW_BODY_OPTIONS    = [{v:300,l:'Light'},{v:400,l:'Regular'},{v:500,l:'Medium'},{v:600,l:'SemiBold'}];
+const FW_SANS_OPTIONS    = [{v:400,l:'Regular'},{v:500,l:'Medium'},{v:600,l:'SemiBold'},{v:700,l:'Bold'}];
+const LH_OPTIONS  = [{v:1.4,l:'Compact'},{v:1.6,l:'Normal'},{v:1.75,l:'Relaxed'},{v:2.0,l:'Airy'},{v:2.2,l:'Ultra'}];
+const LS_OPTIONS  = [{v:-0.04,l:'Tightest'},{v:-0.02,l:'Tight'},{v:0,l:'Default'},{v:0.03,l:'Wide'},{v:0.06,l:'Wider'}];
+
 const ALL_PREVIEW_FONTS_URL = 'https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,600;1,400;1,600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Spectral:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&family=Raleway:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Poppins:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap';
 
-let typoState = { fontDisplay:'Cormorant', fontSans:'Raleway', fontBody:'Jost', fontSize:16 };
+let typoState = {
+  fontDisplay:'Cormorant', fontSans:'Raleway', fontBody:'Jost', fontSize:16,
+  scaleHero:1, scaleSection:1, scaleBody:1, scaleNav:1, scaleStats:1,
+  fwDisplay:600, fwBody:400, fwSans:600,
+  lhBody:1.75, lsHeading:-0.02,
+};
 
 async function loadTypography() {
-  // Inject preview fonts once
   if (!document.getElementById('typo-preview-fonts')) {
     const lnk = document.createElement('link');
     lnk.id = 'typo-preview-fonts'; lnk.rel = 'stylesheet'; lnk.href = ALL_PREVIEW_FONTS_URL;
@@ -3276,40 +3373,90 @@ async function loadTypography() {
   renderFontGrid('typo-body-grid',    BODY_FONTS,    'fontBody',    false);
   renderFontGrid('typo-sans-grid',    BODY_FONTS,    'fontSans',    false);
   renderSizeGrid();
+  renderScaleRows();
+  renderWeightRow('fw-display-row', FW_DISPLAY_OPTIONS, 'fwDisplay');
+  renderWeightRow('fw-body-row',    FW_BODY_OPTIONS,    'fwBody');
+  renderWeightRow('fw-sans-row',    FW_SANS_OPTIONS,    'fwSans');
+  renderChipRow('lh-row', LH_OPTIONS, 'lhBody');
+  renderChipRow('ls-row', LS_OPTIONS, 'lsHeading');
   updateTypoPreview();
 }
 
 function renderFontGrid(gridId, fonts, key, isDisplay) {
-  const grid = document.getElementById(gridId);
-  if (!grid) return;
-  grid.innerHTML = fonts.map(f => {
+  const el = document.getElementById(gridId);
+  if (!el) return;
+  el.innerHTML = fonts.map(f => {
     const active = typoState[key] === f.name;
-    const fs = isDisplay ? '1.3rem' : '1rem';
+    const fs = isDisplay ? '1.15rem' : '.95rem';
     const fw = isDisplay ? '600' : '400';
-    const fi = isDisplay ? 'italic' : 'normal';
+    const fi = isDisplay && f.italic ? 'italic' : 'normal';
     return `<div onclick="setFontChoice('${key}','${f.name}')"
-      style="cursor:pointer;border-radius:10px;padding:14px 16px;border:2px solid ${active?'#C9A05A':'#ddd'};background:${active?'#fffbf4':'#fff'};transition:all .2s;user-select:none">
-      <div style="font-family:'${f.name}',Georgia,system-ui;font-size:${fs};font-weight:${fw};font-style:${fi};color:#1A4530;line-height:1.2;margin-bottom:6px">${f.preview}</div>
-      <div style="font-size:.7rem;font-weight:600;color:${active?'#C9A05A':'#8a7e72'};letter-spacing:.06em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center">
-        ${f.label}
-        ${active ? '<span style="background:#C9A05A;color:#fff;padding:1px 7px;border-radius:10px;font-size:.62rem">Active</span>' : ''}
-      </div>
+      style="cursor:pointer;border-radius:8px;padding:10px 14px;border:2px solid ${active?'#C9A05A':'#e0dbd4'};background:${active?'#fffbf4':'#fff'};transition:all .18s;user-select:none;display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <span style="font-family:'${f.name}',Georgia,system-ui;font-size:${fs};font-weight:${fw};font-style:${fi};color:#1A4530;line-height:1.2">${f.preview.split(' ').slice(0,3).join(' ')}</span>
+      <span style="font-size:.62rem;font-weight:700;color:${active?'#C9A05A':'#aaa'};letter-spacing:.05em;white-space:nowrap">${active?'✓ ':''} ${f.label}</span>
     </div>`;
   }).join('');
 }
 
 function renderSizeGrid() {
-  const grid = document.getElementById('typo-size-grid');
-  if (!grid) return;
-  grid.innerHTML = FONT_SIZES.map(s => {
+  const el = document.getElementById('typo-size-grid');
+  if (!el) return;
+  el.innerHTML = FONT_SIZES.map(s => {
     const active = typoState.fontSize === s.px;
-    return `<div onclick="setFontSize(${s.px})"
-      style="cursor:pointer;border-radius:10px;padding:14px 20px;min-width:90px;text-align:center;border:2px solid ${active?'#C9A05A':'#ddd'};background:${active?'#fffbf4':'#fff'};transition:all .2s;user-select:none">
-      <div style="font-size:${s.px * 1.1}px;font-weight:700;color:#1A4530;line-height:1">A</div>
-      <div style="font-size:.75rem;font-weight:700;color:${active?'#C9A05A':'#1A4530'};margin-top:6px">${s.label}</div>
-      <div style="font-size:.65rem;color:#8a7e72">${s.px}px</div>
-      ${active ? '<div style="font-size:.6rem;color:#C9A05A;font-weight:700;margin-top:3px">ACTIVE</div>' : ''}
+    return `<div onclick="setFontSize(${s.px})" title="${s.desc}"
+      style="cursor:pointer;border-radius:8px;padding:8px 12px;min-width:54px;text-align:center;border:2px solid ${active?'#C9A05A':'#e0dbd4'};background:${active?'#fffbf4':'#fff'};transition:all .18s;user-select:none">
+      <div style="font-size:${Math.min(s.px,18)}px;font-weight:700;color:#1A4530;line-height:1">A</div>
+      <div style="font-size:.62rem;font-weight:700;color:${active?'#C9A05A':'#888'};margin-top:4px">${s.label}</div>
     </div>`;
+  }).join('');
+}
+
+function renderScaleRows() {
+  const el = document.getElementById('typo-scale-rows');
+  if (!el) return;
+  el.innerHTML = SCALE_ROWS.map(r => {
+    const val = typoState[r.key] ?? 1;
+    const pct = Math.round(val * 100);
+    const barW = Math.round(((val - r.min) / (r.max - r.min)) * 100);
+    return `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="width:130px;flex-shrink:0">
+        <div style="font-size:.78rem;font-weight:600;color:#1A4530">${r.label}</div>
+        <div style="font-size:.65rem;color:#aaa;margin-top:2px">${r.desc}</div>
+      </div>
+      <button onclick="adjustScale('${r.key}',${-r.step},${r.min},${r.max})"
+        style="width:30px;height:30px;border-radius:6px;border:1.5px solid #c5b99a;background:#fff;font-size:1rem;font-weight:700;color:#1A4530;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">−</button>
+      <div style="flex:1;min-width:120px;max-width:220px">
+        <div style="height:6px;background:#e8e4de;border-radius:99px;overflow:hidden;margin-bottom:4px">
+          <div style="height:100%;width:${barW}%;background:linear-gradient(90deg,#215840,#C9A05A);border-radius:99px;transition:width .2s"></div>
+        </div>
+        <div style="font-size:.68rem;color:#C9A05A;font-weight:700;text-align:center">${pct}%</div>
+      </div>
+      <button onclick="adjustScale('${r.key}',${r.step},${r.min},${r.max})"
+        style="width:30px;height:30px;border-radius:6px;border:1.5px solid #c5b99a;background:#fff;font-size:1rem;font-weight:700;color:#1A4530;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">+</button>
+      <div style="font-size:.7rem;color:#888;width:36px;text-align:right">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderWeightRow(id, options, key) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const val = typoState[key];
+  el.innerHTML = options.map(o => {
+    const active = val === o.v;
+    return `<button onclick="setTypoKey('${key}',${o.v})"
+      style="padding:6px 14px;border-radius:6px;border:1.5px solid ${active?'#C9A05A':'#e0dbd4'};background:${active?'#fffbf4':'#fff'};font-size:.75rem;font-weight:${o.v};color:${active?'#C9A05A':'#555'};cursor:pointer;transition:all .18s">${o.l}</button>`;
+  }).join('');
+}
+
+function renderChipRow(id, options, key) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const val = typoState[key];
+  el.innerHTML = options.map(o => {
+    const active = Math.abs(val - o.v) < 0.001;
+    return `<button onclick="setTypoKey('${key}',${o.v})"
+      style="padding:6px 14px;border-radius:6px;border:1.5px solid ${active?'#C9A05A':'#e0dbd4'};background:${active?'#fffbf4':'#fff'};font-size:.75rem;font-weight:600;color:${active?'#C9A05A':'#555'};cursor:pointer;transition:all .18s">${o.l}</button>`;
   }).join('');
 }
 
@@ -3327,32 +3474,79 @@ function setFontSize(px) {
   updateTypoPreview();
 }
 
+function adjustFontSize(delta) {
+  const sizes = FONT_SIZES.map(s => s.px);
+  const idx = sizes.indexOf(typoState.fontSize);
+  const newIdx = Math.max(0, Math.min(sizes.length - 1, idx + delta));
+  setFontSize(sizes[newIdx]);
+}
+
+function adjustScale(key, delta, min, max) {
+  typoState[key] = Math.round(Math.min(max, Math.max(min, (typoState[key] ?? 1) + delta)) * 100) / 100;
+  renderScaleRows();
+  updateTypoPreview();
+}
+
+function setTypoKey(key, val) {
+  typoState[key] = val;
+  if (key === 'fwDisplay') renderWeightRow('fw-display-row', FW_DISPLAY_OPTIONS, 'fwDisplay');
+  else if (key === 'fwBody') renderWeightRow('fw-body-row', FW_BODY_OPTIONS, 'fwBody');
+  else if (key === 'fwSans') renderWeightRow('fw-sans-row', FW_SANS_OPTIONS, 'fwSans');
+  else if (key === 'lhBody') renderChipRow('lh-row', LH_OPTIONS, 'lhBody');
+  else if (key === 'lsHeading') renderChipRow('ls-row', LS_OPTIONS, 'lsHeading');
+  updateTypoPreview();
+}
+
 function updateTypoPreview() {
-  const h = document.getElementById('typo-prev-heading');
-  const s = document.getElementById('typo-prev-sub');
-  const b = document.getElementById('typo-prev-body');
-  const n = document.getElementById('typo-prev-nav');
-  const ff = (name, fallback) => `'${name}',${fallback}`;
-  const dff = ff(typoState.fontDisplay, 'Georgia,serif');
-  const bff = ff(typoState.fontBody, 'system-ui,sans-serif');
-  const sff = ff(typoState.fontSans, 'system-ui,sans-serif');
-  const scale = typoState.fontSize / 16;
-  if (h) { h.style.fontFamily = dff; h.style.fontSize = (2.4 * scale) + 'rem'; }
-  if (s) { s.style.fontFamily = dff; s.style.fontSize = (1.4 * scale) + 'rem'; }
-  if (b) { b.style.fontFamily = bff; b.style.fontSize = (1   * scale) + 'rem'; }
-  if (n) { n.style.fontFamily = sff; n.style.fontSize = (.75 * scale) + 'rem'; }
+  const dff = `'${typoState.fontDisplay}',Georgia,serif`;
+  const bff = `'${typoState.fontBody}',system-ui,sans-serif`;
+  const sff = `'${typoState.fontSans}',system-ui,sans-serif`;
+  const base  = typoState.fontSize / 16;
+  const hero  = base * (typoState.scaleHero    ?? 1);
+  const sec   = base * (typoState.scaleSection ?? 1);
+  const body  = base * (typoState.scaleBody    ?? 1);
+  const nav   = base * (typoState.scaleNav     ?? 1);
+  const stats = base * (typoState.scaleStats   ?? 1);
+  const lh    = typoState.lhBody    ?? 1.75;
+  const ls    = (typoState.lsHeading ?? -0.02) + 'em';
+  const fwD   = typoState.fwDisplay ?? 600;
+  const fwB   = typoState.fwBody    ?? 400;
+  const fwS   = typoState.fwSans    ?? 600;
+
+  const set = (id, styles) => { const el = document.getElementById(id); if (el) Object.assign(el.style, styles); };
+  set('typo-prev-heading',   { fontFamily:dff, fontSize:(2.4*hero)+'rem', fontWeight:fwD, letterSpacing:ls, lineHeight:'1.06' });
+  set('typo-prev-sub',       { fontFamily:dff, fontSize:(1.4*hero)+'rem', fontWeight:fwD, letterSpacing:ls });
+  set('typo-prev-body',      { fontFamily:bff, fontSize:(1*body)+'rem',   fontWeight:fwB, lineHeight:lh });
+  set('typo-prev-nav',       { fontFamily:sff, fontSize:(.72*nav)+'rem',  fontWeight:fwS });
+  set('typo-prev-stat',      { fontFamily:dff, fontSize:(2.4*stats)+'rem',fontWeight:fwD });
+  set('typo-prev-stat-l',    { fontFamily:sff, fontSize:(.62*nav)+'rem',  fontWeight:fwS });
+  set('typo-prev-section',   { fontFamily:dff, fontSize:(2*sec)+'rem',    fontWeight:fwD, letterSpacing:ls });
+  set('typo-prev-card-title',{ fontFamily:dff, fontSize:(1.45*sec)+'rem', fontWeight:fwD });
+  set('typo-prev-card-body', { fontFamily:bff, fontSize:(.88*body)+'rem', fontWeight:fwB, lineHeight:lh });
+  // clone stat elements
+  document.querySelectorAll('.typo-stat-clone').forEach(el => {
+    Object.assign(el.style, { fontFamily:dff, fontSize:(2.4*stats)+'rem', fontWeight:fwD, color:'#C9A05A', lineHeight:'1' });
+  });
+  document.querySelectorAll('.typo-stat-l-clone').forEach(el => {
+    Object.assign(el.style, { fontFamily:sff, fontSize:(.62*nav)+'rem', fontWeight:fwS });
+  });
 }
 
 async function saveFontSettings() {
   try {
     await api('PATCH', '/api/font-settings', typoState);
-    toast('Typography applied to website — refresh your public pages to see changes');
+    toast('Typography applied to all 8 pages — refresh your public site to see changes');
   } catch(e) { toast('Failed: ' + e.message, 'err'); }
 }
 
 async function resetFontSettings() {
-  if (!confirm('Reset all fonts to default (Cormorant / Raleway / Jost, 16px)?')) return;
-  typoState = { fontDisplay:'Cormorant', fontSans:'Raleway', fontBody:'Jost', fontSize:16 };
+  if (!confirm('Reset all typography to default?')) return;
+  typoState = {
+    fontDisplay:'Cormorant', fontSans:'Raleway', fontBody:'Jost', fontSize:16,
+    scaleHero:1, scaleSection:1, scaleBody:1, scaleNav:1, scaleStats:1,
+    fwDisplay:600, fwBody:400, fwSans:600,
+    lhBody:1.75, lsHeading:-0.02,
+  };
   await saveFontSettings();
   loadTypography();
 }

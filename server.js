@@ -116,11 +116,25 @@ const VALID_FONTS = new Set(Object.keys(FONT_CATALOG));
 
 // ── GET /fonts.css — dynamic font stylesheet for all public pages ──
 app.get('/fonts.css', (req, res) => {
-  const cfg  = getConfig();
+  const cfg   = getConfig();
+  const clampN = (v, mn, mx, def) => Math.min(Math.max(parseFloat(v) || def, mn), mx);
+  const validW = (v, choices, def) => choices.includes(parseInt(v)) ? parseInt(v) : def;
+
   const dFont = VALID_FONTS.has(cfg.fontDisplay) ? cfg.fontDisplay : 'Cormorant';
   const sFont = VALID_FONTS.has(cfg.fontSans)    ? cfg.fontSans    : 'Raleway';
   const bFont = VALID_FONTS.has(cfg.fontBody)    ? cfg.fontBody    : 'Jost';
-  const fSize = Math.min(Math.max(parseInt(cfg.fontSize) || 16, 12), 24);
+  const fSize = clampN(cfg.fontSize, 12, 24, 16);
+
+  const scaleHero    = clampN(cfg.scaleHero,    0.6, 1.6, 1);
+  const scaleSection = clampN(cfg.scaleSection, 0.6, 1.6, 1);
+  const scaleBody    = clampN(cfg.scaleBody,    0.7, 1.5, 1);
+  const scaleNav     = clampN(cfg.scaleNav,     0.7, 1.5, 1);
+  const scaleStats   = clampN(cfg.scaleStats,   0.6, 1.6, 1);
+  const fwDisplay    = validW(cfg.fwDisplay, [300,400,500,600,700], 600);
+  const fwBody       = validW(cfg.fwBody,    [300,400,500,600],     400);
+  const fwSans       = validW(cfg.fwSans,    [400,500,600,700],     600);
+  const lhBody       = clampN(cfg.lhBody,    1.4, 2.2, 1.75);
+  const lsHeading    = clampN(cfg.lsHeading, -0.05, 0.1, -0.02);
 
   const gfParts = [...new Set([dFont, sFont, bFont])].map(n => 'family=' + FONT_CATALOG[n].gf);
   const importUrl = `https://fonts.googleapis.com/css2?${gfParts.join('&')}&display=swap`;
@@ -131,6 +145,16 @@ app.get('/fonts.css', (req, res) => {
     `  --font-display:${FONT_CATALOG[dFont].css};`,
     `  --font-sans:${FONT_CATALOG[sFont].css};`,
     `  --font-body:${FONT_CATALOG[bFont].css};`,
+    `  --fm-scale-hero:${scaleHero};`,
+    `  --fm-scale-section:${scaleSection};`,
+    `  --fm-scale-body:${scaleBody};`,
+    `  --fm-scale-nav:${scaleNav};`,
+    `  --fm-scale-stats:${scaleStats};`,
+    `  --fm-fw-display:${fwDisplay};`,
+    `  --fm-fw-body:${fwBody};`,
+    `  --fm-fw-sans:${fwSans};`,
+    `  --fm-lh-body:${lhBody};`,
+    `  --fm-ls-heading:${lsHeading}em;`,
     `}`,
     `html{font-size:${fSize}px}`,
   ].join('\n');
@@ -641,21 +665,46 @@ app.get('/api/media', requireAuth, (req,res) => {
 // ═══════════════════════════════════════════
 app.get('/api/font-settings', requireAuth, (req, res) => {
   const cfg = getConfig();
+  const clampN = (v, mn, mx, def) => Math.min(Math.max(parseFloat(v) || def, mn), mx);
+  const validW = (v, choices, def) => choices.includes(parseInt(v)) ? parseInt(v) : def;
   res.json({
-    fontDisplay: VALID_FONTS.has(cfg.fontDisplay) ? cfg.fontDisplay : 'Cormorant',
-    fontSans:    VALID_FONTS.has(cfg.fontSans)    ? cfg.fontSans    : 'Raleway',
-    fontBody:    VALID_FONTS.has(cfg.fontBody)    ? cfg.fontBody    : 'Jost',
-    fontSize:    Math.min(Math.max(parseInt(cfg.fontSize) || 16, 12), 24),
+    fontDisplay:   VALID_FONTS.has(cfg.fontDisplay) ? cfg.fontDisplay : 'Cormorant',
+    fontSans:      VALID_FONTS.has(cfg.fontSans)    ? cfg.fontSans    : 'Raleway',
+    fontBody:      VALID_FONTS.has(cfg.fontBody)    ? cfg.fontBody    : 'Jost',
+    fontSize:      clampN(cfg.fontSize, 12, 24, 16),
+    scaleHero:     clampN(cfg.scaleHero,    0.6, 1.6, 1),
+    scaleSection:  clampN(cfg.scaleSection, 0.6, 1.6, 1),
+    scaleBody:     clampN(cfg.scaleBody,    0.7, 1.5, 1),
+    scaleNav:      clampN(cfg.scaleNav,     0.7, 1.5, 1),
+    scaleStats:    clampN(cfg.scaleStats,   0.6, 1.6, 1),
+    fwDisplay:     validW(cfg.fwDisplay, [300,400,500,600,700], 600),
+    fwBody:        validW(cfg.fwBody,    [300,400,500,600],     400),
+    fwSans:        validW(cfg.fwSans,    [400,500,600,700],     600),
+    lhBody:        clampN(cfg.lhBody,    1.4, 2.2, 1.75),
+    lsHeading:     clampN(cfg.lsHeading, -0.05, 0.1, -0.02),
   });
 });
 
 app.patch('/api/font-settings', requireAuth, csrfProtect, (req, res) => {
   try {
-    const cfg = getConfig();
-    if (VALID_FONTS.has(req.body.fontDisplay)) cfg.fontDisplay = req.body.fontDisplay;
-    if (VALID_FONTS.has(req.body.fontSans))    cfg.fontSans    = req.body.fontSans;
-    if (VALID_FONTS.has(req.body.fontBody))    cfg.fontBody    = req.body.fontBody;
-    if (req.body.fontSize) cfg.fontSize = Math.min(Math.max(parseInt(req.body.fontSize) || 16, 12), 24);
+    const cfg    = getConfig();
+    const b      = req.body;
+    const clampN = (v, mn, mx, def) => Math.min(Math.max(parseFloat(v) || def, mn), mx);
+    const validW = (v, choices, def) => choices.includes(parseInt(v)) ? parseInt(v) : def;
+    if (VALID_FONTS.has(b.fontDisplay))  cfg.fontDisplay  = b.fontDisplay;
+    if (VALID_FONTS.has(b.fontSans))     cfg.fontSans     = b.fontSans;
+    if (VALID_FONTS.has(b.fontBody))     cfg.fontBody     = b.fontBody;
+    if (b.fontSize    !== undefined) cfg.fontSize    = clampN(b.fontSize,    12,   24,   16);
+    if (b.scaleHero   !== undefined) cfg.scaleHero   = clampN(b.scaleHero,   0.6,  1.6,  1);
+    if (b.scaleSection!== undefined) cfg.scaleSection= clampN(b.scaleSection,0.6,  1.6,  1);
+    if (b.scaleBody   !== undefined) cfg.scaleBody   = clampN(b.scaleBody,   0.7,  1.5,  1);
+    if (b.scaleNav    !== undefined) cfg.scaleNav    = clampN(b.scaleNav,    0.7,  1.5,  1);
+    if (b.scaleStats  !== undefined) cfg.scaleStats  = clampN(b.scaleStats,  0.6,  1.6,  1);
+    if (b.fwDisplay   !== undefined) cfg.fwDisplay   = validW(b.fwDisplay,   [300,400,500,600,700], 600);
+    if (b.fwBody      !== undefined) cfg.fwBody      = validW(b.fwBody,      [300,400,500,600],     400);
+    if (b.fwSans      !== undefined) cfg.fwSans      = validW(b.fwSans,      [400,500,600,700],     600);
+    if (b.lhBody      !== undefined) cfg.lhBody      = clampN(b.lhBody,      1.4,  2.2,  1.75);
+    if (b.lsHeading   !== undefined) cfg.lsHeading   = clampN(b.lsHeading,   -0.05,0.1,  -0.02);
     saveConfig(cfg);
     logActivity('Updated typography settings', req.session.user);
     res.json({ success: true });
