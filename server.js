@@ -822,34 +822,60 @@ function parseUA(ua) {
   return { browser, device, os };
 }
 
-async function sendTelegramAlert(visitor, token, chatId) {
-  const ist  = new Date(visitor.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
-  const text = `🌐 SVIE — New Visitor\n📍 ${visitor.city}, ${visitor.country}\n📄 ${visitor.page}\n📱 ${visitor.device} / ${visitor.browser}\n🕐 ${ist} IST`;
+// Signal alerts via a self-hosted signal-cli-rest-api instance (bbernhard/signal-cli-rest-api).
+// End-to-end encrypted, free, and fully owned by you — POST to {signalApiUrl}/v2/send.
+async function sendSignalAlert(visitor, cfg) {
+  const apiUrl     = String(cfg.signalApiUrl || '').replace(/\/+$/, '');
+  const sender     = String(cfg.signalNumber || '').trim();
+  const recipients = String(cfg.signalRecipients || '')
+    .split(',').map(s => s.trim()).filter(Boolean);
+  if (!apiUrl || !sender || !recipients.length) return;
+
+  const ist = new Date(visitor.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
+  const loc = [visitor.city, visitor.region, visitor.country].filter(Boolean).join(', ') || 'Unknown';
+  const map = (visitor.lat && visitor.lon)
+    ? `\n🗺 https://www.openstreetmap.org/?mlat=${visitor.lat}&mlon=${visitor.lon}#map=11/${visitor.lat}/${visitor.lon}`
+    : '';
+  const sess = visitor.isNewSession === false ? 'Returning visitor' : 'New visitor';
+  const text =
+    `🌐 SVIE — ${sess}\n` +
+    `📍 ${loc}\n` +
+    `📄 ${visitor.page}\n` +
+    `📱 ${visitor.device} · ${visitor.browser}${visitor.os ? ' · ' + visitor.os : ''}\n` +
+    (visitor.referrer ? `↗ ${visitor.referrer}\n` : '') +
+    `🕐 ${ist} IST` + map;
+
+  const body = JSON.stringify({ message: text, number: sender, recipients });
+  const url  = apiUrl + '/v2/send';
 
   if (typeof fetch !== 'undefined') {
     const ctrl = new AbortController();
-    const tid  = setTimeout(() => ctrl.abort(), 5000);
+    const tid  = setTimeout(() => ctrl.abort(), 8000);
     try {
-      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      const r = await fetch(url, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ chat_id: chatId, text }),
-        signal:  ctrl.signal,
+        body, signal: ctrl.signal,
       });
+      if (!r.ok) throw new Error('Signal API ' + r.status + ': ' + (await r.text().catch(() => '')).slice(0, 200));
     } finally { clearTimeout(tid); }
   } else {
-    const https = require('https');
-    const body  = JSON.stringify({ chat_id: chatId, text });
-    await new Promise(resolve => {
-      const r = https.request({
-        hostname: 'api.telegram.org', method: 'POST',
-        path:     `/bot${token}/sendMessage`,
-        headers:  { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
-        timeout:  5000,
-      }, res => { res.on('data', () => {}); res.on('end', resolve); });
-      r.on('error', resolve);
-      r.on('timeout', () => { r.destroy(); resolve(); });
-      r.write(body); r.end();
+    const u   = new URL(url);
+    const lib = require(u.protocol === 'https:' ? 'https' : 'http');
+    await new Promise((resolve, reject) => {
+      const req = lib.request({
+        hostname: u.hostname, port: u.port || (u.protocol === 'https:' ? 443 : 80),
+        path: u.pathname, method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+        timeout: 8000,
+      }, res => {
+        let d = ''; res.on('data', c => d += c);
+        res.on('end', () => res.statusCode < 300 ? resolve()
+          : reject(new Error('Signal API ' + res.statusCode + ': ' + d.slice(0, 200))));
+      });
+      req.on('error', reject);
+      req.on('timeout', () => { req.destroy(); reject(new Error('Signal API timeout')); });
+      req.write(body); req.end();
     });
   }
 }
@@ -878,8 +904,8 @@ async function sendEmailAlert(visitor, cfg) {
 
 async function sendNotification(visitor) {
   const cfg = getConfig();
-  if (cfg.telegramEnabled && cfg.telegramToken && cfg.telegramChatId) {
-    sendTelegramAlert(visitor, cfg.telegramToken, cfg.telegramChatId).catch(e => console.error('[Visitor Telegram]', e.message));
+  if (cfg.signalEnabled && cfg.signalApiUrl && cfg.signalNumber && cfg.signalRecipients) {
+    sendSignalAlert(visitor, cfg).catch(e => console.error('[Visitor Signal]', e.message));
   }
   if (cfg.emailEnabled && cfg.emailFrom && cfg.emailPass && cfg.emailTo) {
     sendEmailAlert(visitor, cfg).catch(e => console.error('[Visitor Email]', e.message));
@@ -921,7 +947,7 @@ app.post('/api/visitor-ping', visitorLimiter, async (req, res) => {
     writeJSON(VISITORS_FILE, list.slice(0, 15000));
 
     const cfg = getConfig();
-    if (isNewSession && (cfg.telegramEnabled || cfg.emailEnabled)) {
+    if (isNewSession && (cfg.signalEnabled || cfg.emailEnabled)) {
       sendNotification(record).catch(() => {});
     }
 
@@ -1000,9 +1026,10 @@ app.get('/api/visitor-stats', requireAuth, (req, res) => {
     byBrowser:  Object.entries(byBrowser).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, count]) => ({ name, count })),
     bySource:   Object.entries(bySrc).sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count })),
     mapPoints:  Object.values(mapPts),
-    telegramEnabled: !!cfg.telegramEnabled,
-    telegramToken:   cfg.telegramToken  || '',
-    telegramChatId:  cfg.telegramChatId || '',
+    signalEnabled:    !!cfg.signalEnabled,
+    signalApiUrl:     cfg.signalApiUrl     || '',
+    signalNumber:     cfg.signalNumber     || '',
+    signalRecipients: cfg.signalRecipients || '',
     emailEnabled:    !!cfg.emailEnabled,
     emailTo:         cfg.emailTo   || 'svie.blr5@gmail.com',
     emailFrom:       cfg.emailFrom || '',
@@ -1017,9 +1044,10 @@ app.patch('/api/visitor-settings', requireAuth, csrfProtect, (req, res) => {
     const cfg = getConfig();
     const b   = req.body;
     const str = (k, max) => b[k] !== undefined ? String(b[k]).slice(0, max) : undefined;
-    if (b.telegramEnabled !== undefined) cfg.telegramEnabled = !!b.telegramEnabled;
-    if (str('telegramToken',  200) !== undefined) cfg.telegramToken  = str('telegramToken',  200);
-    if (str('telegramChatId',  50) !== undefined) cfg.telegramChatId = str('telegramChatId',  50);
+    if (b.signalEnabled !== undefined) cfg.signalEnabled = !!b.signalEnabled;
+    if (str('signalApiUrl',    300) !== undefined) cfg.signalApiUrl     = str('signalApiUrl',    300);
+    if (str('signalNumber',     30) !== undefined) cfg.signalNumber     = str('signalNumber',     30);
+    if (str('signalRecipients',300) !== undefined) cfg.signalRecipients = str('signalRecipients',300);
     if (b.emailEnabled    !== undefined) cfg.emailEnabled    = !!b.emailEnabled;
     if (str('emailTo',   200) !== undefined) cfg.emailTo   = str('emailTo',   200);
     if (str('emailFrom', 200) !== undefined) cfg.emailFrom = str('emailFrom', 200);

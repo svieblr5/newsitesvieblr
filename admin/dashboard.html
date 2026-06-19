@@ -1258,42 +1258,47 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
           </div>
         </div>
 
-        <!-- Notification Settings — FREE (Telegram + Email) -->
+        <!-- Notification Settings — FREE (Signal + Email) -->
         <div class="vsettings">
           <div class="card-title" style="margin-bottom:4px">Visitor Notifications — 100% Free</div>
-          <div class="card-sub" style="margin-bottom:18px">Get an instant alert when a new visitor arrives. Choose Telegram, Email, or both. No paid service needed.</div>
+          <div class="card-sub" style="margin-bottom:18px">Get an instant alert when a new visitor arrives. Choose Signal, Email, or both. No paid service needed.</div>
 
-          <!-- Telegram -->
-          <div style="background:#f0f7f2;border-radius:10px;padding:16px 18px;margin-bottom:14px">
+          <!-- Signal -->
+          <div style="background:#eef3fe;border-radius:10px;padding:16px 18px;margin-bottom:14px">
             <div class="vsrow" style="margin-bottom:12px">
               <div>
                 <div style="font-size:.88rem;font-weight:700;color:#1A4530;display:flex;align-items:center;gap:8px">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#229ED9"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.04 13.522 4.1 12.617c-.646-.204-.657-.646.135-.956l11.57-4.461c.537-.194 1.006.131.089.021z"/></svg>
-                  Telegram (Recommended — Instant &amp; Free)
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#3A76F0"><path d="M12 0a12 12 0 0 0-10.6 17.65L0 24l6.46-1.37A12 12 0 1 0 12 0z"/></svg>
+                  Signal (Private &amp; End-to-End Encrypted)
                 </div>
-                <div style="font-size:.7rem;color:#8a7e72;margin-top:2px">Messages delivered to your Telegram app instantly. No registration fee. Works on mobile &amp; desktop.</div>
+                <div style="font-size:.7rem;color:#8a7e72;margin-top:2px">Alerts delivered over Signal — the most private messenger. Self-hosted via signal-cli-rest-api, so you own all the data. Supports multiple recipients.</div>
               </div>
-              <label class="vstoggle"><input type="checkbox" id="vTelegramEnabled"><span class="vstoggle-sl"></span></label>
+              <label class="vstoggle"><input type="checkbox" id="vSignalEnabled"><span class="vstoggle-sl"></span></label>
             </div>
             <div style="display:grid;gap:8px">
               <div>
-                <div style="font-size:.75rem;font-weight:600;color:#1A4530;margin-bottom:3px">Bot Token</div>
-                <input type="text" id="vTelegramToken" placeholder="1234567890:ABCdefGHIjklMNOpqrSTUvwxYZ" style="width:100%;padding:7px 10px;border:1px solid #c5b99a;border-radius:6px;font-size:.8rem;font-family:monospace;box-sizing:border-box">
+                <div style="font-size:.75rem;font-weight:600;color:#1A4530;margin-bottom:3px">Signal API URL</div>
+                <input type="text" id="vSignalApiUrl" placeholder="http://localhost:8080" style="width:100%;padding:7px 10px;border:1px solid #c5b99a;border-radius:6px;font-size:.8rem;font-family:monospace;box-sizing:border-box">
               </div>
               <div>
-                <div style="font-size:.75rem;font-weight:600;color:#1A4530;margin-bottom:3px">Chat ID</div>
+                <div style="font-size:.75rem;font-weight:600;color:#1A4530;margin-bottom:3px">Sender Number (registered with Signal)</div>
+                <input type="text" id="vSignalNumber" placeholder="+919513961740" style="width:100%;padding:7px 10px;border:1px solid #c5b99a;border-radius:6px;font-size:.8rem;font-family:monospace;box-sizing:border-box">
+              </div>
+              <div>
+                <div style="font-size:.75rem;font-weight:600;color:#1A4530;margin-bottom:3px">Recipient Number(s) — comma-separated</div>
                 <div style="display:flex;gap:8px">
-                  <input type="text" id="vTelegramChatId" placeholder="123456789" style="flex:1;padding:7px 10px;border:1px solid #c5b99a;border-radius:6px;font-size:.8rem;font-family:monospace">
+                  <input type="text" id="vSignalRecipients" placeholder="+919513961740, +919845581156" style="flex:1;padding:7px 10px;border:1px solid #c5b99a;border-radius:6px;font-size:.8rem;font-family:monospace">
                   <button class="btn btn-save btn-sm" onclick="vSaveSettings()" style="padding:6px 14px;white-space:nowrap">Save</button>
                   <button class="btn btn-sm" onclick="vTestNotification()" style="padding:6px 12px;background:#e8f0eb;color:#1A4530;border:1px solid #c5b99a;border-radius:6px;cursor:pointer;font-size:.78rem;white-space:nowrap">Test</button>
                 </div>
               </div>
             </div>
             <div class="vnote" style="margin-top:10px;margin-bottom:0">
-              <strong>Setup (2 min):</strong><br>
-              1. Open Telegram → search <strong>@BotFather</strong> → send <code>/newbot</code> → copy the token above.<br>
-              2. Send any message to your new bot → open <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> → copy the <code>chat.id</code> number above.<br>
-              3. Click <strong>Save</strong> then <strong>Test</strong> — you should get a message instantly.
+              <strong>Setup (one time):</strong><br>
+              1. On your server, start signal-cli-rest-api (Docker):<br>
+              <code>docker run -d --name signal-api -p 8080:8080 -v $HOME/.local/share/signal-cli:/home/.local/share/signal-cli -e MODE=native bbernhard/signal-cli-rest-api</code><br>
+              2. Register your sender number and verify the SMS code (see the API's <code>/v1/register</code> docs at <code>http://localhost:8080/v1/about</code>).<br>
+              3. Enter the API URL, sender number, and recipient number(s) above → <strong>Save</strong> → <strong>Test</strong>.
             </div>
           </div>
 
@@ -3256,9 +3261,10 @@ async function vChangePage(delta) {
 
 function vSyncSettings(stats) {
   const g = id => document.getElementById(id);
-  if (g('vTelegramEnabled')) g('vTelegramEnabled').checked = !!stats.telegramEnabled;
-  if (g('vTelegramToken')  && stats.telegramToken)   g('vTelegramToken').value   = stats.telegramToken;
-  if (g('vTelegramChatId') && stats.telegramChatId)  g('vTelegramChatId').value  = stats.telegramChatId;
+  if (g('vSignalEnabled')) g('vSignalEnabled').checked = !!stats.signalEnabled;
+  if (g('vSignalApiUrl')     && stats.signalApiUrl)     g('vSignalApiUrl').value     = stats.signalApiUrl;
+  if (g('vSignalNumber')     && stats.signalNumber)     g('vSignalNumber').value     = stats.signalNumber;
+  if (g('vSignalRecipients') && stats.signalRecipients) g('vSignalRecipients').value = stats.signalRecipients;
   if (g('vEmailEnabled'))   g('vEmailEnabled').checked   = !!stats.emailEnabled;
   if (g('vEmailTo')   && stats.emailTo)    g('vEmailTo').value    = stats.emailTo;
   if (g('vEmailFrom') && stats.emailFrom)  g('vEmailFrom').value  = stats.emailFrom;
@@ -3267,9 +3273,10 @@ async function vSaveSettings() {
   try {
     const g = id => (document.getElementById(id)||{});
     await api('PATCH','/api/visitor-settings',{
-      telegramEnabled: !!(g('vTelegramEnabled').checked),
-      telegramToken:   (g('vTelegramToken').value||'').trim(),
-      telegramChatId:  (g('vTelegramChatId').value||'').trim(),
+      signalEnabled:    !!(g('vSignalEnabled').checked),
+      signalApiUrl:     (g('vSignalApiUrl').value||'').trim(),
+      signalNumber:     (g('vSignalNumber').value||'').trim(),
+      signalRecipients: (g('vSignalRecipients').value||'').trim(),
       emailEnabled:    !!(g('vEmailEnabled').checked),
       emailTo:         (g('vEmailTo').value||'').trim(),
       emailFrom:       (g('vEmailFrom').value||'').trim(),
@@ -3284,7 +3291,7 @@ async function vTestNotification() {
   try {
     await vSaveSettings();
     await api('POST','/api/visitor-notify-test',{});
-    toast('Test notification sent! Check Telegram/Email.');
+    toast('Test notification sent! Check Signal/Email.');
   } catch(e) { toast('Test failed: '+e.message,'err'); }
 }
 
