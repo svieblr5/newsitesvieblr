@@ -178,6 +178,22 @@ app.get('/fonts.css', (req, res) => {
 // ── Middleware ──
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// robots.txt — served dynamically (admin-editable). MUST be registered before
+// express.static, otherwise the physical robots.txt file shadows this route.
+// Default = the on-disk robots.txt (richer than a minimal fallback) until the
+// admin sets a custom one in config.json.
+const FALLBACK_ROBOTS =
+  'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nDisallow: /data/\n\nSitemap: https://svie5.com/sitemap.xml\n';
+function defaultRobots() {
+  try { return fs.readFileSync(path.join(ROOT, 'robots.txt'), 'utf8'); } catch { return FALLBACK_ROBOTS; }
+}
+app.get('/robots.txt', (req,res) => {
+  res.type('text/plain');
+  const custom = getConfig().robotsTxt;
+  res.send(typeof custom === 'string' && custom.trim() ? custom : defaultRobots());
+});
+
 app.use(express.static(ROOT));
 app.use('/admin', express.static(path.join(ROOT,'admin')));
 
@@ -344,6 +360,21 @@ const uploadRestore = multer({
   },
 });
 
+// ── Multer: logo / favicon (always overwrites the canonical images/logo.png) ──
+const logoStorage = multer.diskStorage({
+  destination: (req,file,cb) => { const d = path.join(ROOT,'images'); if(!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true}); cb(null, d); },
+  filename:    (req,file,cb) => cb(null, 'logo.png'),
+});
+const ALLOWED_LOGO_MIME = new Set(['image/png','image/jpeg','image/jpg','image/webp','image/svg+xml','image/x-icon','image/vnd.microsoft.icon']);
+const uploadLogo = multer({
+  storage: logoStorage,
+  limits:  { fileSize: 3*1024*1024 },
+  fileFilter: (req,file,cb) => {
+    const ok = ALLOWED_LOGO_MIME.has(file.mimetype);
+    cb(ok ? null : new Error('Logo must be PNG, JPG, WebP, SVG or ICO'), ok);
+  },
+});
+
 // ── Auth middleware ──
 const requireAuth = (req,res,next) => req.session?.loggedIn ? next() : res.status(401).json({ error:'Unauthorized' });
 
@@ -410,16 +441,15 @@ const logActivity = (action, user='admin') => {
 };
 
 // ── Robots.txt — block admin/api from crawlers ──
-app.get('/robots.txt', (req,res) => {
-  res.type('text/plain');
-  res.send(
-    'User-agent: *\n' +
-    'Allow: /\n' +
-    'Disallow: /admin/\n' +
-    'Disallow: /api/\n' +
-    'Disallow: /data/\n\n' +
-    'Sitemap: https://svie5.com/sitemap.xml\n'
-  );
+// Admin: read / update robots.txt (stored in config.json, applies immediately — not draft-gated)
+app.get('/api/robots', requireAuth, (req,res) => res.json({ robots: getConfig().robotsTxt || defaultRobots() }));
+app.post('/api/robots', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const txt = (req.body && typeof req.body.robots === 'string') ? req.body.robots.slice(0, 5000) : '';
+    const cfg = getConfig(); cfg.robotsTxt = txt; saveConfig(cfg);
+    logActivity('Updated robots.txt', req.session.user);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
 });
 
 // ═══════════════════════════════════════════
@@ -479,7 +509,13 @@ app.post('/api/auth/change-password', requireAuth, csrfProtect, async (req,res) 
 //  PUBLIC CONTENT — no auth, read-only, for cms-loader.js on frontend
 //  Serves the LIVE/published content only — drafts are never exposed.
 // ═══════════════════════════════════════════
-app.get('/api/site-content', (req,res) => res.json(readLive()));
+app.get('/api/site-content', (req,res) => {
+  const live = readLive();
+  // logoVersion lives in config (logo file changes are immediate/global, not draft-gated)
+  const v = getConfig().logoVersion;
+  if (v) live.site = { ...(live.site||{}), logoVersion: v };
+  res.json(live);
+});
 
 // ═══════════════════════════════════════════
 //  DRAFT / PUBLISH + VERSION HISTORY (safety net)
@@ -575,6 +611,25 @@ app.get('/api/backup', requireAuth, (req,res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(data);
   logActivity('Downloaded content backup', req.session.user);
+});
+
+// ── Logo / favicon upload (overwrites images/logo.png, used as logo + favicon) ──
+app.post('/api/logo/upload', requireAuth, csrfProtect, uploadLogo.single('logo'), async (req,res) => {
+  try {
+    const dest = path.join(ROOT, 'images', 'logo.png'); // multer already wrote the upload here
+    // If sharp is available, normalize whatever was uploaded into a clean, capped PNG.
+    if (sharp && req.file.mimetype !== 'image/svg+xml') {
+      const buf = await sharp(dest, { failOn:'none' })
+        .resize({ width:512, height:512, fit:'inside', withoutEnlargement:true })
+        .png()
+        .toBuffer();
+      fs.writeFileSync(dest, buf);
+    }
+    // Bump a version in config (immediate + global) so the frontend cache-busts the logo.
+    const cfg = getConfig(); cfg.logoVersion = Date.now(); saveConfig(cfg);
+    logActivity('Updated site logo', req.session.user);
+    res.json({ success:true, src:'images/logo.png?v=' + cfg.logoVersion });
+  } catch(e) { res.status(500).json({ error:e.message }); }
 });
 
 // ── Restore ──
@@ -755,6 +810,27 @@ app.delete('/api/blog/:id', requireAuth, csrfProtect, (req,res) => {
 //  ENQUIRIES  (public POST — no auth needed)
 // ═══════════════════════════════════════════
 app.get('/api/enquiries', requireAuth, (req,res) => res.json(readJSON(ENQUIRY_FILE,[])));
+
+// Export all enquiries as a CSV (opens cleanly in Excel / Google Sheets)
+app.get('/api/enquiries/export.csv', requireAuth, (req,res) => {
+  const list    = readJSON(ENQUIRY_FILE, []);
+  const cols    = ['date','name','email','phone','service','budget','status','message'];
+  const headers = ['Date','Name','Email','Phone','Service','Budget','Status','Message'];
+  const csvCell = v => {
+    const s = v == null ? '' : String(v);
+    return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const rows = list.map(e => cols.map(c => {
+    if (c === 'date') { try { return csvCell(new Date(e.date).toLocaleString('en-IN')); } catch { return csvCell(e.date); } }
+    return csvCell(e[c]);
+  }).join(','));
+  const csv   = '﻿' + headers.join(',') + '\r\n' + rows.join('\r\n'); // BOM → Excel reads UTF-8 correctly
+  const fname = 'svie-enquiries-' + new Date().toISOString().slice(0,10) + '.csv';
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${fname}"`);
+  res.send(csv);
+  logActivity('Exported enquiries CSV (' + list.length + ' leads)', req.session.user);
+});
 
 app.post('/api/enquiries', enquiryLimiter, (req,res) => {
   try {

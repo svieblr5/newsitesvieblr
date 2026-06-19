@@ -77,6 +77,38 @@
     } catch {}
   }
 
+  /* ── Footer social links from CMS (site.facebook / instagram / twitter / whatsapp) ── */
+  function isSafeUrl(u) { return typeof u === 'string' && /^https?:\/\//i.test(u); }
+  function applySocials(site) {
+    var map = { facebook:'Facebook', instagram:'Instagram', twitter:'Twitter / X', whatsapp:'WhatsApp' };
+    Object.keys(map).forEach(function (k) {
+      var url = site[k];
+      document.querySelectorAll('.footer-soc[aria-label="' + map[k] + '"]').forEach(function (a) {
+        if (isSafeUrl(url)) { a.href = url; a.style.display = ''; }
+        else { a.style.display = 'none'; } // hide icon if the link is cleared
+      });
+    });
+  }
+
+  /* ── WhatsApp float button: number (from site.whatsapp), enable/disable, position ── */
+  function applyWhatsApp(site) {
+    var fl = document.querySelector('.wa-float');
+    if (!fl) return;
+    if (site.wa_enabled === false) { fl.style.display = 'none'; return; }
+    fl.style.display = '';
+    if (isSafeUrl(site.whatsapp)) fl.href = site.whatsapp;
+    if (site.wa_position === 'left') { fl.style.right = 'auto'; fl.style.left = '24px'; }
+    else { fl.style.left = 'auto'; fl.style.right = ''; }
+  }
+
+  /* ── Logo cache-bust: append ?v=version so a replaced logo.png refreshes instantly ── */
+  function applyLogo(site) {
+    if (!site.logoVersion) return;
+    document.querySelectorAll('img[src*="logo.png"]').forEach(function (img) {
+      img.src = img.getAttribute('src').split('?')[0] + '?v=' + site.logoVersion;
+    });
+  }
+
   /* ── Deep key resolver: "furniture_page.images.hero_bg" → value ── */
   function resolve(data, keyPath) {
     return keyPath.split('.').reduce(function (o, k) { return o && o[k]; }, data);
@@ -107,7 +139,12 @@
       }
     });
 
-    if (data.site && data.site.phone1) applyPhone(data.site.phone1);
+    if (data.site) {
+      if (data.site.phone1) applyPhone(data.site.phone1);
+      applySocials(data.site);
+      applyWhatsApp(data.site);
+      applyLogo(data.site);
+    }
   }
 
   // ── 1. Apply from localStorage immediately (no network delay) ──

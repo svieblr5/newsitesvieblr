@@ -645,6 +645,23 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
           <div class="frow"><div class="fg"><label>Twitter / X URL</label><input id="site-tw" type="url"></div><div class="fg"><label>WhatsApp Link</label><input id="site-wa" type="url"></div></div>
         </div>
 
+        <div class="card">
+          <div class="card-title">WhatsApp Float Button</div>
+          <div class="card-sub">The floating green WhatsApp button shown on every page (uses the WhatsApp Link above)</div>
+          <div class="frow">
+            <div class="fg">
+              <label>Show button</label>
+              <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.82rem;color:#4a443e;cursor:pointer;margin-top:4px">
+                <input id="set-wa-enabled" type="checkbox" style="width:16px;height:16px;accent-color:#1A4530;cursor:pointer">
+                Display the floating WhatsApp button
+              </label>
+            </div>
+            <div class="fg"><label>Position</label>
+              <select id="set-wa-position"><option value="right">Bottom right</option><option value="left">Bottom left</option></select>
+            </div>
+          </div>
+        </div>
+
         <!-- Call tracking moved to dedicated panel — link to it -->
         <div class="card" style="background:#f8f5f0;border-style:dashed">
           <div style="display:flex;align-items:center;gap:14px">
@@ -1111,6 +1128,27 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
         </div>
 
         <div class="card">
+          <div class="card-title">Logo &amp; Favicon</div>
+          <div class="card-sub">Replaces the logo across the whole site — also used as the browser favicon. PNG, JPG, WebP, SVG or ICO · max 3MB</div>
+          <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+            <div style="width:64px;height:64px;border-radius:12px;border:1px solid #e8e4dd;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+              <img id="logoPreview" src="../images/logo.png" alt="Current logo" style="max-width:100%;max-height:100%;object-fit:contain">
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon" style="font-size:.78rem;color:#6a6460">
+              <button class="btn btn-primary btn-sm" onclick="uploadLogo()">Upload &amp; Replace</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Search Engine — robots.txt</div>
+          <div class="card-sub">Controls what search engines may crawl. Applies immediately (not draft-gated). Leave blank to use the default.</div>
+          <textarea id="robots-txt" style="min-height:150px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;white-space:pre"></textarea>
+          <button class="btn btn-primary btn-sm" onclick="saveRobots()" style="margin-top:8px">Save robots.txt</button>
+        </div>
+
+        <div class="card">
           <div class="card-title">Change Password</div>
           <div class="card-sub">Update your CMS login password</div>
           <div class="frow tri">
@@ -1556,6 +1594,7 @@ function show(id, btn) {
   if (id==='calltracking') loadCallTracking();
   if (id==='visitors')    loadVisitorDashboard();
   if (id==='typography')  loadTypography();
+  if (id==='settings')    loadRobots();
 }
 
 // ── Panel tabs ────────────────────────────────
@@ -1825,10 +1864,13 @@ function fillContact() {
   sv('site-description',s.description);
   sv('site-fb',s.facebook); sv('site-ig',s.instagram);
   sv('site-tw',s.twitter); sv('site-wa',s.whatsapp);
+  const waEn = document.getElementById('set-wa-enabled'); if (waEn) waEn.checked = s.wa_enabled !== false;
+  sv('set-wa-position', s.wa_position || 'right');
 }
 
 async function saveContact() {
-  const data = {...(C.site||{}), phone1:gv('site-phone1'), phone2:gv('site-phone2'), email:gv('site-email'), address:gv('site-address'), hours:gv('site-hours'), landmark:gv('site-landmark'), description:gv('site-description'), facebook:gv('site-fb'), instagram:gv('site-ig'), twitter:gv('site-tw'), whatsapp:gv('site-wa')};
+  const waEnEl = document.getElementById('set-wa-enabled');
+  const data = {...(C.site||{}), phone1:gv('site-phone1'), phone2:gv('site-phone2'), email:gv('site-email'), address:gv('site-address'), hours:gv('site-hours'), landmark:gv('site-landmark'), description:gv('site-description'), facebook:gv('site-fb'), instagram:gv('site-ig'), twitter:gv('site-tw'), whatsapp:gv('site-wa'), wa_enabled: waEnEl ? waEnEl.checked : true, wa_position: gv('set-wa-position')||'right'};
   localStorage.setItem('svie_site', JSON.stringify(data));
   C.site = data;
   await api('POST','/api/content/site', data);
@@ -2259,6 +2301,30 @@ function fillSettings() {
 async function saveSettings() {
   await api('POST','/api/content/site',{...C.site, name:gv('set-name'), tagline:gv('set-tagline')});
   C = await api('GET','/api/content');
+}
+
+// ── Logo / favicon upload ──
+async function uploadLogo() {
+  const input = document.getElementById('logoFile');
+  const f = input && input.files[0];
+  if (!f) return toast('Choose an image first','err');
+  const fd = new FormData(); fd.append('logo', f);
+  try {
+    const r = await fetch('/api/logo/upload',{method:'POST',body:fd,headers:{'X-CSRF-Token':_csrfToken}}).then(x=>x.json());
+    if (!r.success) return toast('Logo upload failed: '+(r.error||''),'err');
+    document.getElementById('logoPreview').src = '../'+r.src; // r.src carries ?v= cache-bust
+    input.value = '';
+    toast('Logo updated ✓ (also updates the favicon)');
+  } catch(e) { toast('Logo error: '+e.message,'err'); }
+}
+
+// ── robots.txt editor ──
+async function loadRobots() {
+  try { const r = await api('GET','/api/robots'); sv('robots-txt', r.robots); } catch(e) {}
+}
+async function saveRobots() {
+  try { await api('POST','/api/robots',{robots:gv('robots-txt')}); toast('robots.txt saved'); }
+  catch(e) { toast('Save failed: '+e.message,'err'); }
 }
 
 async function changePassword() {
@@ -2830,22 +2896,12 @@ function delEnq(id) {
 }
 
 function exportEnqCSV() {
-  const list = getEnquiries();
-  if (!list.length) { toast('No enquiries to export','err'); return; }
-  const headers = ['Date','First Name','Last Name','Email','Phone','Service','Budget','Message','Status'];
-  const rows = list.map(e=>[
-    e.date?new Date(e.date).toLocaleString('en-IN'):'',
-    e.fname||'', e.lname||'', e.email||'', e.phone||'',
-    e.service||'', e.budget||'',
-    (e.message||'').replace(/"/g,"''"),
-    e.status||'new'
-  ].map(v=>`"${v}"`).join(','));
-  const csv = [headers.join(','),...rows].join('\n');
+  // Download from the server — the authoritative enquiries store (correct fields + escaping).
   const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
-  a.download = 'SVIE_Enquiries_'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click();
-  toast('Enquiries exported as CSV');
+  a.href = '/api/enquiries/export.csv';
+  a.download = '';
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('Downloading enquiries CSV…');
 }
 
 // ── CLICK TO CALL TRACKING ────────────────────
