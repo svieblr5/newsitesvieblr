@@ -220,6 +220,30 @@ em.italic-gold{font-style:italic;color:var(--gold)}
 }
 .btn-outline:hover{background:var(--forest-mid);color:var(--cream);transform:translateY(-2px)}
 
+.btn-outline-sm{
+  padding:5px 5px 5px 16px;
+  font-size:.56rem;
+  letter-spacing:.14em;
+  gap:9px;
+  border:none;
+  background:var(--gold);
+  color:var(--forest-deep);
+}
+.btn-outline-sm .btn-ico{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:21px;height:21px;flex-shrink:0;
+  border-radius:50%;
+  background:var(--forest-deep);color:var(--cream);
+  transition:var(--t);
+}
+.btn-outline-sm .btn-ico svg{transition:transform .3s var(--spring)}
+.btn-outline-sm:hover{
+  background:var(--gold-light);
+  transform:translateY(-2px);
+  box-shadow:var(--sh-gold);
+}
+.btn-outline-sm:hover .btn-ico svg{transform:translateX(3px)}
+
 .btn-dark{
   background:var(--forest-deep);
   color:var(--cream);
