@@ -1275,6 +1275,12 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
               </div>
               <label class="vstoggle"><input type="checkbox" id="vSignalEnabled"><span class="vstoggle-sl"></span></label>
             </div>
+            <div style="background:#fff4e5;border:1px solid #f0c98a;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:.72rem;color:#7a5b1e;line-height:1.5">
+              <strong>⚠ Requires Docker on your server.</strong> Signal has no cloud API, so alerts only send when a
+              <strong>signal-cli-rest-api</strong> container is running 24/7 on your host. This works on a VPS or any
+              host that allows Docker / long-running containers — but <strong>not on basic shared hosting</strong>.
+              If your plan can't run Docker, leave Signal off and use <strong>Email alerts</strong> below instead.
+            </div>
             <div style="display:grid;gap:8px">
               <div>
                 <div style="font-size:.75rem;font-weight:600;color:#1A4530;margin-bottom:3px">Signal API URL</div>
