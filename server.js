@@ -8,6 +8,7 @@ const helmet       = require('helmet');
 const rateLimit    = require('express-rate-limit');
 const bcrypt       = require('bcryptjs');
 const crypto       = require('crypto');
+const storage      = require('./storage');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -27,8 +28,8 @@ const GEO_TTL   = 3600000; // 1 hour
 
 // ── Config helpers ──
 const ADMIN_USER = 'admin';
-const getConfig  = () => { try { return JSON.parse(fs.readFileSync(CONFIG_FILE,'utf8')); } catch { return {}; } };
-const saveConfig = d  => fs.writeFileSync(CONFIG_FILE, JSON.stringify(d,null,2));
+const getConfig  = () => storage.readJSONSafe(CONFIG_FILE, {});
+const saveConfig = d  => storage.writeJSON(CONFIG_FILE, d);
 
 // ── Password: bcrypt-based with auto-migration from plaintext ──
 async function verifyPassword(input) {
@@ -171,10 +172,23 @@ app.use(express.static(ROOT));
 app.use('/admin', express.static(path.join(ROOT,'admin')));
 
 if (!process.env.SESSION_SECRET) {
-  console.warn('  ⚠  SESSION_SECRET env var not set — sessions will be lost on restart. Set it in production.');
+  console.warn('  ⚠  SESSION_SECRET env var not set — set it in production so sessions survive restarts.');
 }
 
+// Persistent, file-backed session store (pure JS, no native modules).
+// Survives server restarts/deploys and avoids MemoryStore's leak warning.
+const FileStore   = require('session-file-store')(session);
+const SESSIONS_DIR = path.join(ROOT, 'data', 'sessions');
+try { fs.mkdirSync(SESSIONS_DIR, { recursive: true }); } catch { /* exists */ }
+
 app.use(session({
+  store: new FileStore({
+    path:         SESSIONS_DIR,
+    ttl:          8 * 60 * 60,   // seconds — matches cookie maxAge
+    retries:      2,
+    reapInterval: 60 * 60,       // purge expired sessions hourly
+    logFn:        () => {},      // silence the store's verbose logging
+  }),
   secret:            process.env.SESSION_SECRET || crypto.randomBytes(48).toString('hex'),
   resave:            false,
   saveUninitialized: false,
@@ -289,8 +303,8 @@ const csrfProtect = (req,res,next) => {
 };
 
 // ── JSON helpers ──
-const readJSON  = (file, def) => { try { return JSON.parse(fs.readFileSync(file,'utf8')); } catch { return def; } };
-const writeJSON = (file, data) => fs.writeFileSync(file, JSON.stringify(data,null,2));
+const readJSON  = (file, def) => storage.readJSONSafe(file, def);
+const writeJSON = (file, data) => storage.writeJSON(file, data);
 const readContent  = ()   => readJSON(CONTENT_FILE, {});
 const writeContent = data => writeJSON(CONTENT_FILE, data);
 
