@@ -47,6 +47,21 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
 .btn-save{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;font-family:'Raleway',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:linear-gradient(135deg,#C9A05A,#E0C07E);color:#0C2C1B;border:none;cursor:pointer;transition:all .2s}
 .btn-save:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(201,160,90,.35)}
 .btn-save:disabled{opacity:.5;pointer-events:none}
+/* ── Draft / publish controls ── */
+.pubwrap{display:flex;align-items:center;gap:8px;margin-right:4px;padding-right:10px;border-right:1px solid #e8e4dd}
+.pub-status{display:flex;align-items:center;gap:6px;font-family:'Raleway',sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.05em;color:#6a6460;white-space:nowrap;cursor:default}
+.pub-dot{width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0;transition:background .2s}
+.btn-history{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;font-family:'Raleway',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:#fff;color:#1A4530;border:1.5px solid #ddd8d0;cursor:pointer;transition:all .2s}
+.btn-history:hover{border-color:#1A4530}
+.btn-publish{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;font-family:'Raleway',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:#1A4530;color:#fff;border:none;cursor:pointer;transition:all .2s}
+.btn-publish:hover{background:#215840}
+.btn-publish:disabled{opacity:.45;pointer-events:none}
+.btn-publish.hot{box-shadow:0 0 0 3px rgba(26,69,48,.12)}
+.ver-list{max-height:52vh;overflow-y:auto;margin-top:4px}
+.ver-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 4px;border-bottom:1px solid #f0ece5}
+.ver-row:last-child{border-bottom:none}
+.ver-act{font-family:'Raleway',sans-serif;font-size:.8rem;font-weight:700;color:#1A4530}
+.ver-meta{font-size:.72rem;color:#8a7e72;margin-top:2px}
 
 /* ── Content area ── */
 .area{flex:1;overflow-y:auto;padding:26px}
@@ -466,6 +481,17 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
           Save Changes
         </button>
+        <div class="pubwrap" style="margin-left:6px;border-right:none;border-left:1px solid #e8e4dd;padding-left:12px;padding-right:0;margin-right:0">
+          <span class="pub-status" id="pubStatus" title="Saved edits stay as a draft until you Publish them live"><span class="pub-dot" id="pubDot"></span><span id="pubText">All changes published</span></span>
+          <button class="btn-history" onclick="openVersionHistory()" title="View &amp; restore earlier published versions">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+            History
+          </button>
+          <button class="btn-publish" id="publishBtn" onclick="publishChanges()" disabled>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>
+            Publish
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1510,6 +1536,7 @@ async function init() {
   fillHome(); fillAbout(); fillContact(); fillSEO(); fillSettings();
   fillServices(); fillProducts(); fillFurniture(); fillElectronics();
   loadStats(); loadDashActivity(); loadVisitorCount();
+  refreshPublishState();
 }
 
 // ── Navigation ────────────────────────────────
@@ -3035,7 +3062,7 @@ async function saveCurrent() {
     else if (curPanel==='settings')    await saveSettings();
     else { toast('Nothing to save on this panel'); btn.textContent='Save Changes'; btn.disabled=false; return; }
     loadStats();
-    toast('Saved successfully ✓');
+    toast('Saved to draft ✓ — click Publish to go live');
   } catch(e) { toast('Save failed: '+e.message,'err'); }
   btn.textContent='Save Changes'; btn.disabled=false;
 }
@@ -3100,7 +3127,96 @@ async function api(method, url, body) {
   const r    = await fetch(url, opts);
   const data = await r.json();
   if (!r.ok && data.error) throw new Error(data.error);
+  // After any successful content edit, refresh the unpublished-changes indicator.
+  if (r.ok && ['POST','PUT','PATCH','DELETE'].includes(method) &&
+      /^\/api\/(content|gallery|testimonials|blog|team|restore)\b/.test(url)) {
+    schedulePubRefresh();
+  }
   return data;
+}
+
+// ── Draft / publish safety net ────────────────
+let _pubT = null;
+function schedulePubRefresh() { clearTimeout(_pubT); _pubT = setTimeout(refreshPublishState, 350); }
+
+async function refreshPublishState() {
+  let s;
+  try { s = await api('GET','/api/draft/status'); } catch(e) { return; }
+  const dot = document.getElementById('pubDot');
+  const txt = document.getElementById('pubText');
+  const btn = document.getElementById('publishBtn');
+  if (!dot || !txt || !btn) return;
+  if (s.hasUnpublishedChanges) {
+    dot.style.background = '#C9A05A';
+    txt.textContent = 'Unpublished changes';
+    btn.disabled = false; btn.classList.add('hot');
+  } else {
+    dot.style.background = '#16a34a';
+    txt.textContent = 'All changes published';
+    btn.disabled = true; btn.classList.remove('hot');
+  }
+}
+
+function publishChanges() {
+  openModal('Publish changes',
+    '<p style="font-size:.86rem;color:#4a443e;line-height:1.55">This makes your saved draft edits <strong>live on the public website</strong>. A restore point is saved automatically, so you can roll back anytime from <em>History</em>.</p>',
+    async () => {
+      await api('POST','/api/publish');
+      await refreshPublishState();
+      toast('Published — your changes are now live ✓');
+    }, 'Publish now', 'btn-ok');
+}
+
+function discardDraft() {
+  openModal('Discard draft changes',
+    '<p style="font-size:.86rem;color:#4a443e;line-height:1.55">This reverts <strong>all unpublished edits</strong> back to what is currently live. This cannot be undone.</p>',
+    async () => {
+      await api('POST','/api/draft/discard');
+      await reloadAllContent();
+      await refreshPublishState();
+      toast('Draft discarded — back to the live version');
+    }, 'Discard', 'btn-danger');
+}
+
+async function openVersionHistory() {
+  let vers = [];
+  try { vers = await api('GET','/api/versions'); } catch(e) {}
+  const rows = vers.length ? vers.map(v => `
+    <div class="ver-row">
+      <div><div class="ver-act">${esc(v.action||'Snapshot')}</div>
+           <div class="ver-meta">${fmtTime(v.time)} &middot; ${esc(v.user||'admin')}</div></div>
+      <button class="btn btn-outline btn-sm" onclick="restoreVersion('${esc(v.id)}')">Restore</button>
+    </div>`).join('') : '<p style="color:#8a7e72;font-size:.82rem">No published versions yet. Publish your first changes to start a history.</p>';
+  const discardRow = `<div style="margin-top:14px;padding-top:12px;border-top:1px solid #f0ece5;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <span style="font-size:.76rem;color:#8a7e72">Throw away current unpublished edits</span>
+      <button class="btn btn-danger btn-sm" onclick="closeModal();discardDraft()">Discard draft</button></div>`;
+  openModal('Version history',
+    '<p style="font-size:.82rem;color:#6a6460;line-height:1.5;margin-bottom:6px">Every publish saves a restore point. <strong>Restore</strong> loads that version into your draft so you can review it — then click <strong>Publish</strong> to make it live.</p>'
+    + '<div class="ver-list">' + rows + '</div>' + discardRow,
+    () => {}, 'Close', 'btn-cancel', { wide:true });
+}
+
+async function restoreVersion(id) {
+  closeModal();
+  try {
+    await api('POST','/api/versions/'+id+'/restore');
+    await reloadAllContent();
+    await refreshPublishState();
+    toast('Version loaded into draft — review it, then Publish to go live');
+  } catch(e) { toast('Restore failed: '+e.message,'err'); }
+}
+
+// Re-pull content into the editor after a draft-level change (discard/restore).
+async function reloadAllContent() {
+  C = await api('GET','/api/content').catch(()=>C);
+  try {
+    fillHome(); fillAbout(); fillContact(); fillSEO(); fillSettings();
+    fillServices(); fillProducts(); fillFurniture(); fillElectronics();
+    loadStats();
+    if (curPanel==='gallery')      loadGallery();
+    if (curPanel==='testimonials') loadTestimonials();
+    if (curPanel==='blog')         loadBlog();
+  } catch(e) {}
 }
 
 function sv(id,val) { const el=document.getElementById(id); if(el&&val!==undefined&&val!==null) el.value=val; }

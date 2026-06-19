@@ -10,17 +10,27 @@ const bcrypt       = require('bcryptjs');
 const crypto       = require('crypto');
 const storage      = require('./storage');
 
+// sharp powers on-upload image optimization. It's an optional native dep — if it
+// fails to load (e.g. missing prebuilt binary on a host), uploads still work and
+// simply keep the original file instead of crashing.
+let sharp = null;
+try { sharp = require('sharp'); } catch (e) { console.warn('[img] sharp unavailable — uploads will not be optimized:', e.message); }
+
 const app  = express();
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
 const SALT_ROUNDS = 12;
 
 // ── File paths ──
-const CONTENT_FILE  = path.join(ROOT, 'data', 'content.json');
+const CONTENT_FILE  = path.join(ROOT, 'data', 'content.json');        // LIVE / published — public site reads this
+const DRAFT_FILE    = path.join(ROOT, 'data', 'content-draft.json');  // DRAFT working copy — dashboard edits this
+const VERSIONS_DIR  = path.join(ROOT, 'data', 'versions');            // restore-point snapshots
+const VERSIONS_IDX  = path.join(VERSIONS_DIR, 'index.json');          // version metadata index
 const ENQUIRY_FILE  = path.join(ROOT, 'data', 'enquiries.json');
 const ACTIVITY_FILE = path.join(ROOT, 'data', 'activity.json');
 const CONFIG_FILE   = path.join(ROOT, 'data', 'config.json');
 const VISITORS_FILE = path.join(ROOT, 'data', 'visitors.json');
+const MAX_VERSIONS  = 50; // keep the 50 most recent restore points
 
 // ── Geo-IP in-memory cache (ip → {data, ts}) ──
 const GEO_CACHE = new Map();
@@ -229,6 +239,52 @@ const enquiryLimiter = rateLimit({
 
 app.use('/api/', apiLimiter);
 
+// ── Image optimization on upload ─────────────────────────────────────────
+//   Re-encodes a just-uploaded photo to WebP, caps its dimensions and strips
+//   metadata — typically a 60-80% size cut, which means faster page loads and
+//   a better Core Web Vitals / SEO score on this photo-heavy site.
+//   Returns the NEW filename on success, or null to signal "keep the original"
+//   (sharp missing, animated GIF, or any failure — optimization never blocks
+//   an upload).
+async function optimizeImage(absPath, { maxW = 1600, quality = 80 } = {}) {
+  if (!sharp) return null;
+  const ext = path.extname(absPath).toLowerCase();
+  if (ext === '.gif') return null; // leave (possibly animated) GIFs untouched
+  const dir      = path.dirname(absPath);
+  const finalName = path.basename(absPath, path.extname(absPath)) + '.webp';
+  const finalPath = path.join(dir, finalName);
+  const tmpPath   = finalPath + '.tmp'; // write to temp so src===dest (already-webp) is safe
+  try {
+    const before = fs.statSync(absPath).size;
+    await sharp(absPath, { failOn: 'none' })
+      .rotate()                                                       // apply EXIF orientation, then drop metadata
+      .resize({ width: maxW, height: maxW, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality })
+      .toFile(tmpPath);
+    const after = fs.statSync(tmpPath).size;
+
+    // Guard: an already-small / already-optimized source can re-encode LARGER.
+    // In that case throw the WebP away and keep the original untouched.
+    if (after >= before) {
+      try { fs.unlinkSync(tmpPath); } catch { /* ignore */ }
+      console.log(`[img] kept original ${path.basename(absPath)} (webp ${(after/1024).toFixed(0)}KB ≥ ${(before/1024).toFixed(0)}KB)`);
+      return null;
+    }
+
+    // Drop the original only if it's a different file than the destination.
+    if (path.resolve(absPath) !== path.resolve(finalPath)) {
+      try { fs.unlinkSync(absPath); } catch { /* ignore */ }
+    }
+    fs.renameSync(tmpPath, finalPath);
+    console.log(`[img] ${path.basename(absPath)} → ${finalName}  ${(before/1024).toFixed(0)}KB → ${(after/1024).toFixed(0)}KB`);
+    return finalName;
+  } catch (e) {
+    console.warn('[img] optimize failed, keeping original:', e.message);
+    try { if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath); } catch { /* ignore */ }
+    return null;
+  }
+}
+
 // ── Multer: gallery uploads ──
 const galleryStorage = multer.diskStorage({
   destination: (req,file,cb) => {
@@ -305,8 +361,46 @@ const csrfProtect = (req,res,next) => {
 // ── JSON helpers ──
 const readJSON  = (file, def) => storage.readJSONSafe(file, def);
 const writeJSON = (file, data) => storage.writeJSON(file, data);
-const readContent  = ()   => readJSON(CONTENT_FILE, {});
-const writeContent = data => writeJSON(CONTENT_FILE, data);
+
+// ── Content: draft / publish safety net ──────────────────────────────────
+//   • content.json        = LIVE (what the public website serves).
+//   • content-draft.json  = DRAFT (what the dashboard edits).
+//   Edits land in the draft; nothing reaches the public site until "Publish",
+//   which copies the draft over the live file and saves a restore point.
+//   If no draft exists yet (first run / fresh deploy), the draft transparently
+//   mirrors the live content so the admin never sees an empty editor.
+const readLive   = ()   => readJSON(CONTENT_FILE, {});
+const writeLive  = data => writeJSON(CONTENT_FILE, data);
+const readDraft  = ()   => { const d = readJSON(DRAFT_FILE, null); return d === null ? readLive() : d; };
+const writeDraft = data => writeJSON(DRAFT_FILE, data);
+
+// The dashboard CRUD routes go through these — i.e. they all edit the DRAFT.
+const readContent  = ()   => readDraft();
+const writeContent = data => writeDraft(data);
+
+// True when the draft differs from what's currently live (= unpublished edits).
+const hasUnpublishedChanges = () =>
+  JSON.stringify(readDraft()) !== JSON.stringify(readLive());
+
+// ── Version snapshots (restore points) ──
+function listVersions() { return readJSON(VERSIONS_IDX, []); }
+
+// Save `content` as a new restore point, prune to MAX_VERSIONS, return its id.
+function snapshotVersion(content, user, action) {
+  try { if (!fs.existsSync(VERSIONS_DIR)) fs.mkdirSync(VERSIONS_DIR, { recursive: true }); }
+  catch { /* best effort */ }
+  const id = Date.now().toString();
+  writeJSON(path.join(VERSIONS_DIR, 'v-' + id + '.json'), content);
+  const idx = listVersions();
+  idx.unshift({ id, time: new Date().toISOString(), user: user || 'admin', action: action || 'Snapshot' });
+  // prune older snapshots beyond the cap, deleting their files
+  const keep = idx.slice(0, MAX_VERSIONS);
+  idx.slice(MAX_VERSIONS).forEach(v => {
+    try { fs.unlinkSync(path.join(VERSIONS_DIR, 'v-' + v.id + '.json')); } catch { /* ignore */ }
+  });
+  writeJSON(VERSIONS_IDX, keep);
+  return id;
+}
 
 // ── Activity log ──
 const logActivity = (action, user='admin') => {
@@ -383,8 +477,63 @@ app.post('/api/auth/change-password', requireAuth, csrfProtect, async (req,res) 
 
 // ═══════════════════════════════════════════
 //  PUBLIC CONTENT — no auth, read-only, for cms-loader.js on frontend
+//  Serves the LIVE/published content only — drafts are never exposed.
 // ═══════════════════════════════════════════
-app.get('/api/site-content', (req,res) => res.json(readContent()));
+app.get('/api/site-content', (req,res) => res.json(readLive()));
+
+// ═══════════════════════════════════════════
+//  DRAFT / PUBLISH + VERSION HISTORY (safety net)
+// ═══════════════════════════════════════════
+// Whether the draft has edits not yet pushed live (drives the dashboard banner).
+app.get('/api/draft/status', requireAuth, (req,res) => {
+  res.json({
+    hasUnpublishedChanges: hasUnpublishedChanges(),
+    lastPublished: (listVersions().find(v => v.action === 'Published changes') || {}).time || null,
+  });
+});
+
+// Publish: copy the draft over the live file + save a restore point.
+app.post('/api/publish', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const draft = readDraft();
+    snapshotVersion(draft, req.session.user, 'Published changes'); // restore point = what we just made live
+    writeLive(draft);
+    logActivity('Published site changes', req.session.user);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// Discard the draft — revert all unpublished edits back to the live version.
+app.post('/api/draft/discard', requireAuth, csrfProtect, (req,res) => {
+  try {
+    writeDraft(readLive());
+    logActivity('Discarded unpublished draft', req.session.user);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// List restore points (metadata only).
+app.get('/api/versions', requireAuth, (req,res) => res.json(listVersions()));
+
+// Fetch the full content of one restore point (for preview).
+app.get('/api/versions/:id', requireAuth, (req,res) => {
+  if (!/^\d+$/.test(req.params.id)) return res.status(400).json({ error:'Invalid id' });
+  const file = path.join(VERSIONS_DIR, 'v-' + req.params.id + '.json');
+  if (!fs.existsSync(file)) return res.status(404).json({ error:'Version not found' });
+  res.json(readJSON(file, {}));
+});
+
+// Restore a version into the DRAFT (admin reviews, then publishes to go live).
+app.post('/api/versions/:id/restore', requireAuth, csrfProtect, (req,res) => {
+  try {
+    if (!/^\d+$/.test(req.params.id)) return res.status(400).json({ error:'Invalid id' });
+    const file = path.join(VERSIONS_DIR, 'v-' + req.params.id + '.json');
+    if (!fs.existsSync(file)) return res.status(404).json({ error:'Version not found' });
+    writeDraft(readJSON(file, {}));
+    logActivity('Restored version from ' + new Date(Number(req.params.id)).toISOString().slice(0,16).replace('T',' '), req.session.user);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
 
 // ═══════════════════════════════════════════
 //  CONTENT — generic section CRUD
@@ -443,11 +592,12 @@ app.post('/api/restore', requireAuth, csrfProtect, uploadRestore.single('file'),
 // ═══════════════════════════════════════════
 //  TEAM PHOTO UPLOAD
 // ═══════════════════════════════════════════
-app.post('/api/team/upload/:index', requireAuth, csrfProtect, uploadTeam.single('photo'), (req,res) => {
+app.post('/api/team/upload/:index', requireAuth, csrfProtect, uploadTeam.single('photo'), async (req,res) => {
   try {
     const idx = parseInt(req.params.index);
     if (isNaN(idx) || idx < 0 || idx > 20) return res.status(400).json({ error:'Invalid index' });
-    const src = 'images/team/' + req.file.filename;
+    const fname = await optimizeImage(req.file.path, { maxW:800, quality:82 }) || req.file.filename;
+    const src = 'images/team/' + fname;
     const c   = readContent();
     if (!c.about)       c.about      = {};
     if (!c.about.team)  c.about.team = [];
@@ -479,13 +629,14 @@ app.delete('/api/team/photo/:index', requireAuth, csrfProtect, (req,res) => {
 // ═══════════════════════════════════════════
 app.get('/api/gallery', requireAuth, (req,res) => res.json(readContent().gallery||[]));
 
-app.post('/api/gallery/upload', requireAuth, csrfProtect, upload.single('image'), (req,res) => {
+app.post('/api/gallery/upload', requireAuth, csrfProtect, upload.single('image'), async (req,res) => {
   try {
+    const fname = await optimizeImage(req.file.path, { maxW:1600, quality:80 }) || req.file.filename;
     const c    = readContent();
-    const item = { id:'g'+Date.now(), src:'images/gallery/'+req.file.filename, title:req.body.title||'New Project', tag:req.body.tag||'Design', category:req.body.category||'interior' };
+    const item = { id:'g'+Date.now(), src:'images/gallery/'+fname, title:req.body.title||'New Project', tag:req.body.tag||'Design', category:req.body.category||'interior' };
     (c.gallery = c.gallery||[]).push(item);
     writeContent(c);
-    logActivity('Uploaded image: '+req.file.filename, req.session.user);
+    logActivity('Uploaded image: '+fname, req.session.user);
     res.json({ success:true, item });
   } catch(e) { res.status(500).json({ error:e.message }); }
 });
