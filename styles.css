@@ -1519,6 +1519,21 @@ em.italic-gold{font-style:italic;color:var(--gold)}
 }
 .elec-brand-tag:hover{background:var(--gold);color:var(--forest-deep)}
 
+/* ── ══════════ TESTIMONIALS (CMS-driven) ══════════ ── */
+.tst-sec{padding:74px 0;background:#efe7da}
+.tst-aggregate{font-size:.9rem;font-weight:600;color:var(--gold);letter-spacing:.02em}
+.tst-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+.tst-card{
+  background:#fff;border-radius:var(--r-lg);padding:28px 30px;
+  border-left:3px solid var(--gold);box-shadow:0 8px 30px rgba(0,0,0,.05);
+  display:flex;flex-direction:column;gap:14px;
+}
+.tst-stars{color:var(--gold);font-size:1rem;letter-spacing:3px;line-height:1}
+.tst-text{font-family:var(--font-display);font-style:italic;color:var(--charcoal);line-height:1.7;font-size:1.02rem;margin:0}
+.tst-meta{margin-top:auto;padding-top:6px}
+.tst-name{font-weight:700;color:var(--forest-deep);font-size:.95rem}
+.tst-role{font-size:.78rem;color:#8a7e72;margin-top:2px}
+
 /* ── ══════════ ANIMATIONS ══════════ ── */
 .reveal{opacity:0;transform:translateY(28px);transition:opacity .65s var(--ease-out), transform .65s var(--ease-out)}
 .reveal.in{opacity:1;transform:translateY(0)}
