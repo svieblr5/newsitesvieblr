@@ -1065,7 +1065,10 @@ app.patch('/api/visitor-settings', requireAuth, csrfProtect, (req, res) => {
     if (b.emailEnabled    !== undefined) cfg.emailEnabled    = !!b.emailEnabled;
     if (str('emailTo',   200) !== undefined) cfg.emailTo   = str('emailTo',   200);
     if (str('emailFrom', 200) !== undefined) cfg.emailFrom = str('emailFrom', 200);
-    if (str('emailPass', 200) !== undefined) cfg.emailPass = str('emailPass', 200);
+    // Password is write-only (never sent back to the form), so a blank submission
+    // means "keep the existing password" rather than wiping it.
+    const newEmailPass = str('emailPass', 200);
+    if (newEmailPass) cfg.emailPass = newEmailPass;
     if (str('emailHost', 100) !== undefined) cfg.emailHost = str('emailHost', 100);
     if (b.emailPort !== undefined) cfg.emailPort = parseInt(b.emailPort) || 587;
     saveConfig(cfg);
