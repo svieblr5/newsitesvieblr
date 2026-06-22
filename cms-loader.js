@@ -90,6 +90,32 @@
     });
   }
 
+  /* ── Footer action links: keep tel:/mailto:/maps hrefs in sync with edited
+        site info. Targets only the <a> that wraps a known data-cms span (the
+        footer "Get In Touch" items), so dedicated phone2/body links elsewhere
+        are left untouched. ── */
+  function applyContactLinks(site) {
+    function linkFor(key) {
+      var span = document.querySelector('[data-cms="' + key + '"]');
+      return span ? span.closest('a') : null;
+    }
+    if (site.phone1) {
+      var a = linkFor('site.phone1');
+      if (a && /^tel:/i.test(a.getAttribute('href') || ''))
+        a.href = 'tel:' + site.phone1.replace(/[^0-9+]/g, '');
+    }
+    if (site.email) {
+      var e = linkFor('site.email');
+      if (e && /^mailto:/i.test(e.getAttribute('href') || ''))
+        e.href = 'mailto:' + site.email;
+    }
+    if (site.address) {
+      var ad = linkFor('site.address');
+      if (ad && /^https?:/i.test(ad.getAttribute('href') || ''))
+        ad.href = 'https://maps.google.com/?q=' + encodeURIComponent(site.address);
+    }
+  }
+
   /* ── WhatsApp float button: number (from site.whatsapp), enable/disable, position ── */
   function applyWhatsApp(site) {
     var fl = document.querySelector('.wa-float');
@@ -142,6 +168,7 @@
     if (data.site) {
       if (data.site.phone1) applyPhone(data.site.phone1);
       applySocials(data.site);
+      applyContactLinks(data.site);
       applyWhatsApp(data.site);
       applyLogo(data.site);
     }
