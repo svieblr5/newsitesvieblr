@@ -694,11 +694,12 @@
   /* ── Build a card HTML string from a CMS gallery item ── */
   var delays = ['','d2','d3','','d2','d3'];
   function cardHtml(item, i){
+    var altText = (item.alt && item.alt.trim()) ? item.alt : (item.title + ' — SVIE Bengaluru');
     return '<div class="gal-card reveal '+delays[i%delays.length]+'" '+
       'data-cat="'+esc(item.category||'design')+'" '+
       'data-title="'+esc(item.title)+'" '+
       'data-tag="SVIE Project · '+esc(item.tag)+'">' +
-      '<img src="'+esc(item.src)+'" alt="'+esc(item.title)+' — SVIE Bengaluru" loading="lazy">' +
+      '<img src="'+esc(item.src)+'" alt="'+esc(altText)+'" loading="lazy">' +
       '<div class="gal-overlay">' +
         '<div class="gal-label">'+esc(item.tag)+'</div>' +
         '<div class="gal-title">'+esc(item.title)+'</div>' +

@@ -2413,6 +2413,7 @@ function editGallery(id) {
   if (!item) return;
   openModal('Edit Gallery Item',`
     <div class="frow full"><div class="fg"><label>Title</label><input type="text" id="gi-title" value="${esc(item.title||'')}"></div></div>
+    <div class="frow full"><div class="fg"><label>Alt Text <small style="color:#8a7e72">(image description for SEO &amp; screen readers — leave blank to use the title)</small></label><input type="text" id="gi-alt" value="${esc(item.alt||'')}" placeholder="${esc((item.title||'')+' — SVIE Bengaluru')}"></div></div>
     <div class="frow"><div class="fg"><label>Tag / Label</label><input type="text" id="gi-tag" value="${esc(item.tag||'')}"></div>
     <div class="fg"><label>Category</label><select id="gi-cat">
       <option value="interior" ${item.category==='interior'?'selected':''}>Interior</option>
@@ -2421,7 +2422,7 @@ function editGallery(id) {
       <option value="exterior" ${item.category==='exterior'?'selected':''}>Exterior</option>
     </select></div></div>`,
     async()=>{
-      await api('PUT','/api/gallery/'+id,{title:gv('gi-title'),tag:gv('gi-tag'),category:gv('gi-cat')});
+      await api('PUT','/api/gallery/'+id,{title:gv('gi-title'),alt:gv('gi-alt'),tag:gv('gi-tag'),category:gv('gi-cat')});
       C=await api('GET','/api/content'); loadGallery(); toast('Gallery item updated');
     },'Save Changes','btn-ok-gold');
 }
