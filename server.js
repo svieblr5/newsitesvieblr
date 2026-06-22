@@ -194,6 +194,48 @@ app.get('/robots.txt', (req,res) => {
   res.send(typeof custom === 'string' && custom.trim() ? custom : defaultRobots());
 });
 
+// ── GET /sitemap.xml — generated live from the current published content ──
+// Registered before express.static so it is never shadowed by an on-disk file.
+// Because it reads base_url + lastmod from the live content on every request,
+// it is effectively "rebuilt" automatically the moment content is published.
+const SITEMAP_PAGES = [
+  { slug: '',                 priority: '1.0', freq: 'weekly'  },
+  { slug: 'about.html',       priority: '0.8', freq: 'monthly' },
+  { slug: 'services.html',    priority: '0.9', freq: 'monthly' },
+  { slug: 'products.html',    priority: '0.7', freq: 'monthly' },
+  { slug: 'gallery.html',     priority: '0.8', freq: 'weekly'  },
+  { slug: 'furniture.html',   priority: '0.7', freq: 'monthly' },
+  { slug: 'electronics.html', priority: '0.7', freq: 'monthly' },
+  { slug: 'contact.html',     priority: '0.9', freq: 'monthly' },
+];
+function siteBaseUrl() {
+  const seo  = readContent().seo || {};
+  const base = (seo.global && seo.global.base_url) || 'https://svie5.com';
+  return String(base).replace(/\/+$/, '');
+}
+function generateSitemapXml() {
+  const base = siteBaseUrl();
+  // lastmod tracks the published-content file's modification time.
+  let lastmod;
+  try { lastmod = fs.statSync(CONTENT_FILE).mtime.toISOString().slice(0,10); }
+  catch { lastmod = new Date().toISOString().slice(0,10); }
+  const urls = SITEMAP_PAGES.map(p =>
+    '  <url>\n' +
+    '    <loc>' + base + (p.slug ? '/' + p.slug : '/') + '</loc>\n' +
+    '    <lastmod>' + lastmod + '</lastmod>\n' +
+    '    <changefreq>' + p.freq + '</changefreq>\n' +
+    '    <priority>' + p.priority + '</priority>\n' +
+    '  </url>'
+  ).join('\n');
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+         urls + '\n</urlset>\n';
+}
+app.get('/sitemap.xml', (req,res) => {
+  res.type('application/xml');
+  res.send(generateSitemapXml());
+});
+
 app.use(express.static(ROOT));
 app.use('/admin', express.static(path.join(ROOT,'admin')));
 
