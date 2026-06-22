@@ -236,6 +236,46 @@ app.get('/sitemap.xml', (req,res) => {
   res.send(generateSitemapXml());
 });
 
+// ── Per-page Open Graph / Twitter share images ──
+// The HTML files ship with a default og:image. When the admin sets a per-page
+// (or global) share image in the SEO panel, rewrite the og:image + twitter:image
+// meta tags on the way out so social crawlers — which don't run JS — see it.
+// Registered before express.static so these pages route here instead of the file.
+const OG_PAGES = {
+  '/':                 'index',
+  '/index.html':       'index',
+  '/about.html':       'about',
+  '/services.html':    'services',
+  '/products.html':    'products',
+  '/furniture.html':   'furniture',
+  '/electronics.html': 'electronics',
+  '/gallery.html':     'gallery',
+  '/contact.html':     'contact',
+};
+function resolveOgImage(seo, key) {
+  if (!seo) return null;
+  const pages  = seo.pages  || {};
+  const global = seo.global || {};
+  let img = (pages[key] && pages[key].og_image) || global.og_image;
+  if (!img) return null;
+  if (!/^https?:\/\//i.test(img)) {
+    const base = String(global.base_url || '').replace(/\/+$/, '');
+    img = base + '/' + String(img).replace(/^\/+/, '');
+  }
+  return /^https?:\/\//i.test(img) ? img : null;
+}
+app.get(Object.keys(OG_PAGES), (req, res, next) => {
+  try {
+    const fp  = path.join(ROOT, req.path === '/' ? 'index.html' : req.path.replace(/^\//, ''));
+    const img = resolveOgImage(readContent().seo, OG_PAGES[req.path]);
+    if (!img) return next();                       // no override → serve the file as-is
+    let html = fs.readFileSync(fp, 'utf8');
+    html = html.replace(/(<meta\s+property=["']og:image["']\s+content=["'])[^"']*(["'])/i, (m, p1, p2) => p1 + img + p2);
+    html = html.replace(/(<meta\s+name=["']twitter:image["']\s+content=["'])[^"']*(["'])/i, (m, p1, p2) => p1 + img + p2);
+    res.type('html').send(html);
+  } catch (e) { next(); }                           // any error → fall through to static
+});
+
 app.use(express.static(ROOT));
 app.use('/admin', express.static(path.join(ROOT,'admin')));
 
