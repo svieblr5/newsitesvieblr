@@ -811,6 +811,29 @@ app.delete('/api/blog/:id', requireAuth, csrfProtect, (req,res) => {
 // ═══════════════════════════════════════════
 app.get('/api/enquiries', requireAuth, (req,res) => res.json(readJSON(ENQUIRY_FILE,[])));
 
+// ── Contact-form settings: notify address, auto-reply template, field toggles ──
+app.get('/api/form-config', requireAuth, (req,res) => res.json(getFormConfig()));
+
+app.post('/api/form-config', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const b   = req.body || {};
+    const cfg = getConfig();
+    cfg.formConfig = {
+      notify_email:      String(b.notify_email      || '').slice(0,200),
+      notify_wa:         String(b.notify_wa          || '').slice(0,30),
+      autoreply_on:      b.autoreply_on !== false,
+      autoreply_subject: String(b.autoreply_subject  || '').slice(0,200),
+      autoreply_msg:     String(b.autoreply_msg      || '').slice(0,2000),
+      show_service:      b.show_service  !== false,
+      show_budget:       b.show_budget   !== false,
+      require_phone:     b.require_phone !== false,
+    };
+    saveConfig(cfg);
+    logActivity('Updated contact form settings', req.session.user);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
 // Export all enquiries as a CSV (opens cleanly in Excel / Google Sheets)
 app.get('/api/enquiries/export.csv', requireAuth, (req,res) => {
   const list    = readJSON(ENQUIRY_FILE, []);
@@ -856,6 +879,8 @@ app.post('/api/enquiries', enquiryLimiter, (req,res) => {
     const list = readJSON(ENQUIRY_FILE,[]);
     list.unshift({ id:'e'+Date.now(), ...safe, status:'new', date:new Date().toISOString() });
     writeJSON(ENQUIRY_FILE, list);
+    // Fire notification + auto-reply emails without blocking the response.
+    sendEnquiryEmails(safe).catch(()=>{});
     res.json({ success:true });
   } catch(e) { res.status(500).json({ error:e.message }); }
 });
@@ -1121,16 +1146,21 @@ async function sendSignalAlert(visitor, cfg) {
   }
 }
 
+// Shared SMTP transporter — used by both visitor alerts and enquiry emails.
+function makeTransporter(cfg) {
+  const nodemailer = require('nodemailer');
+  return nodemailer.createTransport({
+    host: cfg.emailHost || 'smtp.gmail.com',
+    port: Number(cfg.emailPort) || 587,
+    secure: false,
+    auth: { user: cfg.emailFrom, pass: cfg.emailPass },
+  });
+}
+
 async function sendEmailAlert(visitor, cfg) {
   const ist = new Date(visitor.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
   try {
-    const nodemailer  = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      host: cfg.emailHost || 'smtp.gmail.com',
-      port: Number(cfg.emailPort) || 587,
-      secure: false,
-      auth: { user: cfg.emailFrom, pass: cfg.emailPass },
-    });
+    const transporter = makeTransporter(cfg);
     await transporter.sendMail({
       from:    `"SVIE Visitor Alert" <${cfg.emailFrom}>`,
       to:      cfg.emailTo,
@@ -1150,6 +1180,66 @@ async function sendNotification(visitor) {
   }
   if (cfg.emailEnabled && cfg.emailFrom && cfg.emailPass && cfg.emailTo) {
     sendEmailAlert(visitor, cfg).catch(e => console.error('[Visitor Email]', e.message));
+  }
+}
+
+// ── Contact-form settings (notify address + auto-reply template) ──
+const getFormConfig = () => getConfig().formConfig || {};
+
+const DEFAULT_AUTOREPLY =
+  'Dear {name},\n\nThank you for reaching out to Sri Vasavi Interiors and Exteriors. ' +
+  'We have received your enquiry and our team will get back to you within 24 hours.\n\n' +
+  'Warm regards,\nSVIE Team';
+
+// Replace {name}/{email}/{phone}/{service} placeholders in a template.
+function fillTemplate(tpl, e) {
+  return String(tpl || '')
+    .replace(/\{name\}/gi,    e.name    || '')
+    .replace(/\{email\}/gi,   e.email   || '')
+    .replace(/\{phone\}/gi,   e.phone   || '')
+    .replace(/\{service\}/gi, e.service || '');
+}
+
+// Fire admin notification + customer auto-reply for a new enquiry.
+// Best-effort: never throws, never blocks the HTTP response.
+async function sendEnquiryEmails(enquiry) {
+  const cfg = getConfig();
+  if (!cfg.emailFrom || !cfg.emailPass) return; // SMTP not configured — skip silently
+  const fc = getFormConfig();
+  let transporter;
+  try { transporter = makeTransporter(cfg); }
+  catch (e) {
+    if (e.code === 'MODULE_NOT_FOUND') console.warn('[Enquiry] nodemailer not installed — run: npm install nodemailer');
+    else console.error('[Enquiry Email]', e.message);
+    return;
+  }
+
+  // 1) Notify the business of the new enquiry.
+  const notifyTo = (fc.notify_email || '').trim() || cfg.emailTo;
+  if (cfg.emailEnabled && notifyTo) {
+    transporter.sendMail({
+      from:    `"SVIE Website" <${cfg.emailFrom}>`,
+      to:      notifyTo,
+      replyTo: enquiry.email,
+      subject: `New Enquiry — ${enquiry.name}`,
+      text:    `New enquiry from the SVIE website:\n\n` +
+               `Name:    ${enquiry.name}\n` +
+               `Email:   ${enquiry.email}\n` +
+               `Phone:   ${enquiry.phone   || '—'}\n` +
+               `Service: ${enquiry.service || '—'}\n` +
+               `Budget:  ${enquiry.budget  || '—'}\n\n` +
+               `Message:\n${enquiry.message || '—'}`,
+    }).catch(e => console.error('[Enquiry notify]', e.message));
+  }
+
+  // 2) Auto-reply to the customer (opt-out via autoreply_on === false).
+  if (fc.autoreply_on !== false && enquiry.email) {
+    transporter.sendMail({
+      from:    `"Sri Vasavi Interiors & Exteriors" <${cfg.emailFrom}>`,
+      to:      enquiry.email,
+      subject: fc.autoreply_subject || 'Thank you for contacting SVIE!',
+      text:    fillTemplate(fc.autoreply_msg || DEFAULT_AUTOREPLY, enquiry),
+    }).catch(e => console.error('[Enquiry auto-reply]', e.message));
   }
 }
 

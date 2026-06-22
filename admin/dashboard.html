@@ -2733,10 +2733,10 @@ function resetFormSettings() {
   );
 }
 
-// ── FORM CONFIGURATION (localStorage key: svie_form_config) ──
-function loadFormConfig() {
+// ── FORM CONFIGURATION (persisted server-side in config.json) ──
+async function loadFormConfig() {
   try {
-    const cfg = JSON.parse(localStorage.getItem('svie_form_config')||'{}');
+    const cfg = await api('GET','/api/form-config') || {};
     sv('fc-notify-email',   cfg.notify_email||'');
     sv('fc-notify-wa',      cfg.notify_wa||'');
     sv('fc-autoreply-subject', cfg.autoreply_subject||'Thank you for contacting SVIE!');
@@ -2752,7 +2752,7 @@ function loadFormConfig() {
   } catch(_) {}
 }
 
-function saveFormConfig() {
+async function saveFormConfig() {
   const cfg = {
     notify_email:      gv('fc-notify-email'),
     notify_wa:         gv('fc-notify-wa'),
@@ -2763,8 +2763,12 @@ function saveFormConfig() {
     show_budget:       document.getElementById('fc-show-budget')?.checked,
     require_phone:     document.getElementById('fc-require-phone')?.checked
   };
-  localStorage.setItem('svie_form_config', JSON.stringify(cfg));
-  toast('Configuration saved ✓');
+  try {
+    await api('POST','/api/form-config', cfg);
+    toast('Configuration saved ✓');
+  } catch(e) {
+    toast('Save failed: '+e.message);
+  }
 }
 
 // ── ENQUIRIES — localStorage-backed ───────────
