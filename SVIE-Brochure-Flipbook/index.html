@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>SVIE — Company Brochure 2026 | Flipbook</title>
+<meta name="description" content="Sri Vasavi Interiors & Exteriors — interactive company brochure 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@500;600&family=Raleway:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest-ink:#0C2C1B; --forest-deep:#113524; --forest:#1A4530; --gold:#C9A05A; --gold-light:#E0C07E;
+  --cream:#F5EFE6; --serif:'Cormorant',Georgia,serif; --sans:'Raleway',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:var(--sans);color:var(--cream);
+  background:radial-gradient(120% 90% at 50% -10%,#1c4a35 0%,var(--forest-deep) 45%,var(--forest-ink) 100%);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+/* ---- top bar ---- */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;flex:0 0 auto;z-index:5}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{height:34px;width:auto;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
+.brand .t1{font-family:var(--serif);font-size:20px;font-weight:600;line-height:1;color:#fff}
+.brand .t2{font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-light);margin-top:3px}
+.actions{display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:7px;font-family:var(--sans);font-weight:600;font-size:12px;letter-spacing:.04em;
+  color:var(--forest-ink);background:linear-gradient(135deg,var(--gold-light),var(--gold));border:0;border-radius:3px;padding:9px 16px;cursor:pointer;text-decoration:none;transition:filter .2s}
+.btn.ghost{background:transparent;color:var(--cream);border:1px solid rgba(201,160,90,.5)}
+.btn:hover{filter:brightness(1.08)}
+.btn svg{width:14px;height:14px}
+/* ---- stage ---- */
+.stage{flex:1 1 auto;display:flex;align-items:center;justify-content:center;position:relative;min-height:0;padding:6px 14px 0}
+#flip{margin:0 auto;touch-action:pan-y}
+.flip-shadow{box-shadow:0 30px 70px rgba(0,0,0,.55)}
+/* nav arrows */
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;
+  border:1px solid rgba(201,160,90,.45);background:rgba(12,44,27,.55);color:var(--gold-light);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(4px);transition:.2s;z-index:6}
+.nav:hover{background:var(--gold);color:var(--forest-ink);border-color:var(--gold)}
+.nav.prev{left:18px}.nav.next{right:18px}
+.nav svg{width:18px;height:18px}
+.nav[disabled]{opacity:.25;pointer-events:none}
+/* ---- bottom bar ---- */
+.bottom{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:18px;padding:14px;z-index:5}
+.counter{font-family:var(--serif);font-size:17px;color:var(--gold-light);min-width:120px;text-align:center}
+.counter b{color:#fff;font-weight:600}
+.dot{font-family:var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7E9A87}
+.hint{position:absolute;bottom:8px;right:16px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6E8A77;z-index:5}
+@media (max-width:640px){
+  .brand .t1{font-size:16px}.brand img{height:28px}
+  .btn{padding:8px 11px;font-size:11px}.btn .lbl{display:none}.btn svg{width:15px;height:15px}
+  .nav{width:38px;height:38px}.nav.prev{left:6px}.nav.next{right:6px}
+  .hint{display:none}
+}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <img src="logo.png" alt="SVIE">
+      <div><div class="t1">Sri Vasavi Interiors &amp; Exteriors</div><div class="t2">Company Profile · 2026</div></div>
+    </div>
+    <div class="actions">
+      <a class="btn" href="SVIE-Brochure-2026.pdf" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+        <span class="lbl">Download PDF</span>
+      </a>
+      <button class="btn ghost" id="fsBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+        <span class="lbl">Fullscreen</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <button class="nav prev" id="prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div id="flip"></div>
+    <button class="nav next" id="next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    <div class="hint">Drag a corner or use ← → to flip</div>
+  </div>
+
+  <div class="bottom">
+    <span class="dot">SVIE</span>
+    <span class="counter" id="counter">— / —</span>
+    <span class="dot">2026</span>
+  </div>
+
+  <script src="lib/page-flip.browser.js"></script>
+  <script>
+    var TOTAL = 11;
+    var images = [];
+    for (var i = 1; i <= TOTAL; i++) images.push('pages/p' + String(i).padStart(2, '0') + '.jpg');
+
+    var el = document.getElementById('flip');
+    var counter = document.getElementById('counter');
+    var prevBtn = document.getElementById('prev');
+    var nextBtn = document.getElementById('next');
+
+    // A4 ratio 1:1.4142 — base size scaled responsively by 'stretch'
+    var pageFlip = new St.PageFlip(el, {
+      width: 600, height: 849,
+      size: 'stretch',
+      minWidth: 280, maxWidth: 1400,
+      minHeight: 396, maxHeight: 1980,
+      maxShadowOpacity: 0.5,
+      showCover: true,
+      mobileScrollSupport: false,
+      useMouseEvents: true,
+      drawShadow: true,
+      flippingTime: 700,
+      clickEventForward: true,
+      swipeDistance: 20
+    });
+
+    pageFlip.loadFromImages(images);
+
+    function update() {
+      var cur = pageFlip.getCurrentPageIndex();      // 0-based
+      var n = pageFlip.getPageCount();
+      var portrait = pageFlip.getOrientation && pageFlip.getOrientation() === 'portrait';
+      if (portrait || cur === 0 || cur === n - 1) {
+        counter.innerHTML = '<b>' + (cur + 1) + '</b> / ' + n;
+      } else {
+        counter.innerHTML = '<b>' + (cur + 1) + '–' + (cur + 2) + '</b> / ' + n;
+      }
+      prevBtn.disabled = cur <= 0;
+      nextBtn.disabled = cur >= n - 1;
+    }
+
+    pageFlip.on('init', update);
+    pageFlip.on('flip', update);
+    pageFlip.on('changeOrientation', update);
+
+    prevBtn.addEventListener('click', function () { pageFlip.flipPrev(); });
+    nextBtn.addEventListener('click', function () { pageFlip.flipNext(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') pageFlip.flipNext();
+      else if (e.key === 'ArrowLeft') pageFlip.flipPrev();
+    });
+
+    var fsBtn = document.getElementById('fsBtn');
+    fsBtn.addEventListener('click', function () {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    });
+
+    setTimeout(update, 300);
+  </script>
+</body>
+</html>

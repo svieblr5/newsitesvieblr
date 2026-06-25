@@ -126,6 +126,15 @@
           </div>
         </div>
 
+        <!-- Brochure -->
+        <div style="margin-top:40px;padding-top:32px;border-top:1px solid rgba(245,239,230,.08)">
+          <div style="font-family:var(--font-sans);font-size:.6rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,239,230,.65);margin-bottom:16px">Company Brochure</div>
+          <a href="flipbook/index.html" target="_blank" rel="noopener" data-bro-open class="btn btn-gold" style="width:100%;justify-content:center">
+            Click here for Brochure
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2zM22 4h-6a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>
+          </a>
+        </div>
+
         <!-- Socials -->
         <div style="margin-top:40px;padding-top:32px;border-top:1px solid rgba(245,239,230,.08)">
           <div style="font-family:var(--font-sans);font-size:.6rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,239,230,.65);margin-bottom:16px">Follow Us</div>
@@ -292,6 +301,114 @@ document.addEventListener('DOMContentLoaded',function(){
   var form=document.getElementById('contact-form');
   if(form)form.addEventListener('submit',function(){if(typeof gtag!=='undefined')gtag('event','generate_lead',{event_category:'conversion',event_label:'contact_form',value:1});});
 });
+</script>
+<!-- ════════ Brochure Enquiry Popup ════════ -->
+<style>
+.bro-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.bro-modal.on{display:flex}
+.bro-backdrop{position:absolute;inset:0;background:rgba(10,28,18,.72);backdrop-filter:blur(4px)}
+.bro-dialog{position:relative;width:100%;max-width:440px;background:var(--white);border-radius:var(--r-xl,18px);
+  box-shadow:0 40px 90px rgba(10,28,18,.45);padding:38px 36px 34px;animation:broIn .3s ease both;max-height:92vh;overflow:auto}
+@keyframes broIn{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+.bro-x{position:absolute;top:16px;right:16px;width:34px;height:34px;border:0;border-radius:50%;background:rgba(26,69,48,.07);
+  color:var(--forest-deep,#113524);font-size:20px;line-height:1;cursor:pointer;transition:.2s}
+.bro-x:hover{background:var(--gold,#C9A05A);color:#fff}
+.bro-eyebrow{font-family:var(--font-sans);font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-dark,#9A7038);margin-bottom:8px}
+.bro-dialog h3{font-family:var(--font-display);font-size:1.7rem;font-weight:600;color:var(--charcoal,#1A4530);line-height:1.1;margin-bottom:7px}
+.bro-dialog .bro-intro{font-size:.86rem;color:var(--mid-gray,#2B4437);line-height:1.55;margin-bottom:22px}
+.bro-fg{margin-bottom:14px}
+.bro-fg label{display:block;font-family:var(--font-sans);font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dark,#9A7038);margin-bottom:6px}
+.bro-fg input,.bro-fg select{width:100%;padding:12px 14px;border:1px solid var(--light-gray,#D8D4CE);border-radius:10px;
+  font-family:var(--font-body);font-size:.92rem;color:var(--charcoal,#1A4530);background:#fff;transition:.2s}
+.bro-fg input:focus,.bro-fg select:focus{outline:0;border-color:var(--gold,#C9A05A);box-shadow:0 0 0 3px rgba(201,160,90,.15)}
+.bro-submit{width:100%;justify-content:center;margin-top:6px;border:0;cursor:pointer}
+.bro-msg{font-size:.82rem;margin-top:12px;text-align:center;min-height:18px}
+.bro-msg.ok{color:#1A7A45}.bro-msg.err{color:#C0392B}
+.bro-note{font-size:.7rem;color:var(--mid-gray,#2B4437);opacity:.7;text-align:center;margin-top:10px}
+</style>
+<div class="bro-modal" id="broModal" aria-hidden="true">
+  <div class="bro-backdrop" data-bro-close></div>
+  <div class="bro-dialog" role="dialog" aria-modal="true" aria-labelledby="broTitle">
+    <button class="bro-x" type="button" data-bro-close aria-label="Close">&times;</button>
+    <div class="bro-eyebrow">Company Brochure</div>
+    <h3 id="broTitle">Get Your Free Brochure</h3>
+    <p class="bro-intro">Share a few details and we'll open the SVIE brochure for you right away.</p>
+    <form id="broForm" novalidate>
+      <div class="bro-fg"><label>Full Name *</label><input type="text" name="name" required maxlength="100" placeholder="Your full name" autocomplete="name"></div>
+      <div class="bro-fg"><label>Mobile Number *</label><input type="tel" name="phone" required inputmode="numeric" maxlength="10" pattern="[0-9]{10}" placeholder="10-digit mobile number" autocomplete="tel"></div>
+      <div class="bro-fg"><label>Location *</label><input type="text" name="location" required maxlength="120" placeholder="City / Area" autocomplete="address-level2"></div>
+      <div class="bro-fg"><label>Type of Requirement *</label>
+        <select name="requirement" required>
+          <option value="" disabled selected>Select…</option>
+          <option>Interior Design</option>
+          <option>Modular Furniture</option>
+          <option>Construction</option>
+          <option>Electronics &amp; Appliances</option>
+          <option>Products &amp; Materials</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-gold bro-submit">
+        Get the Brochure
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <div class="bro-msg" id="broMsg" role="status"></div>
+      <div class="bro-note">Your details go straight to our team — we never share them.</div>
+    </form>
+  </div>
+</div>
+<script>
+(function(){
+  var BROCHURE_URL = 'flipbook/index.html';   // opened after a successful submit
+  var modal = document.getElementById('broModal');
+  var form  = document.getElementById('broForm');
+  var msg   = document.getElementById('broMsg');
+  if(!modal || !form) return;
+
+  function openModal(){ modal.classList.add('on'); modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+    var f=form.querySelector('input[name=name]'); if(f) setTimeout(function(){f.focus();},80); }
+  function closeModal(){ modal.classList.remove('on'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+
+  document.querySelectorAll('[data-bro-open]').forEach(function(b){
+    b.addEventListener('click', function(e){ e.preventDefault(); msg.textContent=''; msg.className='bro-msg'; openModal(); });
+  });
+
+  // Mobile number: allow digits only, capped at 10
+  var phoneEl = form.querySelector('input[name=phone]');
+  if(phoneEl) phoneEl.addEventListener('input', function(){
+    this.value = this.value.replace(/\D/g,'').slice(0,10);
+  });
+  modal.querySelectorAll('[data-bro-close]').forEach(function(x){ x.addEventListener('click', closeModal); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && modal.classList.contains('on')) closeModal(); });
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    var data={}; new FormData(form).forEach(function(v,k){ data[k]=(v||'').toString().trim(); });
+    if(!data.name || data.name.length<2){ msg.className='bro-msg err'; msg.textContent='Please enter your full name.'; return; }
+    if(!/^\d{10}$/.test(data.phone||'')){ msg.className='bro-msg err'; msg.textContent='Please enter a valid 10-digit mobile number.'; return; }
+    if(!data.location){ msg.className='bro-msg err'; msg.textContent='Please enter your location.'; return; }
+    if(!data.requirement){ msg.className='bro-msg err'; msg.textContent='Please select your type of requirement.'; return; }
+
+    var btn=form.querySelector('.bro-submit'); var orig=btn.innerHTML;
+    btn.disabled=true; btn.textContent='Sending…'; msg.className='bro-msg'; msg.textContent='';
+    try{
+      var r=await fetch('/api/brochure-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+      var j=await r.json().catch(function(){return{};});
+      if(!r.ok || !j.success){ throw new Error(j.error || 'Something went wrong. Please try again.'); }
+      // local copy for the CMS inbox's offline fallback
+      try{ var ex=JSON.parse(localStorage.getItem('svie_enquiries')||'[]');
+        ex.unshift({id:'e'+Date.now(),name:data.name,email:'',phone:data.phone,service:data.requirement,budget:'',
+          message:'📘 Brochure request · Location: '+data.location,status:'new',date:new Date().toISOString()});
+        localStorage.setItem('svie_enquiries',JSON.stringify(ex)); }catch(_){}
+      if(typeof gtag!=='undefined') gtag('event','generate_lead',{event_category:'conversion',event_label:'brochure_request',value:1});
+      msg.className='bro-msg ok'; msg.textContent='Thank you, '+data.name.split(' ')[0]+'! Opening your brochure…';
+      setTimeout(function(){
+        window.open(BROCHURE_URL,'_blank','noopener');
+        closeModal(); form.reset(); btn.disabled=false; btn.innerHTML=orig; msg.textContent='';
+      }, 1000);
+    }catch(err){ msg.className='bro-msg err'; msg.textContent=err.message; btn.disabled=false; btn.innerHTML=orig; }
+  });
+})();
 </script>
 <script src="visitor-tracker.js" defer></script>
 </body>

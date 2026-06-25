@@ -967,6 +967,39 @@ app.post('/api/enquiries', enquiryLimiter, (req,res) => {
   } catch(e) { res.status(500).json({ error:e.message }); }
 });
 
+// Brochure download request — captures a lead (no email field) and drops it
+// into the SAME enquiries inbox so it shows up in the CMS like any other lead.
+app.post('/api/brochure-request', enquiryLimiter, (req,res) => {
+  try {
+    const { name, phone, location, requirement } = req.body;
+    if (!name || typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 100)
+      return res.status(400).json({ error: 'Valid full name is required (2–100 characters).' });
+    const phoneDigits = (phone || '').toString().replace(/\D/g, '');
+    if (phoneDigits.length !== 10)
+      return res.status(400).json({ error: 'A valid 10-digit mobile number is required.' });
+
+    const loc = (location || '').toString().trim().slice(0,120);
+    const reqType = (requirement || '').toString().trim().slice(0,100);
+    const safe = {
+      name:    name.trim().slice(0,100),
+      email:   '',
+      phone:   phoneDigits,
+      service: reqType || 'Brochure Request',
+      budget:  '',
+      message: '📘 Brochure download request' +
+               (loc ? '\nLocation: ' + loc : '') +
+               (reqType ? '\nRequirement: ' + reqType : ''),
+      location: loc,
+      source:   'brochure',
+    };
+    const list = readJSON(ENQUIRY_FILE,[]);
+    list.unshift({ id:'e'+Date.now(), ...safe, status:'new', date:new Date().toISOString() });
+    writeJSON(ENQUIRY_FILE, list);
+    sendEnquiryEmails(safe).catch(()=>{});
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
 app.patch('/api/enquiries/:id',  requireAuth, csrfProtect, (req,res) => {
   try {
     const list = readJSON(ENQUIRY_FILE,[]);
