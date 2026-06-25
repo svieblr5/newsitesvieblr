@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SVIE — Company Brochure 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Raleway:wght@300;400;500;600;700;800&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest-ink:#0C2C1B; --forest-deep:#113524; --forest:#1A4530; --forest-mid:#215840; --forest-light:#2D6B52;
+  --cream:#F5EFE6; --cream-2:#EDE5D8; --sand:#DDD0C0;
+  --gold:#C9A05A; --gold-light:#E0C07E; --gold-pale:#F0DDB0; --gold-dark:#9A7038;
+  --white:#FAFAF8; --ink:#1A2E22; --mid:#2B4437; --muted:#5C6B5F;
+  --serif:'Cormorant',Georgia,serif; --sans:'Raleway',system-ui,sans-serif; --body:'Jost',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:15px}
+body{font-family:var(--body);color:var(--mid);-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#3a3a3a}
+
+.sheet{margin:0 auto;page-break-after:always;break-after:page}
+.sheet:last-child{page-break-after:auto;break-after:auto}
+.page{
+  position:relative;width:210mm;height:297mm;overflow:hidden;
+  margin:0 auto;background:var(--cream);
+}
+/* ---- PRINT MODE: 3mm bleed all sides + trim/crop marks ---- */
+.print .sheet{
+  width:226mm;height:313mm;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;background:#fff;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'226mm'%20height%3D'313mm'%20viewBox%3D'0%200%20226%20313'%3E%3Cg%20stroke%3D'black'%20stroke-width%3D'0.25'%20stroke-linecap%3D'butt'%3E%3Cline%20x1%3D'8'%20y1%3D'1'%20x2%3D'8'%20y2%3D'5'%2F%3E%3Cline%20x1%3D'1'%20y1%3D'8'%20x2%3D'5'%20y2%3D'8'%2F%3E%3Cline%20x1%3D'218'%20y1%3D'1'%20x2%3D'218'%20y2%3D'5'%2F%3E%3Cline%20x1%3D'221'%20y1%3D'8'%20x2%3D'225'%20y2%3D'8'%2F%3E%3Cline%20x1%3D'8'%20y1%3D'308'%20x2%3D'8'%20y2%3D'312'%2F%3E%3Cline%20x1%3D'1'%20y1%3D'305'%20x2%3D'5'%20y2%3D'305'%2F%3E%3Cline%20x1%3D'218'%20y1%3D'308'%20x2%3D'218'%20y2%3D'312'%2F%3E%3Cline%20x1%3D'221'%20y1%3D'305'%20x2%3D'225'%20y2%3D'305'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  background-repeat:no-repeat;background-position:center;background-size:226mm 313mm;
+}
+.print .page{width:216mm;height:303mm}
+
+/* ---------- shared atoms ---------- */
+.eyebrow{font-family:var(--sans);font-weight:700;letter-spacing:.42em;text-transform:uppercase;font-size:9.5px;color:var(--gold-dark)}
+.eyebrow.on-dark{color:var(--gold-light)}
+.display{font-family:var(--serif);font-weight:600;letter-spacing:-.015em;line-height:.98;color:var(--forest-deep)}
+.display.on-dark{color:var(--white)}
+.lede{font-family:var(--serif);font-weight:400;font-style:italic;color:var(--gold-dark)}
+.body-txt{font-family:var(--body);font-weight:300;font-size:11px;line-height:1.85;color:var(--mid)}
+.body-txt.on-dark{color:#CBD8CD}
+.gold-rule{height:2px;width:64px;background:linear-gradient(90deg,var(--gold),var(--gold-light));border:0}
+.hair{height:1px;background:linear-gradient(90deg,transparent,rgba(201,160,90,.55),transparent);border:0}
+.pagenum{position:absolute;font-family:var(--sans);font-weight:600;letter-spacing:.2em;font-size:9px}
+
+/* ---------- dark page base ---------- */
+.dark{background:radial-gradient(120% 80% at 80% -10%,#1c4a35 0%,var(--forest-deep) 45%,var(--forest-ink) 100%);color:var(--white)}
+.leaf-wm{position:absolute;opacity:.06;pointer-events:none}
+
+/* ====== COVER ====== */
+.cover{padding:0}
+.cover .frame{position:absolute;inset:11mm;border:1px solid rgba(201,160,90,.5)}
+.cover .frame::before,.cover .frame::after{content:"";position:absolute;width:16px;height:16px;border:2px solid var(--gold)}
+.cover .frame::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+.cover .frame::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.cover-inner{position:absolute;inset:11mm;display:flex;flex-direction:column;align-items:center;text-align:center;padding:24mm 18mm}
+.cover-logo{width:128px;height:auto;margin-bottom:10px;filter:drop-shadow(0 8px 24px rgba(0,0,0,.45))}
+.cover .est{font-family:var(--sans);font-weight:600;letter-spacing:.4em;font-size:9px;color:var(--gold-light);text-transform:uppercase;margin-bottom:30px}
+.cover h1{font-family:var(--serif);font-weight:600;font-size:58px;line-height:1.0;color:var(--white);letter-spacing:-.02em}
+.cover h1 .amp{color:var(--gold-light);font-style:italic;font-weight:500}
+.cover h1 span{display:block}
+.cover .sub{font-family:var(--serif);font-style:italic;font-weight:400;font-size:21px;color:var(--gold-pale);margin-top:18px}
+.cover .rule-wrap{display:flex;align-items:center;gap:14px;margin:26px 0 0}
+.cover .rule-wrap .dot{width:6px;height:6px;background:var(--gold);transform:rotate(45deg)}
+.cover .rule-wrap .ln{width:80px;height:1px;background:rgba(201,160,90,.6)}
+.cover .pillars{margin-top:auto;display:flex;gap:0;font-family:var(--sans);font-weight:600;letter-spacing:.22em;font-size:8.5px;text-transform:uppercase;color:#AFC4B4}
+.cover .pillars span{padding:0 16px;border-right:1px solid rgba(255,255,255,.18)}
+.cover .pillars span:last-child{border-right:0}
+.cover .footer-bar{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.28);padding:9mm 16mm;display:flex;justify-content:space-between;align-items:center;font-family:var(--body);font-weight:300;font-size:10px;color:#CBD8CD;letter-spacing:.02em}
+.cover .footer-bar b{color:var(--gold-light);font-weight:500}
+
+/* ====== generic content layout ====== */
+.pad{position:absolute;inset:0;padding:22mm 20mm}
+.section-head .num{font-family:var(--serif);font-weight:300;font-size:15px;color:var(--gold)}
+.kicker-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+
+/* ---------- contents / who we are ---------- */
+.toc{list-style:none;margin-top:6px}
+.toc li{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid rgba(26,69,48,.12);font-family:var(--sans);font-weight:600;font-size:11.5px;color:var(--forest-deep);letter-spacing:.02em}
+.toc li .tn{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--gold-dark);width:26px}
+.toc li .dots{flex:1;border-bottom:1px dotted rgba(26,69,48,.3);transform:translateY(-3px)}
+.toc li .pg{color:var(--gold-dark);font-family:var(--serif);font-size:14px}
+
+.who-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:0;height:100%}
+.who-img{background-size:cover;background-position:center;position:relative}
+.who-img::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(12,44,27,.05),rgba(12,44,27,.35))}
+
+/* ---------- service pillars ---------- */
+.pillar{display:grid;grid-template-columns:46px 1fr;gap:18px;padding:20px 0;border-top:1px solid rgba(201,160,90,.28)}
+.pillar:last-child{border-bottom:1px solid rgba(201,160,90,.28)}
+.pillar .pidx{font-family:var(--serif);font-weight:300;font-size:34px;color:var(--gold-light);line-height:1}
+.pillar h3{font-family:var(--serif);font-weight:600;font-size:23px;color:var(--white);margin-bottom:4px}
+.pillar .ptag{font-family:var(--sans);font-weight:700;letter-spacing:.28em;text-transform:uppercase;font-size:8px;color:var(--gold-light);margin-bottom:7px}
+
+/* ---------- stat band ---------- */
+.statband{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:8px}
+.statband .s{text-align:center;padding:14px 6px;border-right:1px solid rgba(201,160,90,.25)}
+.statband .s:last-child{border-right:0}
+.statband .v{font-family:var(--serif);font-weight:600;font-size:34px;line-height:1;color:var(--gold)}
+.statband .v.on-dark{color:var(--gold-light)}
+.statband .l{font-family:var(--sans);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:7.5px;color:var(--muted);margin-top:8px}
+.statband .l.on-dark{color:#9FB6A6}
+
+/* ---------- cards grid ---------- */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{background:var(--white);border:1px solid rgba(26,69,48,.1);border-radius:3px;padding:16px 17px;position:relative}
+.card::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;background:linear-gradient(var(--gold),var(--gold-light))}
+.card h4{font-family:var(--serif);font-weight:600;font-size:16px;color:var(--forest-deep);margin-bottom:5px;padding-left:10px}
+.card p{font-family:var(--body);font-weight:300;font-size:10px;line-height:1.7;color:var(--mid);padding-left:10px}
+
+/* ---------- product categories ---------- */
+.prodgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px 22px}
+.prod{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(26,69,48,.1)}
+.prod .pico{width:30px;height:30px;flex:0 0 30px;border:1px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;color:var(--gold-dark);font-size:14px}
+.prod h5{font-family:var(--sans);font-weight:700;font-size:10px;letter-spacing:.04em;color:var(--forest-deep);text-transform:uppercase;margin-bottom:2px}
+.prod p{font-family:var(--body);font-weight:300;font-size:9px;line-height:1.55;color:var(--muted)}
+
+.brandstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:4px}
+.brandstrip .b{background:#fff;border:1px solid rgba(26,69,48,.1);border-radius:3px;height:38px;display:flex;align-items:center;justify-content:center;padding:6px}
+.brandstrip .b img{max-width:100%;max-height:100%;object-fit:contain;filter:grayscale(.15)}
+
+/* ---------- feature list (furniture) ---------- */
+.feat{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+.feat .f{border:1px solid rgba(201,160,90,.3);border-radius:3px;padding:14px 15px;background:rgba(255,255,255,.03)}
+.feat .f h4{font-family:var(--serif);font-weight:600;font-size:16px;color:var(--gold-light);margin-bottom:4px}
+.feat .f p{font-family:var(--body);font-weight:300;font-size:9.5px;line-height:1.65;color:#C3D2C6}
+
+/* ---------- team ---------- */
+.team{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px}
+.member{background:rgba(255,255,255,.04);border:1px solid rgba(201,160,90,.25);border-radius:4px;padding:20px;display:flex;flex-direction:column}
+.member .av{width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:600;font-size:20px;color:var(--forest-ink);margin-bottom:14px}
+.member h3{font-family:var(--serif);font-weight:600;font-size:22px;color:var(--white)}
+.member .role{font-family:var(--sans);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:8px;color:var(--gold-light);margin:5px 0 12px}
+.member p{font-family:var(--body);font-weight:300;font-size:9.5px;line-height:1.7;color:#C3D2C6}
+
+/* ---------- process ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:6px 0 4px}
+.step{padding:0 12px 0 0;position:relative}
+.step .sn{font-family:var(--serif);font-weight:300;font-size:30px;color:var(--gold-dark)}
+.step h5{font-family:var(--sans);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:10px;color:var(--forest-deep);margin:6px 0 5px}
+.step p{font-family:var(--body);font-weight:300;font-size:9px;line-height:1.6;color:var(--muted)}
+.step::after{content:"";position:absolute;right:8px;top:14px;width:5px;height:5px;border-top:1px solid var(--gold);border-right:1px solid var(--gold);transform:rotate(45deg)}
+.step:last-child::after{display:none}
+.why{display:grid;grid-template-columns:1fr 1fr;gap:13px 20px;margin-top:8px}
+.why .w{display:flex;gap:11px}
+.why .w .wi{flex:0 0 26px;width:26px;height:26px;border-radius:50%;border:1px solid var(--gold);color:var(--gold-dark);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:13px}
+.why .w h5{font-family:var(--sans);font-weight:700;font-size:10px;letter-spacing:.03em;color:var(--forest-deep);text-transform:uppercase;margin-bottom:3px}
+.why .w p{font-family:var(--body);font-weight:300;font-size:9px;line-height:1.6;color:var(--muted)}
+
+/* ---------- gallery ---------- */
+.gal{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:48mm;gap:6px;margin-top:8px}
+.gal .g{background-size:cover;background-position:center;position:relative;border-radius:2px;overflow:hidden}
+.gal .g.tall{grid-row:span 2}
+.gal .g .cap{position:absolute;left:0;right:0;bottom:0;padding:18px 10px 8px;background:linear-gradient(transparent,rgba(12,44,27,.82));font-family:var(--sans);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:7.5px;color:#fff}
+
+/* ---------- back cover ---------- */
+.bc-cta{font-family:var(--serif);font-weight:600;font-size:40px;line-height:1.05;color:var(--white)}
+.bc-cta i{color:var(--gold-light);font-weight:500}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 26px;margin-top:8px}
+.cinfo .lbl{font-family:var(--sans);font-weight:700;letter-spacing:.2em;text-transform:uppercase;font-size:8px;color:var(--gold-light);margin-bottom:6px}
+.cinfo .val{font-family:var(--body);font-weight:300;font-size:11.5px;line-height:1.7;color:#E4ECE5}
+.cinfo .val b{font-weight:500;color:#fff}
+.social-row{display:flex;gap:10px;margin-top:4px;font-family:var(--body);font-weight:300;font-size:10px;color:#B9Cabc}
+</style>
+</head>
+<body>
+
+<!-- ============ 1 · COVER ============ -->
+<div class="sheet"><section class="page dark cover">
+  <svg class="leaf-wm" style="right:-60mm;bottom:-50mm;width:180mm" viewBox="0 0 100 100"><path d="M50 5C25 20 15 55 30 85 60 70 80 40 70 10 63 18 55 30 48 48 44 32 47 18 50 5Z" fill="#C9A05A"/></svg>
+  <div class="frame"></div>
+  <div class="cover-inner">
+    <img class="cover-logo" src="../images/logo.png" alt="SVIE">
+    <div class="est">Established 2017 · Bengaluru</div>
+    <h1><span>Sri Vasavi</span><span>Interiors <span class="amp">&amp;</span> Exteriors</span></h1>
+    <div class="sub">Innovative ideas. Stylish designs.</div>
+    <div class="rule-wrap"><span class="ln"></span><span class="dot"></span><span class="ln"></span></div>
+    <div class="pillars"><span>Interiors</span><span>Construction</span><span>Modular Furniture</span><span>Products</span></div>
+  </div>
+  <div class="footer-bar">
+    <div>Company Profile <b>·</b> 2026 Edition</div>
+    <div><b>+91 95139 61740</b> &nbsp; svie.blr5@gmail.com</div>
+  </div>
+</section></div>
+
+<!-- ============ 2 · CONTENTS + WHO WE ARE ============ -->
+<div class="sheet"><section class="page">
+  <div class="who-grid">
+    <div class="pad" style="padding:22mm 16mm 22mm 20mm;position:relative">
+      <div class="kicker-row"><span class="eyebrow">The Company</span><hr class="gold-rule"></div>
+      <h2 class="display" style="font-size:38px">Who&nbsp;We&nbsp;Are</h2>
+      <p class="body-txt" style="margin-top:14px">Sri Vasavi Interiors and Exteriors is a Bengaluru-based team of specialists across design, construction, technology and supply. Since 2017 we have brought an innovative format of construction and interiors to clients at competitive prices — growing from a small, ground-up studio into a complete, single-source solutions provider.</p>
+      <p class="body-txt" style="margin-top:10px">Workplaces and living spaces have changed dramatically. We partner with our clients to create new, innovative environments that meet their needs — using environmentally friendly materials and practices, and the discipline of a well-run firm. We are proud of our team and look forward to a long and exciting future, growing together with the people we serve.</p>
+      <hr class="hair" style="margin:18px 0">
+      <span class="eyebrow">Inside This Brochure</span>
+      <ul class="toc">
+        <li><span class="tn">01</span> Who We Are <span class="dots"></span><span class="pg">02</span></li>
+        <li><span class="tn">02</span> What We Can Do For You <span class="dots"></span><span class="pg">03</span></li>
+        <li><span class="tn">03</span> Quality &amp; Certifications <span class="dots"></span><span class="pg">04</span></li>
+        <li><span class="tn">04</span> We Deal With — Products <span class="dots"></span><span class="pg">05</span></li>
+        <li><span class="tn">05</span> Green Nest — Modular Furniture <span class="dots"></span><span class="pg">06</span></li>
+        <li><span class="tn">06</span> Venus World — Electronics <span class="dots"></span><span class="pg">07</span></li>
+        <li><span class="tn">07</span> Our Team <span class="dots"></span><span class="pg">08</span></li>
+        <li><span class="tn">08</span> Process &amp; Why Choose Us <span class="dots"></span><span class="pg">09</span></li>
+        <li><span class="tn">09</span> Selected Work <span class="dots"></span><span class="pg">10</span></li>
+      </ul>
+      <span class="pagenum" style="left:20mm;bottom:12mm;color:var(--gold-dark)">SVIE · 02</span>
+    </div>
+    <div class="who-img" style="background-image:url('../images/gallery/g01.jpg')"></div>
+  </div>
+</section></div>
+
+<!-- ============ 3 · WHAT WE CAN DO ============ -->
+<div class="sheet"><section class="page dark">
+  <svg class="leaf-wm" style="left:-50mm;top:-40mm;width:150mm" viewBox="0 0 100 100"><path d="M50 5C25 20 15 55 30 85 60 70 80 40 70 10 63 18 55 30 48 48 44 32 47 18 50 5Z" fill="#C9A05A"/></svg>
+  <div class="pad">
+    <div class="kicker-row"><span class="eyebrow on-dark">What We Can Do For You</span><hr class="gold-rule"></div>
+    <h2 class="display on-dark" style="font-size:38px">One Company.<br>Every Discipline.</h2>
+    <p class="body-txt on-dark" style="margin-top:12px;max-width:150mm">Instead of juggling multiple suppliers and tradespeople, you work with a single source. We have the capability to take your project seamlessly from first consultation to final completion — hassle-free.</p>
+
+    <div style="margin-top:22px">
+      <div class="pillar">
+        <div class="pidx">01</div>
+        <div>
+          <div class="ptag">Design &amp; Interiors</div>
+          <h3>Design &amp; Quality Management</h3>
+          <p class="body-txt on-dark">Exceptional guidance and superior property quality — premium residential and commercial interiors, dampness proofing with epoxy products, and flawless exterior finishes, backed by architects, civil engineers and design consultants on every project.</p>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pidx">02</div>
+        <div>
+          <div class="ptag">Construction</div>
+          <h3>Construction Management</h3>
+          <p class="body-txt on-dark">High-quality, cost-effective construction for all sectors. Pre-construction planning, competitive bids, rigorous site supervision and milestone-based delivery — on time, as promised, with post-construction quality audits and handover documentation.</p>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pidx">03</div>
+        <div>
+          <div class="ptag">IT Infrastructure &amp; HR</div>
+          <h3>Technology &amp; Consultancy</h3>
+          <p class="body-txt on-dark">Internal and external IT audits with a focus on information security and GDPR compliance, plus human-resource consultancy and financial services — ensuring SVIE operates with the precision and integrity of a well-run technology firm.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="statband" style="margin-top:20px;border-top:1px solid rgba(201,160,90,.25);padding-top:6px">
+      <div class="s"><div class="v on-dark">7+</div><div class="l on-dark">Years in Business</div></div>
+      <div class="s"><div class="v on-dark">35+</div><div class="l on-dark">Global Brand Partners</div></div>
+      <div class="s"><div class="v on-dark">2</div><div class="l on-dark">Retail Showrooms</div></div>
+      <div class="s"><div class="v on-dark">100%</div><div class="l on-dark">ISO-Certified Supply</div></div>
+    </div>
+    <span class="pagenum" style="right:20mm;bottom:12mm;color:var(--gold-light)">03</span>
+  </div>
+</section></div>
+
+<!-- ============ 4 · QUALITY & CERTIFICATIONS ============ -->
+<div class="sheet"><section class="page">
+  <div class="pad">
+    <div class="kicker-row"><span class="eyebrow">Certified Quality Standards</span><hr class="gold-rule"></div>
+    <h2 class="display" style="font-size:36px">Quality Is Our<br>Quiet Obsession</h2>
+    <p class="body-txt" style="margin-top:12px;max-width:160mm">Every element of a project — soil compaction, concrete vigour, welding and more — is checked or tested to recognised standards. Quality is managed through two disciplines working together: <b>Quality Control (QC)</b>, defining how requirements are met, and <b>Quality Assurance (QA)</b>, defining the steps we take to verify them. Reviews continue right up to final completion, so what we hand over genuinely meets the standard set out in the project documents.</p>
+
+    <div class="cards" style="margin-top:18px">
+      <div class="card"><h4>Mission</h4><p>To prepare the best projects with integrity, craftsmanship and quality — contributing economically viable concepts to both commercial and residential work.</p></div>
+      <div class="card"><h4>Vision</h4><p>To be among the best and most competitive interiors companies in India, recognised for innovative design philosophy and a commitment to sustainable practices.</p></div>
+      <div class="card"><h4>Quality Policy</h4><p>To deliver high-quality products and manage projects excellently, meeting every customer requirement — with third-party quality assurance through QCI.</p></div>
+      <div class="card"><h4>Environment &amp; Safety</h4><p>Eco-friendly products and practices, sound health-and-safety standards, and total quality management driven by genuine customer satisfaction.</p></div>
+    </div>
+
+    <div style="margin-top:20px;background:var(--forest-deep);border-radius:4px;padding:18px 22px;color:#fff">
+      <div class="eyebrow on-dark" style="margin-bottom:10px">Accreditations &amp; Memberships</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <span class="chip">ISO</span><span class="chip">QCI</span><span class="chip">CREDAI</span><span class="chip">MSME</span><span class="chip">KASSIA</span><span class="chip">FKCCI</span>
+      </div>
+      <p class="body-txt on-dark" style="margin-top:12px;font-size:10px">Accreditations don't come easily. We put real work into attaining and maintaining the standards you see here — and we are proud to demonstrate the high benchmarks we set, achieve and adhere to on every engagement.</p>
+    </div>
+    <span class="pagenum" style="left:20mm;bottom:12mm;color:var(--gold-dark)">SVIE · 04</span>
+  </div>
+  <style>
+  .chip{font-family:var(--sans);font-weight:700;letter-spacing:.16em;font-size:11px;color:var(--forest-ink);background:linear-gradient(135deg,var(--gold-light),var(--gold));padding:7px 16px;border-radius:2px}
+  </style>
+</section></div>
+
+<!-- ============ 5 · WE DEAL WITH — PRODUCTS ============ -->
+<div class="sheet"><section class="page">
+  <div class="pad">
+    <div class="kicker-row"><span class="eyebrow">We Deal With</span><hr class="gold-rule"></div>
+    <h2 class="display" style="font-size:36px">Everything, Under One Roof</h2>
+    <p class="body-txt" style="margin-top:11px;max-width:165mm">We work with top global brands — ISO-certified for standard, quality and trust — bringing an entire range together under the SVIE name. From floor to ceiling (literally), we supply everything you need for your home and workplace interiors and exteriors, and we help you understand each product: its quality, its life cycle, and the best choice for your space.</p>
+
+    <div class="prodgrid" style="margin-top:16px">
+      <div class="prod"><div class="pico">i</div><div><h5>Flooring &amp; Tiles</h5><p>Premium tiles from Kajaria, Johnson and imported European collections.</p></div></div>
+      <div class="prod"><div class="pico">ii</div><div><h5>Sanitaryware</h5><p>Jaquar and Grohe — world-class bathrooms and plumbing fixtures.</p></div></div>
+      <div class="prod"><div class="pico">iii</div><div><h5>Paints &amp; Finishes</h5><p>Asian Paints and Dr. Fixit for walls that last a lifetime.</p></div></div>
+      <div class="prod"><div class="pico">iv</div><div><h5>Plywood &amp; Laminates</h5><p>National Plywood, Kitply and Fevicol for superior woodwork.</p></div></div>
+      <div class="prod"><div class="pico">v</div><div><h5>Hardware &amp; Fittings</h5><p>Hafele, Hettich and Ebco — precision hardware for every detail.</p></div></div>
+      <div class="prod"><div class="pico">vi</div><div><h5>Lighting</h5><p>Syska and Philips LED solutions for every mood and space.</p></div></div>
+      <div class="prod"><div class="pico">vii</div><div><h5>Glass &amp; Glazing</h5><p>Saint-Gobain glass for modern facades and interiors.</p></div></div>
+      <div class="prod"><div class="pico">viii</div><div><h5>Structural Materials</h5><p>UltraTech, Birla Super, Tata Tiscon and SK TMT for solid foundations.</p></div></div>
+    </div>
+
+    <div style="margin-top:20px">
+      <span class="eyebrow">Selected Brand Partners</span>
+      <div class="brandstrip" style="margin-top:10px">
+        <div class="b"><img src="../images/brands/asianpaints.png"></div>
+        <div class="b"><img src="../images/brands/jaquar.png"></div>
+        <div class="b"><img src="../images/brands/grohe.png"></div>
+        <div class="b"><img src="../images/brands/kajaria.svg"></div>
+        <div class="b"><img src="../images/brands/johnson.png"></div>
+        <div class="b"><img src="../images/brands/hafele.png"></div>
+        <div class="b"><img src="../images/brands/hettich.png"></div>
+        <div class="b"><img src="../images/brands/fevicol.svg"></div>
+        <div class="b"><img src="../images/brands/drfixit.svg"></div>
+        <div class="b"><img src="../images/brands/saintgobain.svg"></div>
+        <div class="b"><img src="../images/brands/ultratech.png"></div>
+        <div class="b"><img src="../images/brands/birlasuper.png"></div>
+        <div class="b"><img src="../images/brands/philips.png"></div>
+        <div class="b"><img src="../images/brands/syska.png"></div>
+        <div class="b"><img src="../images/brands/nationalply.png"></div>
+        <div class="b"><img src="../images/brands/ebco.png"></div>
+        <div class="b"><img src="../images/brands/landt.png"></div>
+        <div class="b"><img src="../images/brands/kerakoll.png"></div>
+        <div class="b"><img src="../images/brands/basf.svg"></div>
+        <div class="b"><img src="../images/brands/duroflex.png"></div>
+        <div class="b"><img src="../images/brands/sleepwell.svg"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:22px;background:var(--forest-deep);border-radius:4px;padding:20px 24px;display:flex;align-items:center;gap:24px;color:#fff">
+      <div style="flex:0 0 auto;text-align:center;border-right:1px solid rgba(201,160,90,.3);padding-right:22px">
+        <div style="font-family:var(--serif);font-weight:600;font-size:30px;color:var(--gold-light);line-height:1">35+</div>
+        <div style="font-family:var(--sans);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:7.5px;color:#9FB6A6;margin-top:6px">Global Brands</div>
+      </div>
+      <div>
+        <div class="eyebrow on-dark" style="margin-bottom:7px">Our Promise on Every Product</div>
+        <p class="body-txt on-dark" style="font-size:10.5px">All supplies and projects use <b style="color:#fff">only ISO-certified products</b>. We share a deep commitment to quality, environmental responsibility, and health &amp; safety — and we help you choose the best, longest-lasting option for your home or office, every time.</p>
+      </div>
+    </div>
+    <span class="pagenum" style="left:20mm;bottom:12mm;color:var(--gold-dark)">SVIE · 05</span>
+  </div>
+</section></div>
+
+<!-- ============ 6 · GREEN NEST — MODULAR FURNITURE ============ -->
+<div class="sheet"><section class="page dark">
+  <svg class="leaf-wm" style="right:-55mm;top:-30mm;width:160mm" viewBox="0 0 100 100"><path d="M50 5C25 20 15 55 30 85 60 70 80 40 70 10 63 18 55 30 48 48 44 32 47 18 50 5Z" fill="#C9A05A"/></svg>
+  <div class="pad">
+    <div class="kicker-row"><span class="eyebrow on-dark">A Unit of SVIE</span><hr class="gold-rule"></div>
+    <h2 class="display on-dark" style="font-size:40px">Green&nbsp;Nest</h2>
+    <div class="lede" style="font-size:17px;color:var(--gold-pale);margin-top:4px">Modular Furniture · Crafted in India, built to last a lifetime</div>
+    <p class="body-txt on-dark" style="margin-top:13px;max-width:165mm">Established in 2017, Green Nest has become a trusted name in modular home and office furniture manufacturing in Bengaluru. We specialise in fully customised product development with complete customer satisfaction, using ISO-certified eco-friendly materials and state-of-the-art quality measures. Every piece combines functional design with environmental responsibility — manufactured using ZED (Zero Defect Zero Effect) technology for energy-efficient production that meets global standards.</p>
+
+    <div class="statband" style="margin-top:20px;border-top:1px solid rgba(201,160,90,.25);border-bottom:1px solid rgba(201,160,90,.25)">
+      <div class="s"><div class="v on-dark">Several</div><div class="l on-dark">Projects Completed</div></div>
+      <div class="s"><div class="v on-dark">7</div><div class="l on-dark">Years Manufacturing</div></div>
+      <div class="s"><div class="v on-dark">100%</div><div class="l on-dark">Certified Materials</div></div>
+      <div class="s"><div class="v on-dark">ZED</div><div class="l on-dark">Zero-Defect Technology</div></div>
+    </div>
+
+    <div class="feat" style="margin-top:20px">
+      <div class="f"><h4>ZED Technology</h4><p>Zero Defect Zero Effect manufacturing — energy-efficient production that meets global quality standards with zero waste.</p></div>
+      <div class="f"><h4>Eco-Friendly Materials</h4><p>ISO-certified sustainable materials that are safe for your family and gentle on the environment.</p></div>
+      <div class="f"><h4>High-Strength &amp; Durable</h4><p>Engineered to withstand adverse conditions — furniture that holds its quality and appearance for decades.</p></div>
+      <div class="f"><h4>Fully Customised</h4><p>Designed to your exact specifications — dimensions, finishes, materials and configurations tailored to your space.</p></div>
+    </div>
+    <div style="margin-top:18px;font-family:var(--sans);font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-size:8.5px;color:var(--gold-light);text-align:center">Manufactured in Bengaluru · Delivered Pan-Karnataka · Supporting Indian Craftsmanship</div>
+    <span class="pagenum" style="right:20mm;bottom:12mm;color:var(--gold-light)">06</span>
+  </div>
+</section></div>
+
+<!-- ============ 7 · VENUS WORLD — ELECTRONICS ============ -->
+<div class="sheet"><section class="page">
+  <div style="position:absolute;top:0;left:0;right:0;height:118mm;background-image:url('../images/venus-world-showroom.png');background-size:cover;background-position:center"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:118mm;background:linear-gradient(160deg,rgba(12,44,27,.62),rgba(12,44,27,.78))"></div>
+  <div style="position:absolute;top:24mm;left:20mm;right:20mm;color:#fff">
+    <div class="kicker-row"><span class="eyebrow on-dark">Part of the SVIE Family</span><hr class="gold-rule"></div>
+    <h2 class="display on-dark" style="font-size:40px">Venus&nbsp;World</h2>
+    <div class="lede" style="font-size:16px;color:var(--gold-pale);margin-top:4px">Electronics &amp; Appliances · 38+ years in Malleshwaram</div>
+  </div>
+  <div class="pad" style="top:122mm;padding-top:0">
+    <p class="body-txt">In the heart of Malleshwaram, Venus World has served Bengaluru for over 38 years with an unwavering focus on customer satisfaction, competitive pricing, quality service and swift delivery. Owned by one of the partners of SVIE, it is a trusted part of the family — together offering a truly comprehensive solution for your home and office needs. We serve customers across Karnataka from two showrooms in Malleshwaram, the second near Sai Baba Temple, specialising in Duroflex mattresses and bedding.</p>
+
+    <div class="statband" style="margin-top:16px">
+      <div class="s"><div class="v">38+</div><div class="l">Years of Legacy</div></div>
+      <div class="s"><div class="v">2</div><div class="l">Showrooms</div></div>
+      <div class="s"><div class="v">13+</div><div class="l">Top Brands</div></div>
+      <div class="s"><div class="v">100%</div><div class="l">Genuine Products</div></div>
+    </div>
+
+    <div style="margin-top:18px"><span class="eyebrow">Top Brands We Carry</span>
+      <div class="brandstrip" style="grid-template-columns:repeat(7,1fr);margin-top:10px">
+        <div class="b"><img src="../images/brands/samsung.png"></div>
+        <div class="b"><img src="../images/brands/lg.png"></div>
+        <div class="b"><img src="../images/brands/sony.png"></div>
+        <div class="b"><img src="../images/brands/bosch.png"></div>
+        <div class="b"><img src="../images/brands/ifb.png"></div>
+        <div class="b"><img src="../images/brands/faber.png"></div>
+        <div class="b"><img src="../images/brands/elica.png"></div>
+        <div class="b"><img src="../images/brands/philips.png"></div>
+        <div class="b"><img src="../images/brands/syska.png"></div>
+        <div class="b"><img src="../images/brands/duroflex.png"></div>
+        <div class="b"><img src="../images/brands/sleepwell.svg"></div>
+      </div>
+    </div>
+    <p class="body-txt" style="margin-top:14px;font-size:10px">Televisions (Smart, OLED, QLED), home theatre &amp; audio, kitchen and cooking appliances, refrigeration, washing machines, small appliances, and Duroflex mattresses &amp; bedding — all under one trusted roof.</p>
+    <span class="pagenum" style="left:20mm;bottom:12mm;color:var(--gold-dark)">SVIE · 07</span>
+  </div>
+</section></div>
+
+<!-- ============ 8 · OUR TEAM ============ -->
+<div class="sheet"><section class="page dark">
+  <div class="pad">
+    <div class="kicker-row"><span class="eyebrow on-dark">Our Team</span><hr class="gold-rule"></div>
+    <h2 class="display on-dark" style="font-size:38px">A Small Team,<br>A Personal Service</h2>
+    <p class="body-txt on-dark" style="margin-top:12px;max-width:160mm">We are a small, dedicated team — and that is exactly why you get such a personal service with SVIE. From design and quality management to construction, IT infrastructure and HR, our leaders bring complementary expertise to every project we take on.</p>
+
+    <div class="team">
+      <div class="member">
+        <div class="av">KBM</div>
+        <h3>Kiran B M</h3>
+        <div class="role">Founder Director &amp; CEO</div>
+        <p>The visionary founder of SVIE, Kiran brings deep expertise in interior design and construction management. His philosophy centres on creating spaces that marry aesthetic beauty with structural integrity. He leads the company's creative direction, client relationships and operational excellence — ensuring every project carries the SVIE hallmark of quality.</p>
+      </div>
+      <div class="member">
+        <div class="av">ANM</div>
+        <h3>Akshata N M</h3>
+        <div class="role">Partner · IT Consultant &amp; HR Services</div>
+        <p>Akshata brings strategic depth through her expertise in IT infrastructure and human-resource management. She oversees GDPR-compliant IT audits, information security and organisational development — ensuring SVIE not only builds beautiful spaces but operates with the precision and integrity of a well-run technology firm.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;border:1px solid rgba(201,160,90,.3);border-radius:4px;padding:18px 22px">
+      <div class="lede" style="font-size:18px;color:var(--gold-pale);line-height:1.4">“Work performed with higher knowledge or skill, capacity or ambition, usually brings a correspondingly higher reward.”</div>
+      <div style="font-family:var(--sans);font-weight:700;letter-spacing:.18em;text-transform:uppercase;font-size:8px;color:#9FB6A6;margin-top:10px">Sir M. Visvesvaraya · Bharat Ratna · Legendary Engineer, Bengaluru</div>
+    </div>
+    <span class="pagenum" style="right:20mm;bottom:12mm;color:var(--gold-light)">08</span>
+  </div>
+</section></div>
+
+<!-- ============ 9 · PROCESS + WHY ============ -->
+<div class="sheet"><section class="page">
+  <div class="pad">
+    <div class="kicker-row"><span class="eyebrow">How We Work</span><hr class="gold-rule"></div>
+    <h2 class="display" style="font-size:36px">From First Idea to Final Handover</h2>
+
+    <div class="steps" style="margin-top:18px">
+      <div class="step"><div class="sn">01</div><h5>Consultation</h5><p>We listen to your requirements, understand your lifestyle, and define scope and budget together.</p></div>
+      <div class="step"><div class="sn">02</div><h5>Design &amp; Plan</h5><p>Architects and designers create detailed plans, 3D renders and material selections for your approval.</p></div>
+      <div class="step"><div class="sn">03</div><h5>Execution</h5><p>Expert craftsmen bring the design to life with rigorous quality checks at every stage.</p></div>
+      <div class="step"><div class="sn">04</div><h5>Handover</h5><p>We deliver your space on time, with a final walkthrough and post-handover support included.</p></div>
+    </div>
+
+    <hr class="hair" style="margin:24px 0 20px">
+    <div class="kicker-row"><span class="eyebrow">Why Choose SVIE</span><hr class="gold-rule"></div>
+    <div class="why">
+      <div class="w"><div class="wi">✓</div><div><h5>ISO-Certified Quality Standards</h5><p>Rigorous QA/QC management with third-party inspections by organisations like QCI, so every project meets global benchmarks.</p></div></div>
+      <div class="w"><div class="wi">✓</div><div><h5>ZED Technology Manufacturing</h5><p>Zero Defect Zero Effect — energy-efficient CNC manufacturing that meets global standards with eco-friendly materials.</p></div></div>
+      <div class="w"><div class="wi">✓</div><div><h5>On-Time Delivery Commitment</h5><p>Oversight from architects, civil engineers and consultants ensures every project is delivered on schedule, as promised.</p></div></div>
+      <div class="w"><div class="wi">✓</div><div><h5>Competitive Pricing</h5><p>Premium quality without premium prices — high-value results with transparent, competitive costing.</p></div></div>
+    </div>
+
+    <div style="margin-top:24px;background:linear-gradient(135deg,var(--cream-2),var(--sand));border-radius:4px;padding:18px 22px;text-align:center">
+      <div class="lede" style="font-size:21px;color:var(--forest-deep)">“Your dream space is one conversation away.”</div>
+      <div style="font-family:var(--body);font-weight:300;font-size:10px;color:var(--mid);margin-top:6px">Schedule a free consultation — we listen, plan, and craft a space that is truly yours.</div>
+    </div>
+    <span class="pagenum" style="left:20mm;bottom:12mm;color:var(--gold-dark)">SVIE · 09</span>
+  </div>
+</section></div>
+
+<!-- ============ 10 · SELECTED WORK ============ -->
+<div class="sheet"><section class="page dark">
+  <div class="pad" style="padding:18mm 16mm">
+    <div class="kicker-row"><span class="eyebrow on-dark">Selected Work</span><hr class="gold-rule"></div>
+    <h2 class="display on-dark" style="font-size:34px">Real Spaces. Real Craftsmanship.</h2>
+    <div class="gal">
+      <div class="g tall" style="background-image:url('../images/gallery/g02.jpg')"><div class="cap">Premium Interiors</div></div>
+      <div class="g" style="background-image:url('../images/gallery/g05.jpg')"><div class="cap">Quality Design</div></div>
+      <div class="g" style="background-image:url('../images/gallery/g03.jpg')"><div class="cap">Construction</div></div>
+      <div class="g" style="background-image:url('../images/gallery/g06.jpg')"><div class="cap">Stylish Living</div></div>
+      <div class="g tall" style="background-image:url('../images/gallery/g09.jpg')"><div class="cap">Crafted Spaces</div></div>
+      <div class="g" style="background-image:url('../images/gallery/g10.jpg')"><div class="cap">Interior Finish</div></div>
+      <div class="g" style="background-image:url('../images/gallery/g11.jpg')"><div class="cap">Site &amp; Build</div></div>
+      <div class="g" style="background-image:url('../images/gallery/g04.jpg')"><div class="cap">SVIE Craftsmanship</div></div>
+      <div class="g" style="background-image:url('../images/gallery/g12.jpg')"><div class="cap">Exterior Design</div></div>
+    </div>
+    <span class="pagenum" style="right:20mm;bottom:10mm;color:var(--gold-light)">10</span>
+  </div>
+</section></div>
+
+<!-- ============ 11 · BACK COVER / CONTACT ============ -->
+<div class="sheet"><section class="page dark">
+  <svg class="leaf-wm" style="left:50%;top:50%;transform:translate(-50%,-50%);width:200mm;opacity:.05" viewBox="0 0 100 100"><path d="M50 5C25 20 15 55 30 85 60 70 80 40 70 10 63 18 55 30 48 48 44 32 47 18 50 5Z" fill="#C9A05A"/></svg>
+  <div class="pad" style="display:flex;flex-direction:column">
+    <img src="../images/logo.png" style="width:78px;height:auto;margin-bottom:18px" alt="SVIE">
+    <div class="eyebrow on-dark">Let's Build Something Beautiful</div>
+    <div class="bc-cta" style="margin-top:12px">Your dream space is<br><i>one conversation away.</i></div>
+    <p class="body-txt on-dark" style="margin-top:14px;max-width:150mm">Ready to start your project? We'd love to hear from you. Call, email, or visit us in Malleshwaram — we'll get back to you within 24 hours.</p>
+
+    <hr class="hair" style="margin:24px 0"  >
+    <div class="contact-grid">
+      <div class="cinfo"><div class="lbl">Call Us</div><div class="val"><b>+91 95139 61740</b><br>+91 98455 81156</div></div>
+      <div class="cinfo"><div class="lbl">Email</div><div class="val"><b>svie.blr5@gmail.com</b></div></div>
+      <div class="cinfo"><div class="lbl">Visit Our Showroom</div><div class="val">172 A, B &amp; E, Link Road, 5th Cross Rd,<br>Malleshwaram, Bengaluru, Karnataka 560003<br><span style="color:var(--gold-pale)">Opposite Smart Bazar, Malleshwaram</span></div></div>
+      <div class="cinfo"><div class="lbl">Open Hours</div><div class="val">Every Day · 10:00 AM – 9:00 PM</div>
+        <div class="lbl" style="margin-top:14px">Connect</div><div class="val">facebook.com/SVIEBLR · instagram.com/svie.blr<br>wa.me/919513961740</div></div>
+    </div>
+
+    <div style="margin-top:auto;border-top:1px solid rgba(201,160,90,.3);padding-top:14px;display:flex;justify-content:space-between;align-items:flex-end">
+      <div>
+        <div style="font-family:var(--serif);font-weight:600;font-size:20px;color:#fff">Sri Vasavi Interiors &amp; Exteriors</div>
+        <div style="font-family:var(--sans);font-weight:600;letter-spacing:.2em;text-transform:uppercase;font-size:8px;color:var(--gold-light);margin-top:4px">Interiors · Construction · Modular Furniture · Products</div>
+      </div>
+      <div style="font-family:var(--body);font-weight:300;font-size:8.5px;color:#8FA796;text-align:right">Make in India · Made in India<br>© 2026 SVIE · All rights reserved</div>
+    </div>
+  </div>
+</section></div>
+
+</body>
+</html>

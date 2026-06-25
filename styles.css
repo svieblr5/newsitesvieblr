@@ -1370,12 +1370,12 @@ em.italic-gold{font-style:italic;color:var(--gold)}
 /* ── ══════════ CONTACT ══════════ ── */
 .contact-layout{
   display:grid;grid-template-columns:1fr 1.5fr;
-  gap:80px;align-items:start;
+  gap:80px;align-items:stretch;
 }
 .contact-info{
   background:var(--forest-deep);
   border-radius:var(--r-xl);padding:52px;
-  position:sticky;top:100px;
+  position:relative;
 }
 .contact-info-title{
   font-family:var(--font-display);
