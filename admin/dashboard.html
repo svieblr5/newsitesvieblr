@@ -399,6 +399,10 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13"/><path d="M1 1l22 22"/></svg>
         Contact Info
       </button>
+      <button class="nav-btn" data-p="navigation" onclick="show('navigation',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        Navigation
+      </button>
 
       <div class="nav-hd">Content</div>
       <button class="nav-btn" data-p="gallery" onclick="show('gallery',this)">
@@ -678,6 +682,26 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
             </div>
             <button class="btn btn-primary btn-sm" onclick="show('calltracking',document.querySelector('[data-p=calltracking]'))">Open Call Log →</button>
           </div>
+        </div>
+      </div>
+
+      <!-- ══ NAVIGATION ══ -->
+      <div id="p-navigation" class="panel">
+        <div class="card">
+          <div class="card-title">Site Navigation Menu</div>
+          <div class="card-sub">Edit the links in the top navigation bar and mobile menu shown on every page. Add dropdown links under a menu item to turn it into a dropdown. Changes go live after you Publish.</div>
+          <div id="navEditor"></div>
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border,#e8e4de)">
+            <button class="btn btn-outline" onclick="addNavItem()" style="display:inline-flex;align-items:center;gap:8px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Menu Item
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Call-to-Action Button</div>
+          <div class="card-sub">The highlighted gold button at the right of the navigation bar</div>
+          <div class="frow"><div class="fg"><label>Button Label</label><input id="nav-cta-label" type="text" placeholder="Book Consultation"></div><div class="fg"><label>Button Link</label><input id="nav-cta-href" type="text" placeholder="contact.html"></div></div>
         </div>
       </div>
 
@@ -1563,7 +1587,7 @@ const titles = {
   dashboard:'Dashboard', activity:'Activity Log', home:'Home Page',
   about:'About Page', services:'Services Page', products:'Products Page',
   furniture:'Furniture Page', electronics:'Electronics Page',
-  contact:'Contact Info', gallery:'Gallery',
+  contact:'Contact Info', navigation:'Navigation', gallery:'Gallery',
   testimonials:'Testimonials', blog:'Blog & News', media:'Media Library',
   seo:'SEO Settings', enquiries:'Enquiries Inbox',
   calltracking:'Click to Call — Call Log', settings:'Site Settings',
@@ -1584,7 +1608,7 @@ async function init() {
   if (!auth.loggedIn) { location.href='/admin'; return; }
   document.getElementById('adminUser').textContent = auth.user || 'Admin';
   C = await api('GET','/api/content').catch(()=>({}));
-  fillHome(); fillAbout(); fillContact(); fillSEO(); fillSettings();
+  fillHome(); fillAbout(); fillContact(); fillNavigation(); fillSEO(); fillSettings();
   fillServices(); fillProducts(); fillFurniture(); fillElectronics();
   loadStats(); loadDashActivity(); loadVisitorCount();
   refreshPublishState();
@@ -1890,6 +1914,101 @@ async function saveContact() {
   await api('POST','/api/content/site', data);
   C = await api('GET','/api/content');
   toast('Contact info saved');
+}
+
+// ── NAVIGATION ────────────────────────────────
+// Dynamic list editor for the site nav menu (mirrors the team editor).
+// Model lives in C.nav = { items:[{label,href,children?:[{label,href,icon}]}], cta:{label,href} }.
+function navIconOptions(sel) {
+  const opts = [['default','Generic'],['box','Box · Products'],['sofa','Sofa · Furniture'],['tv','TV · Electronics']];
+  return opts.map(o=>`<option value="${o[0]}"${o[0]===(sel||'default')?' selected':''}>${o[1]}</option>`).join('');
+}
+
+function fillNavigation() {
+  if (!C.nav || typeof C.nav !== 'object') C.nav = {};
+  if (!Array.isArray(C.nav.items)) C.nav.items = [];
+  if (!C.nav.cta || typeof C.nav.cta !== 'object') C.nav.cta = { label:'', href:'' };
+  const wrap = document.getElementById('navEditor');
+  if (!wrap) return;
+  const lbl = 'font-size:0.65rem;font-weight:600;color:#888;display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.04em';
+  const inp = 'width:100%;padding:6px 9px;font-size:0.82rem;border:1px solid #e0dbd4;border-radius:6px;box-sizing:border-box;background:#faf9f7;color:#1a1a1a';
+  const rm  = 'background:rgba(220,50,50,0.07);border:1px solid rgba(220,50,50,0.18);color:#c0392b;border-radius:5px;padding:3px 9px;font-size:0.6rem;font-weight:700;cursor:pointer;line-height:1.5';
+  wrap.innerHTML = C.nav.items.map((it,i)=>{
+    const kids = Array.isArray(it.children) ? it.children : [];
+    const childrenHtml = kids.map((ch,j)=>`
+        <div style="display:grid;grid-template-columns:1fr 1fr 140px 32px;gap:8px;align-items:end;margin-bottom:7px">
+          <div><label style="${lbl}">Link Label</label><input type="text" id="nav-c-label-${i}-${j}" value="${esc(ch.label||'')}" style="${inp}"></div>
+          <div><label style="${lbl}">Link URL</label><input type="text" id="nav-c-href-${i}-${j}" value="${esc(ch.href||'')}" style="${inp}"></div>
+          <div><label style="${lbl}">Icon</label><select id="nav-c-icon-${i}-${j}" style="${inp}">${navIconOptions(ch.icon)}</select></div>
+          <button onclick="removeNavChild(${i},${j})" title="Remove link" style="${rm};padding:6px 0;text-align:center">✕</button>
+        </div>`).join('');
+    return `
+    <div style="background:#fff;border:1px solid #e8e4de;border-radius:10px;padding:11px 14px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:0.6rem;font-weight:700;color:#215840;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6">Menu Item ${i+1}</span>
+        <button onclick="removeNavItem(${i})" style="${rm}">✕ Remove</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+        <div><label style="${lbl}">Menu Label</label><input type="text" id="nav-i-label-${i}" value="${esc(it.label||'')}" style="${inp}"></div>
+        <div><label style="${lbl}">Menu Link</label><input type="text" id="nav-i-href-${i}" value="${esc(it.href||'')}" style="${inp}"></div>
+      </div>
+      <div style="background:#faf9f7;border:1px dashed #e0dbd4;border-radius:8px;padding:10px 12px">
+        <div style="font-size:0.6rem;font-weight:700;color:#215840;letter-spacing:0.08em;text-transform:uppercase;opacity:0.7;margin-bottom:8px">Dropdown Links (optional)</div>
+        ${childrenHtml || '<div style="font-size:0.72rem;color:#aaa;margin-bottom:8px">No dropdown — this menu item is a plain link.</div>'}
+        <button onclick="addNavChild(${i})" style="background:rgba(33,88,64,0.06);border:1px solid rgba(33,88,64,0.18);color:#215840;border-radius:5px;padding:4px 10px;font-size:0.62rem;font-weight:700;cursor:pointer">+ Add Dropdown Link</button>
+      </div>
+    </div>`;
+  }).join('') || '<div style="font-size:0.8rem;color:#aaa;padding:6px 0">No menu items yet — click “Add Menu Item” to start.</div>';
+  sv('nav-cta-label', C.nav.cta.label);
+  sv('nav-cta-href', C.nav.cta.href);
+}
+
+// Read the current form state back into a nav object (also used before structural edits so unsaved text isn't lost).
+function collectNav() {
+  const src = (C.nav && Array.isArray(C.nav.items)) ? C.nav.items : [];
+  const items = src.map((it,i)=>{
+    const o = { label: gv(`nav-i-label-${i}`), href: gv(`nav-i-href-${i}`) };
+    const kids = Array.isArray(it.children) ? it.children : [];
+    if (kids.length) {
+      o.children = kids.map((ch,j)=>({ label: gv(`nav-c-label-${i}-${j}`), href: gv(`nav-c-href-${i}-${j}`), icon: gv(`nav-c-icon-${i}-${j}`)||'default' }));
+    }
+    return o;
+  });
+  return { items, cta: { label: gv('nav-cta-label'), href: gv('nav-cta-href') } };
+}
+
+function addNavItem() {
+  C.nav = collectNav();
+  C.nav.items.push({ label:'New Item', href:'#' });
+  fillNavigation();
+}
+function removeNavItem(i) {
+  if (!confirm('Remove this menu item?')) return;
+  C.nav = collectNav();
+  C.nav.items.splice(i,1);
+  fillNavigation();
+}
+function addNavChild(i) {
+  C.nav = collectNav();
+  const it = C.nav.items[i]; if (!it) return;
+  if (!Array.isArray(it.children)) it.children = [];
+  it.children.push({ label:'New Link', href:'#', icon:'default' });
+  fillNavigation();
+}
+function removeNavChild(i,j) {
+  C.nav = collectNav();
+  const it = C.nav.items[i]; if (!it || !Array.isArray(it.children)) return;
+  it.children.splice(j,1);
+  if (!it.children.length) delete it.children;
+  fillNavigation();
+}
+
+async function saveNavigation() {
+  const nav = collectNav();
+  C.nav = nav;
+  await api('POST','/api/content/nav', nav);
+  C = await api('GET','/api/content');
+  toast('Navigation saved');
 }
 
 // ── SEO ───────────────────────────────────────
@@ -2369,7 +2488,7 @@ async function restoreBackup() {
   if (r.error) return toast('Restore failed: '+r.error,'err');
   toast('Content restored successfully!');
   C = await api('GET','/api/content');
-  fillHome(); fillAbout(); fillContact(); fillSEO(); fillSettings();
+  fillHome(); fillAbout(); fillContact(); fillNavigation(); fillSEO(); fillSettings();
 }
 
 // ── GALLERY ───────────────────────────────────
@@ -3139,6 +3258,7 @@ async function saveCurrent() {
     else if (curPanel==='furniture')   await saveFurniture();
     else if (curPanel==='electronics') await saveElectronics();
     else if (curPanel==='contact')     await saveContact();
+    else if (curPanel==='navigation')  await saveNavigation();
     else if (curPanel==='seo')         await saveSEO();
     else if (curPanel==='settings')    await saveSettings();
     else { toast('Nothing to save on this panel'); btn.textContent='Save Changes'; btn.disabled=false; return; }
@@ -3291,7 +3411,7 @@ async function restoreVersion(id) {
 async function reloadAllContent() {
   C = await api('GET','/api/content').catch(()=>C);
   try {
-    fillHome(); fillAbout(); fillContact(); fillSEO(); fillSettings();
+    fillHome(); fillAbout(); fillContact(); fillNavigation(); fillSEO(); fillSettings();
     fillServices(); fillProducts(); fillFurniture(); fillElectronics();
     loadStats();
     if (curPanel==='gallery')      loadGallery();

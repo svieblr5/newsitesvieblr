@@ -135,6 +135,93 @@
     });
   }
 
+  /* ── Navigation menu: rebuild nav + mobile drawer + CTA from CMS `nav` ──
+        Defensive: only runs when nav.items is a valid non-empty array; on any
+        error the original hard-coded nav markup is left untouched. ── */
+  var NAV_ICONS = {
+    box:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+    sofa: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 9V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v3"/><path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H6v-2a2 2 0 0 0-4 0Z"/><path d="M4 18v2"/><path d="M20 18v2"/><path d="M12 4v9"/></svg>',
+    tv:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>',
+    'default': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>'
+  };
+  var NAV_CHEVRON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-left:3px"><polyline points="6 9 12 15 18 9"/></svg>';
+  var NAV_ARROW   = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+
+  function navEsc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function navHref(h) {
+    h = String(h == null ? '' : h).trim();
+    if (/^https?:\/\/[^\s"'<>]+$/i.test(h)) return h;          // external
+    if (/^(tel:|mailto:)[^\s"'<>]+$/i.test(h)) return h;       // tel / mailto
+    if (/^[A-Za-z0-9_./#?=&%+-]+$/.test(h)) return h;          // relative path / anchor
+    return '#';
+  }
+  function navPageFile(h) {
+    h = String(h == null ? '' : h);
+    if (/^(https?:|tel:|mailto:)/i.test(h)) return '';
+    return h.split('#')[0].split('?')[0].split('/').pop();
+  }
+  function navIcon(key) { return NAV_ICONS[key] || NAV_ICONS['default']; }
+
+  function applyNav(nav) {
+    try {
+      if (!nav || !Array.isArray(nav.items) || !nav.items.length) return;
+      var page = location.pathname.split('/').pop() || 'index.html';
+
+      // Desktop links
+      var links = document.querySelector('.nav-links');
+      if (links) {
+        links.innerHTML = nav.items.map(function (it) {
+          if (it.children && it.children.length) {
+            var panel = it.children.map(function (ch) {
+              return '<a href="' + navHref(ch.href) + '" class="nav-drop-a">' + navIcon(ch.icon) + navEsc(ch.label) + '</a>';
+            }).join('');
+            return '<div class="nav-drop"><a href="' + navHref(it.href) + '" class="nav-a">' + navEsc(it.label) + NAV_CHEVRON +
+                   '</a><div class="nav-drop-panel">' + panel + '</div></div>';
+          }
+          var pf = navPageFile(it.href);
+          var on = (pf && pf === page) ? ' on' : '';
+          return '<a href="' + navHref(it.href) + '" class="nav-a' + on + '"' + (pf ? ' data-page="' + navEsc(pf) + '"' : '') + '>' + navEsc(it.label) + '</a>';
+        }).join('');
+      }
+
+      // Desktop CTA
+      if (nav.cta) {
+        var ctaBtn = document.querySelector('.nav-cta .btn');
+        if (ctaBtn) { ctaBtn.href = navHref(nav.cta.href); ctaBtn.innerHTML = navEsc(nav.cta.label) + NAV_ARROW; }
+      }
+
+      // Mobile drawer
+      var drawer = document.querySelector('.nav-drawer');
+      if (drawer) {
+        drawer.querySelectorAll('a.nav-drawer-link, a.nav-drawer-sub').forEach(function (a) { a.remove(); });
+        var html = nav.items.map(function (it) {
+          var pf = navPageFile(it.href);
+          var on = (pf && pf === page) ? ' on' : '';
+          var s = '<a href="' + navHref(it.href) + '" class="nav-drawer-link' + on + '"' + (pf ? ' data-page="' + navEsc(pf) + '"' : '') + '>' + navEsc(it.label) + '</a>';
+          if (it.children && it.children.length) {
+            s += it.children.map(function (ch) {
+              return '<a href="' + navHref(ch.href) + '" class="nav-drawer-sub">↳ ' + navEsc(ch.label) + '</a>';
+            }).join('');
+          }
+          return s;
+        }).join('');
+        var gold = drawer.querySelector('.btn-gold');
+        var anchor = gold ? gold.closest('div') : drawer.querySelector('div');
+        if (anchor) anchor.insertAdjacentHTML('beforebegin', html);
+        else drawer.insertAdjacentHTML('beforeend', html);
+        if (nav.cta && gold) { gold.href = navHref(nav.cta.href); gold.textContent = nav.cta.label; }
+        // Re-bind: clicking any drawer link closes the drawer (script.js bound the originals)
+        drawer.querySelectorAll('a').forEach(function (a) {
+          a.addEventListener('click', function () { drawer.classList.remove('open'); document.body.style.overflow = ''; });
+        });
+      }
+    } catch (e) { /* keep the hard-coded nav on any failure */ }
+  }
+
   /* ── Deep key resolver: "furniture_page.images.hero_bg" → value ── */
   function resolve(data, keyPath) {
     return keyPath.split('.').reduce(function (o, k) { return o && o[k]; }, data);
@@ -172,6 +259,8 @@
       applyWhatsApp(data.site);
       applyLogo(data.site);
     }
+
+    if (data.nav) applyNav(data.nav);
   }
 
   // ── 1. Apply from localStorage immediately (no network delay) ──
