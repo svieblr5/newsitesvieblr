@@ -421,6 +421,9 @@ em.italic-gold{font-style:italic;color:var(--gold)}
   padding:100px 40px 40px;overflow-y:auto;
 }
 .nav-drawer.open{display:flex}
+/* The analytics consent banner uses z-index:2147483647 (max), so it would sit on top of
+   the open mobile menu. Hide it while the drawer is open (banner shows/hides via transform). */
+body:has(.nav-drawer.open) #svie-consent{transform:translateY(100%)!important}
 .nav-drawer-link{
   font-family:var(--font-display);
   font-size:2.4rem;font-weight:500;
@@ -1741,9 +1744,10 @@ em.italic-gold{font-style:italic;color:var(--gold)}
   .resp-3col{grid-template-columns:1fr}
   .resp-6col{grid-template-columns:repeat(2,1fr)}
   .resp-feat-grid{grid-template-columns:1fr}
-  /* Floating buttons — mobile sizing */
+  /* Floating buttons — mobile sizing. Stack call above WhatsApp on the right so
+     the call button stops covering left-aligned stats/headings on small screens. */
   .wa-float{width:48px;height:48px;bottom:18px;right:18px}
-  .call-float{width:48px;height:48px;bottom:18px;left:18px}
+  .call-float{width:48px;height:48px;bottom:78px;right:18px;left:auto}
   .call-float svg{width:18px;height:18px}
   .wa-float svg{width:22px;height:22px}
   /* Typography */
@@ -1780,7 +1784,7 @@ em.italic-gold{font-style:italic;color:var(--gold)}
   .btn,.btn-gold,.btn-ghost{padding:13px 22px;font-size:.68rem}
   .resp-6col{grid-template-columns:repeat(2,1fr)}
   .wa-float{width:44px;height:44px;bottom:14px;right:14px}
-  .call-float{width:44px;height:44px;bottom:14px;left:14px}
+  .call-float{width:44px;height:44px;bottom:70px;right:14px;left:auto}
 }
 
 /* ── 380px — Small phones (iPhone SE, Galaxy A series, Moto G) ── */
