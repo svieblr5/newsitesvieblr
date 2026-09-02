@@ -21,15 +21,25 @@ const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
 const SALT_ROUNDS = 12;
 
+// ── Data directory (must persist across deploys) ──
+// Hostinger rebuilds recreate the app under …/hbuilds/current/nodejs, which would wipe a
+// build-local ./data on every redeploy. So CMS data lives OUTSIDE the build: when running
+// inside a Hostinger build we default to ~/svie-data; locally it stays ./data. Override
+// anywhere by setting the DATA_DIR env var to an absolute path.
+const os = require('os');
+const DATA_DIR = process.env.DATA_DIR
+  || (ROOT.includes('/hbuilds/') ? path.join(os.homedir(), 'svie-data') : path.join(ROOT, 'data'));
+try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch { /* exists */ }
+
 // ── File paths ──
-const CONTENT_FILE  = path.join(ROOT, 'data', 'content.json');        // LIVE / published — public site reads this
-const DRAFT_FILE    = path.join(ROOT, 'data', 'content-draft.json');  // DRAFT working copy — dashboard edits this
-const VERSIONS_DIR  = path.join(ROOT, 'data', 'versions');            // restore-point snapshots
-const VERSIONS_IDX  = path.join(VERSIONS_DIR, 'index.json');          // version metadata index
-const ENQUIRY_FILE  = path.join(ROOT, 'data', 'enquiries.json');
-const ACTIVITY_FILE = path.join(ROOT, 'data', 'activity.json');
-const CONFIG_FILE   = path.join(ROOT, 'data', 'config.json');
-const VISITORS_FILE = path.join(ROOT, 'data', 'visitors.json');
+const CONTENT_FILE  = path.join(DATA_DIR, 'content.json');        // LIVE / published — public site reads this
+const DRAFT_FILE    = path.join(DATA_DIR, 'content-draft.json');  // DRAFT working copy — dashboard edits this
+const VERSIONS_DIR  = path.join(DATA_DIR, 'versions');            // restore-point snapshots
+const VERSIONS_IDX  = path.join(VERSIONS_DIR, 'index.json');      // version metadata index
+const ENQUIRY_FILE  = path.join(DATA_DIR, 'enquiries.json');
+const ACTIVITY_FILE = path.join(DATA_DIR, 'activity.json');
+const CONFIG_FILE   = path.join(DATA_DIR, 'config.json');
+const VISITORS_FILE = path.join(DATA_DIR, 'visitors.json');
 const MAX_VERSIONS  = 50; // keep the 50 most recent restore points
 
 // ── Geo-IP in-memory cache (ip → {data, ts}) ──
@@ -286,7 +296,7 @@ if (!process.env.SESSION_SECRET) {
 // Persistent, file-backed session store (pure JS, no native modules).
 // Survives server restarts/deploys and avoids MemoryStore's leak warning.
 const FileStore   = require('session-file-store')(session);
-const SESSIONS_DIR = path.join(ROOT, 'data', 'sessions');
+const SESSIONS_DIR = path.join(DATA_DIR, 'sessions');
 try { fs.mkdirSync(SESSIONS_DIR, { recursive: true }); } catch { /* exists */ }
 
 app.use(session({
@@ -430,7 +440,7 @@ const uploadTeam = multer({
 
 // ── Multer: restore backup ──
 const restoreStorage = multer.diskStorage({
-  destination: (req,file,cb) => cb(null, path.join(ROOT,'data')),
+  destination: (req,file,cb) => cb(null, DATA_DIR),
   filename:    (req,file,cb) => cb(null, '_restore-tmp.json')
 });
 const uploadRestore = multer({
@@ -717,7 +727,7 @@ app.post('/api/logo/upload', requireAuth, csrfProtect, uploadLogo.single('logo')
 // ── Restore ──
 app.post('/api/restore', requireAuth, csrfProtect, uploadRestore.single('file'), (req,res) => {
   try {
-    const tmpPath = path.join(ROOT,'data','_restore-tmp.json');
+    const tmpPath = path.join(DATA_DIR,'_restore-tmp.json');
     const data    = JSON.parse(fs.readFileSync(tmpPath,'utf8'));
     writeContent(data);
     fs.unlinkSync(tmpPath);
