@@ -23,12 +23,13 @@ const SALT_ROUNDS = 12;
 
 // ── Data directory (must persist across deploys) ──
 // Hostinger rebuilds recreate the app under …/hbuilds/current/nodejs, which would wipe a
-// build-local ./data on every redeploy. So CMS data lives OUTSIDE the build: when running
-// inside a Hostinger build we default to ~/svie-data; locally it stays ./data. Override
-// anywhere by setting the DATA_DIR env var to an absolute path.
-const os = require('os');
+// build-local ./data on every redeploy. So CMS data lives OUTSIDE the build in the account
+// home (~/svie-data). We derive the home from the build path itself — NOT from os.homedir()/
+// $HOME, because the LiteSpeed Node worker sets HOME to the site docroot, which sent data to
+// the wrong folder. Locally (no /hbuilds/ in the path) it stays ./data. Override with DATA_DIR.
+const hbuildsMatch = ROOT.match(/^(\/home\/[^/]+)\/.*\/hbuilds\//);
 const DATA_DIR = process.env.DATA_DIR
-  || (ROOT.includes('/hbuilds/') ? path.join(os.homedir(), 'svie-data') : path.join(ROOT, 'data'));
+  || (hbuildsMatch ? path.join(hbuildsMatch[1], 'svie-data') : path.join(ROOT, 'data'));
 try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch { /* exists */ }
 
 // ── File paths ──
