@@ -360,6 +360,17 @@ const enquiryLimiter = rateLimit({
   message: { error: 'Too many enquiries submitted. Please try again later.' },
 });
 
+// API responses are per-session and must never be cached. Without this the
+// Hostinger CDN (and the browser) can cache a response — notably an anonymous
+// /api/auth/check {loggedIn:false} — and later serve it to a logged-in user,
+// which made the visitor dashboard flash "Session Expired" at random.
+app.use('/api/', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
+
 app.use('/api/', apiLimiter);
 
 // ── Image optimization on upload ─────────────────────────────────────────
