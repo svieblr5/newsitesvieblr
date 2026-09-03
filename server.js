@@ -17,6 +17,13 @@ let sharp = null;
 try { sharp = require('sharp'); } catch (e) { console.warn('[img] sharp unavailable — uploads will not be optimized:', e.message); }
 
 const app  = express();
+// Hostinger runs this behind a LiteSpeed reverse proxy that terminates TLS and
+// forwards over plain HTTP with X-Forwarded-Proto: https. Without trusting the
+// proxy, Express sees req.secure === false and refuses to set the `secure`
+// session cookie (NODE_ENV=production) — so the login cookie never sticks and
+// the admin dashboard bounces straight back to the login page. Trust the first
+// proxy hop so secure cookies are issued correctly.
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
 const SALT_ROUNDS = 12;
