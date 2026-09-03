@@ -578,9 +578,9 @@ function renderMap(points) {
       center: [20, 0], zoom: 2, minZoom: 1, maxZoom: 8,
       scrollWheelZoom: false, zoomControl: true,
     });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap © CARTO',
-      subdomains: 'abcd', maxZoom: 19,
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      subdomains: 'abc', maxZoom: 19,
     }).addTo(leafMap);
   }
   if (mapLayer) { mapLayer.clearLayers(); }
