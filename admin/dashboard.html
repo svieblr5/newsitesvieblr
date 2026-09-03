@@ -326,6 +326,32 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
 #p-visitors .vempty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;color:#8a7e72;text-align:center;gap:6px}
 @media(max-width:1100px){#p-visitors .vd-kpi{grid-template-columns:repeat(2,1fr)}#p-visitors .vcharts{grid-template-columns:1fr 1fr}}
 @media(max-width:800px){#p-visitors .vd-kpi{grid-template-columns:1fr 1fr}#p-visitors .vcharts{grid-template-columns:1fr}#p-visitors .v2col{grid-template-columns:1fr}}
+
+/* ── Mobile: collapsible sidebar drawer ── */
+.sb-toggle{display:none;width:38px;height:38px;border-radius:8px;border:1px solid #e8e4dd;background:#fff;cursor:pointer;align-items:center;justify-content:center;color:#1A4530;flex-shrink:0;margin-right:12px}
+.sb-toggle:hover{background:#f5efe6}
+.sb-backdrop{position:fixed;inset:0;background:rgba(12,44,27,.5);z-index:90;opacity:0;pointer-events:none;transition:opacity .25s}
+@media(max-width:800px){
+  .sb{position:fixed;top:0;left:0;height:100vh;z-index:100;transform:translateX(-100%);transition:transform .28s ease;box-shadow:0 0 40px rgba(0,0,0,.45)}
+  .sb.open{transform:translateX(0)}
+  .sb-toggle{display:flex}
+  .sb-backdrop.on{opacity:1;pointer-events:auto}
+  .topbar{padding:0 12px;gap:10px}
+  .topbar>div:first-child{flex-shrink:0}          /* keep hamburger + title fixed */
+  .topbar-title{font-size:1.05rem;white-space:nowrap}
+  /* action buttons don't fit on a phone — let the row scroll horizontally instead of colliding with the menu */
+  .topbar-r{flex:1 1 auto;min-width:0;overflow-x:auto;overflow-y:hidden}
+  .topbar-r>*{flex-shrink:0}
+  .topbar-r::-webkit-scrollbar{height:0}
+  .area{padding:16px}
+  /* fixed multi-column card grids must reflow so nothing gets clipped off-screen */
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .qa-grid{grid-template-columns:1fr}
+  .frow,.frow.tri{grid-template-columns:1fr}
+}
+@media(max-width:460px){
+  .stats-grid{grid-template-columns:1fr}
+}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -351,7 +377,8 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
 <div class="cms">
 
   <!-- ══ SIDEBAR ══ -->
-  <aside class="sb">
+  <div class="sb-backdrop" id="sbBackdrop" onclick="closeSidebar()"></div>
+  <aside class="sb" id="sbEl">
     <div class="sb-brand">
       <img src="../images/logo.png" alt="SVIE">
       <div>
@@ -479,7 +506,12 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
   <!-- ══ MAIN ══ -->
   <div class="main">
     <div class="topbar">
-      <div class="topbar-title" id="topTitle">Dashboard</div>
+      <div style="display:flex;align-items:center;min-width:0">
+        <button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()" aria-label="Open menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="topbar-title" id="topTitle">Dashboard</div>
+      </div>
       <div class="topbar-r">
         <a class="btn-preview" href="../index.html" target="_blank">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -1614,6 +1646,16 @@ async function init() {
   refreshPublishState();
 }
 
+// ── Mobile sidebar drawer ─────────────────────
+function toggleSidebar(){
+  document.getElementById('sbEl').classList.toggle('open');
+  document.getElementById('sbBackdrop').classList.toggle('on');
+}
+function closeSidebar(){
+  document.getElementById('sbEl').classList.remove('open');
+  document.getElementById('sbBackdrop').classList.remove('on');
+}
+
 // ── Navigation ────────────────────────────────
 function show(id, btn) {
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
@@ -1621,6 +1663,7 @@ function show(id, btn) {
   document.getElementById('p-'+id).classList.add('on');
   if (btn) btn.classList.add('on');
   curPanel = id;
+  closeSidebar();   // collapse the drawer after picking a section on mobile
   document.getElementById('topTitle').textContent = titles[id]||id;
   if (id==='gallery')      loadGallery();
   if (id==='testimonials') loadTestimonials();
