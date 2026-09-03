@@ -321,7 +321,14 @@ app.use(session({
   cookie: {
     maxAge:   8 * 60 * 60 * 1000,  // 8 hours
     httpOnly: true,                  // no JS access to cookie
-    secure:   process.env.NODE_ENV === 'production',
+    // NOTE: intentionally NOT `secure`. On Hostinger the app runs under LiteSpeed
+    // LSNode over an LSAPI socket, which does not reliably forward
+    // X-Forwarded-Proto, so Express sees req.secure === false even though the
+    // public site is HTTPS. A `secure` cookie is therefore silently dropped and
+    // the admin session never sticks. TLS is terminated at the CDN/LiteSpeed edge
+    // and Force-HTTPS is enabled site-wide, so the cookie only ever travels over
+    // HTTPS in practice. httpOnly + sameSite:'strict' still protect it.
+    secure:   false,
     sameSite: 'strict',              // CSRF defence
   },
 }));
