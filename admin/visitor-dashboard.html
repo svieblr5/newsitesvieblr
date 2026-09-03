@@ -173,16 +173,39 @@ input:checked + .toggle-slider:before{transform:translateX(18px)}
 .comp-badge.gdpr{color:#1d4ed8;background:rgba(29,78,216,.07)}
 .comp-badge.dpdpa{color:#7c3aed;background:rgba(124,58,237,.07)}
 
+/* ── Mobile sidebar drawer ── */
+.topbar-l{display:flex;align-items:center;min-width:0}
+.sb-toggle{display:none;width:38px;height:38px;border-radius:8px;border:1px solid #e8e4dd;background:#fff;cursor:pointer;align-items:center;justify-content:center;color:#1A4530;flex-shrink:0;margin-right:10px}
+.sb-toggle:hover{background:#f5efe6}
+.sb-backdrop{position:fixed;inset:0;background:rgba(12,44,27,.5);z-index:90;opacity:0;pointer-events:none;transition:opacity .25s}
+
 /* ── Responsive ── */
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.charts-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:800px){.sb{display:none}.kpi-grid{grid-template-columns:1fr 1fr}.charts-grid{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}}
+@media(max-width:800px){
+  .sb{display:flex;position:fixed;top:0;left:0;height:100vh;z-index:100;transform:translateX(-100%);transition:transform .28s ease;box-shadow:0 0 40px rgba(0,0,0,.45)}
+  .sb.open{transform:translateX(0)}
+  .sb-toggle{display:flex}
+  .sb-backdrop.on{opacity:1;pointer-events:auto}
+  .topbar{padding:0 12px;gap:8px}
+  .topbar-l{flex-shrink:1}
+  .topbar-title{font-size:1.02rem}
+  .topbar-title .topbar-badge{display:none}         /* save space on small screens */
+  .topbar-r{flex:1 1 auto;min-width:0;overflow-x:auto;overflow-y:hidden}
+  .topbar-r>*{flex-shrink:0}
+  .topbar-r::-webkit-scrollbar{height:0}
+  .area{padding:16px}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .charts-grid{grid-template-columns:1fr}
+  .two-col{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 <div class="cms">
 
 <!-- ── SIDEBAR ── -->
-<aside class="sb">
+<div class="sb-backdrop" id="sbBackdrop" onclick="closeSidebar()"></div>
+<aside class="sb" id="sbEl">
   <div class="sb-brand">
     <img src="../images/logo.png" alt="SVIE" onerror="this.style.display='none'">
     <div>
@@ -231,10 +254,15 @@ input:checked + .toggle-slider:before{transform:translateX(18px)}
 <!-- ── MAIN ── -->
 <div class="main">
   <div class="topbar">
-    <div class="topbar-title">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-      SVIE Visitor Dashboard
-      <span class="topbar-badge">Intelligence</span>
+    <div class="topbar-l">
+      <button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()" aria-label="Open menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="topbar-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        SVIE Visitor Dashboard
+        <span class="topbar-badge">Intelligence</span>
+      </div>
     </div>
     <div class="topbar-r">
       <div class="period-tabs" id="periodTabs">
@@ -447,6 +475,16 @@ input:checked + .toggle-slider:before{transform:translateX(18px)}
 <div id="toast"></div>
 
 <script>
+// ═══ Mobile sidebar drawer ═══════════════════════
+function toggleSidebar(){
+  document.getElementById('sbEl').classList.toggle('open');
+  document.getElementById('sbBackdrop').classList.toggle('on');
+}
+function closeSidebar(){
+  document.getElementById('sbEl').classList.remove('open');
+  document.getElementById('sbBackdrop').classList.remove('on');
+}
+
 // ═══ State ═══════════════════════════════════════
 let csrfToken = '';
 let currentDays = 30;
