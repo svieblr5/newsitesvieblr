@@ -1593,6 +1593,15 @@ app.get('/admin/dashboard',          (req,res) => res.sendFile(path.join(ROOT,'a
 app.get('/admin/visitor-dashboard',  (req,res) => res.sendFile(path.join(ROOT,'admin','visitor-dashboard.html')));
 app.get('/admin/visitor-guide',      (req,res) => res.sendFile(path.join(ROOT,'admin','visitor-dashboard-guide.html')));
 
+// ── 404 — anything not matched above ──
+// Registered last so it only fires for genuinely unknown paths. Returns the
+// branded 404.html with a real 404 status (so search engines don't treat it as
+// a soft-404); API paths get a JSON 404 instead of an HTML page.
+app.use((req, res) => {
+  if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });
+  res.status(404).sendFile(path.join(ROOT, '404.html'));
+});
+
 // ═══════════════════════════════════════════
 //  START
 // ═══════════════════════════════════════════
