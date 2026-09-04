@@ -17,7 +17,7 @@ const pages = await p.$$('.page');
 for (let i = 0; i < pages.length; i++) {
   const png = await pages[i].screenshot({ type: 'png' });
   const name = `p${String(i + 1).padStart(2, '0')}.jpg`;
-  await sharp(png).resize({ width: 1400 }).jpeg({ quality: 84, mozjpeg: true }).toFile(resolve(outDir, name));
+  await sharp(png).resize({ width: 2000 }).jpeg({ quality: 86, mozjpeg: true }).toFile(resolve(outDir, name));
   console.log('wrote', name);
 }
 await b.close();
