@@ -33,7 +33,7 @@ body{
 .btn:hover{filter:brightness(1.08)}
 .btn svg{width:14px;height:14px}
 /* ---- stage ---- */
-.stage{flex:1 1 auto;display:flex;align-items:center;justify-content:center;position:relative;min-height:0;padding:6px 14px 0}
+.stage{flex:1 1 auto;display:flex;align-items:center;justify-content:center;position:relative;min-height:0;overflow:hidden;padding:6px 14px 0}
 #flip{margin:0 auto;touch-action:pan-y}
 .flip-shadow{box-shadow:0 30px 70px rgba(0,0,0,.55)}
 /* nav arrows */
@@ -114,6 +114,31 @@ body{
 
     pageFlip.loadFromImages(images);
 
+    // page-flip's 'stretch' sizes the book from width alone, so on short/wide
+    // windows the derived height exceeds the stage and the book slides up under
+    // the topbar (text overlap). Cap #flip's width so the book height always
+    // fits the visible stage; the library then centres it with clean margins.
+    var stage = document.querySelector('.stage');
+    var PAGE_RATIO = 849 / 600; // page height / width
+    var fitting = false;
+    function fitToStage() {
+      if (fitting) return; // guard against re-entrancy from the synthetic resize below
+      var cs = getComputedStyle(stage);
+      var availH = stage.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
+      var availW = stage.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+      if (availH <= 0 || availW <= 0) return;
+      var portrait = pageFlip.getOrientation && pageFlip.getOrientation() === 'portrait';
+      // widest the book may be before its height (pageWidth * ratio) overflows availH
+      var maxByHeight = (portrait ? 1 : 2) * availH / PAGE_RATIO;
+      el.style.maxWidth = Math.min(availW, maxByHeight) + 'px';
+      // Let page-flip resize its canvas buffer AND recompute bounds for the new
+      // width. Its own resize handler does both (App.update alone does not resize
+      // the canvas buffer, which would leave the book drawn into a stale size).
+      fitting = true;
+      window.dispatchEvent(new Event('resize'));
+      fitting = false;
+    }
+
     function update() {
       var cur = pageFlip.getCurrentPageIndex();      // 0-based
       var n = pageFlip.getPageCount();
@@ -127,9 +152,16 @@ body{
       nextBtn.disabled = cur >= n - 1;
     }
 
-    pageFlip.on('init', update);
+    pageFlip.on('init', function () { fitToStage(); update(); });
     pageFlip.on('flip', update);
-    pageFlip.on('changeOrientation', update);
+    pageFlip.on('changeOrientation', function () { fitToStage(); update(); });
+
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      if (fitting) return; // ignore our own synthetic resize event
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(fitToStage, 120);
+    });
 
     prevBtn.addEventListener('click', function () { pageFlip.flipPrev(); });
     nextBtn.addEventListener('click', function () { pageFlip.flipNext(); });
@@ -144,7 +176,7 @@ body{
       else document.exitFullscreen();
     });
 
-    setTimeout(update, 300);
+    setTimeout(function () { fitToStage(); update(); }, 300);
   </script>
 </body>
 </html>
