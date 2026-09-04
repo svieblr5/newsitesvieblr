@@ -225,6 +225,7 @@ const SITEMAP_PAGES = [
   { slug: 'furniture.html',   priority: '0.7', freq: 'monthly' },
   { slug: 'electronics.html', priority: '0.7', freq: 'monthly' },
   { slug: 'contact.html',     priority: '0.9', freq: 'monthly' },
+  { slug: 'flipbook/',        priority: '0.6', freq: 'yearly'  },
 ];
 function siteBaseUrl() {
   const seo  = readContent().seo || {};
