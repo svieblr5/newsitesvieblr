@@ -1500,6 +1500,84 @@ app.get('/api/visitors', requireAuth, (req, res) => {
   res.json({ total: all.length, page: pg, pages: Math.ceil(all.length / limit), data: all.slice(start, start + limit) });
 });
 
+// ── Google Analytics (GA4) Data API ─────────────────────────────────────────
+// Live traffic pulled from Google. Config (property id + service-account key)
+// lives in config.json — server-only, never served publicly. The private key is
+// never returned to the browser.
+let _gaToken = { value: null, exp: 0 };
+async function gaAccessToken(sa) {
+  if (_gaToken.value && Date.now() < _gaToken.exp - 60000) return _gaToken.value;
+  const now = Math.floor(Date.now() / 1000);
+  const b64 = o => Buffer.from(JSON.stringify(o)).toString('base64url');
+  const input = b64({ alg: 'RS256', typ: 'JWT' }) + '.' +
+    b64({ iss: sa.client_email, scope: 'https://www.googleapis.com/auth/analytics.readonly',
+          aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600 });
+  const jwt = input + '.' + crypto.createSign('RSA-SHA256').update(input).sign(sa.private_key, 'base64url');
+  const r = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: jwt }),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.access_token) throw new Error('Google auth failed: ' + (j.error_description || j.error || r.status));
+  _gaToken = { value: j.access_token, exp: Date.now() + (j.expires_in || 3600) * 1000 };
+  return j.access_token;
+}
+// GET current GA config (never returns the private key)
+app.get('/api/ga-config', requireAuth, (req, res) => {
+  const ga = getConfig().ga || {};
+  res.json({
+    propertyId:  ga.propertyId || '',
+    clientEmail: (ga.serviceAccount && ga.serviceAccount.client_email) || '',
+    configured:  !!(ga.propertyId && ga.serviceAccount && ga.serviceAccount.private_key),
+  });
+});
+// Save GA config (property id + service-account JSON, or clear)
+app.post('/api/ga-config', requireAuth, csrfProtect, (req, res) => {
+  try {
+    const cfg = getConfig();
+    if (req.body && req.body.clear) { delete cfg.ga; saveConfig(cfg); _gaToken = { value: null, exp: 0 };
+      logActivity('Cleared Google Analytics configuration', req.session.user); return res.json({ ok: true }); }
+    cfg.ga = cfg.ga || {};
+    const propertyId = String((req.body && req.body.propertyId) || '').replace(/[^0-9]/g, '');
+    if (propertyId) cfg.ga.propertyId = propertyId;
+    let sa = req.body && req.body.serviceAccount;
+    if (typeof sa === 'string' && sa.trim()) { try { sa = JSON.parse(sa); } catch { return res.status(400).json({ error: 'Service-account key is not valid JSON' }); } }
+    if (sa && sa.client_email && sa.private_key) cfg.ga.serviceAccount = { client_email: sa.client_email, private_key: sa.private_key };
+    if (!cfg.ga.propertyId || !cfg.ga.serviceAccount) return res.status(400).json({ error: 'Both a GA4 Property ID and a service-account key are required.' });
+    saveConfig(cfg); _gaToken = { value: null, exp: 0 };
+    logActivity('Updated Google Analytics configuration', req.session.user);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+// GET live GA stats
+app.get('/api/ga-stats', requireAuth, async (req, res) => {
+  try {
+    const ga = getConfig().ga || {};
+    if (!ga.propertyId || !ga.serviceAccount || !ga.serviceAccount.private_key)
+      return res.status(400).json({ error: 'not_configured' });
+    const days = Math.min(parseInt(req.query.days) || 28, 365);
+    const token = await gaAccessToken(ga.serviceAccount);
+    const call = body => fetch('https://analyticsdata.googleapis.com/v1beta/properties/' + ga.propertyId + ':runReport',
+      { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(async r => { const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error((j.error && j.error.message) || ('GA API ' + r.status)); return j; });
+    const dateRanges = [{ startDate: days + 'daysAgo', endDate: 'today' }];
+    const [totals, topPages, byDay, byChannel] = await Promise.all([
+      call({ dateRanges, metrics: [{ name: 'activeUsers' }, { name: 'screenPageViews' }, { name: 'sessions' }, { name: 'averageSessionDuration' }] }),
+      call({ dateRanges, dimensions: [{ name: 'pagePath' }], metrics: [{ name: 'screenPageViews' }], orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }], limit: 10 }),
+      call({ dateRanges, dimensions: [{ name: 'date' }], metrics: [{ name: 'activeUsers' }], orderBys: [{ dimension: { dimensionName: 'date' } }] }),
+      call({ dateRanges, dimensions: [{ name: 'sessionDefaultChannelGroup' }], metrics: [{ name: 'sessions' }], orderBys: [{ metric: { metricName: 'sessions' }, desc: true }], limit: 8 }),
+    ]);
+    const n = (rep, i) => (rep.rows && rep.rows[0]) ? Number(rep.rows[0].metricValues[i].value) : 0;
+    res.json({
+      days,
+      totals:    { users: n(totals, 0), pageviews: n(totals, 1), sessions: n(totals, 2), avgDuration: Math.round(n(totals, 3)) },
+      topPages:  (topPages.rows  || []).map(r => ({ path: r.dimensionValues[0].value, views: Number(r.metricValues[0].value) })),
+      byDay:     (byDay.rows     || []).map(r => ({ date: r.dimensionValues[0].value, users: Number(r.metricValues[0].value) })),
+      byChannel: (byChannel.rows || []).map(r => ({ channel: r.dimensionValues[0].value, sessions: Number(r.metricValues[0].value) })),
+    });
+  } catch (e) { res.status(502).json({ error: e.message }); }
+});
+
 // ── GET /api/visitor-stats — aggregated analytics ──
 app.get('/api/visitor-stats', requireAuth, (req, res) => {
   const days   = Math.min(parseInt(req.query.days) || 30, 400);

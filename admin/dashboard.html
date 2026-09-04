@@ -242,6 +242,15 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
 .seo-panel{display:none}.seo-panel.active{display:block}
 .seo-char{font-size:.65rem;float:right;margin-top:3px;font-weight:600;font-family:'Raleway',sans-serif}
 .seo-char.ok{color:#1A4530}.seo-char.warn{color:#C9A05A}.seo-char.bad{color:#ef4444}
+/* ── Google Analytics Panel ── */
+.ga-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+@media(max-width:640px){.ga-stats-grid{grid-template-columns:repeat(2,1fr)}}
+.ga-stat{background:#f8f5f0;border-radius:10px;padding:16px;text-align:center}
+.ga-stat-v{font-family:'Cormorant',Georgia,serif;font-size:1.9rem;font-weight:600;color:#1A4530;line-height:1}
+.ga-stat-l{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a7e72;margin-top:6px}
+.ga-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.ga-table td{padding:8px 6px;border-bottom:1px solid #eee5d8;color:#3a4437}
+.ga-table tr:last-child td{border-bottom:none}
 .gp{background:#fff;border-radius:8px;border:1px solid #e8e3db;padding:14px 16px;margin-top:8px}
 .gp-url{font-size:.72rem;color:#1e8c45;margin-bottom:2px;word-break:break-all}
 .gp-title{font-size:1.02rem;color:#1558d6;line-height:1.3;margin-bottom:3px;font-family:arial,sans-serif}
@@ -462,6 +471,10 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         Visitor Dashboard
         <span class="nav-badge" id="visitBadge" style="display:none;background:#16a34a">0</span>
+      </button>
+      <button class="nav-btn" data-p="ga" onclick="show('ga',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8"/><rect x="12" y="6" width="3" height="12"/><rect x="17" y="13" width="3" height="5"/></svg>
+        Google Analytics
       </button>
 
       <div class="nav-hd">Inbox</div>
@@ -798,6 +811,11 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
       <!-- ══ SEO ══ -->
       <div id="p-seo" class="panel">
         <div id="seoContent"></div>
+      </div>
+
+      <!-- ══ GOOGLE ANALYTICS ══ -->
+      <div id="p-ga" class="panel">
+        <div id="gaContent"></div>
       </div>
 
       <!-- ══ ENQUIRIES ══ -->
@@ -1623,7 +1641,7 @@ const titles = {
   testimonials:'Testimonials', blog:'Blog & News', media:'Media Library',
   seo:'SEO Settings', enquiries:'Enquiries Inbox',
   calltracking:'Click to Call — Call Log', settings:'Site Settings',
-  visitors:'Visitor Analytics Dashboard',
+  visitors:'Visitor Analytics Dashboard', ga:'Google Analytics',
   typography:'Typography & Fonts', branding:'Logo & Branding',
 };
 
@@ -1673,6 +1691,7 @@ function show(id, btn) {
   if (id==='activity')     loadActivity();
   if (id==='calltracking') loadCallTracking();
   if (id==='visitors')    loadVisitorDashboard();
+  if (id==='ga')          loadGAPanel();
   if (id==='typography')  loadTypography();
   if (id==='settings')    loadRobots();
   if (id==='branding')    loadBranding();
@@ -3360,6 +3379,86 @@ function logout() {
 
 // ── CSRF token (fetched on init, included in all mutating requests) ──
 let _csrfToken = '';
+
+// ── Google Analytics (GA4) live traffic ───────────
+async function loadGAPanel() {
+  const el = document.getElementById('gaContent');
+  el.innerHTML = '<div class="card"><div class="card-sub">Loading…</div></div>';
+  let cfg;
+  try { cfg = await api('GET','/api/ga-config'); } catch(e){ cfg = {}; }
+  if (!cfg.configured) { el.innerHTML = gaSetupForm(cfg); return; }
+  el.innerHTML = '<div class="card"><div class="card-title">Google Analytics</div><div class="card-sub">Fetching live traffic from Google…</div></div>';
+  let s;
+  try { s = await api('GET','/api/ga-stats?days=28'); }
+  catch(e){
+    el.innerHTML = '<div class="card"><div class="card-title">Google Analytics</div>'+
+      '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 14px;color:#991b1b;font-size:.82rem">Could not load stats: '+esc(e.message)+
+      '<div style="margin-top:6px;color:#7a5a5a">Check that the service account is added as a Viewer on the GA4 property and the Property ID is correct.</div></div>'+
+      '<div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-outline btn-sm" onclick="loadGAPanel()">↻ Retry</button><button class="btn btn-outline btn-sm" onclick="gaShowSettings()">Settings</button></div></div>';
+    return;
+  }
+  el.innerHTML = gaStatsHtml(s, cfg);
+}
+function gaStat(label, val){ return '<div class="ga-stat"><div class="ga-stat-v">'+val+'</div><div class="ga-stat-l">'+label+'</div></div>'; }
+function gaStatsHtml(s, cfg){
+  const t = s.totals||{}, dur = t.avgDuration||0, durStr = Math.floor(dur/60)+'m '+(dur%60)+'s';
+  let h = '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'+
+    '<div><div class="card-title" style="margin:0">Google Analytics — Last '+s.days+' days</div>'+
+    '<div class="card-sub" style="margin:2px 0 0">Live from GA4 · connected as '+esc(cfg.clientEmail||'')+'</div></div>'+
+    '<div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" onclick="loadGAPanel()">↻ Refresh</button>'+
+    '<button class="btn btn-outline btn-sm" onclick="gaShowSettings()">Settings</button></div></div>'+
+    '<div class="ga-stats-grid">'+
+    gaStat('Users',(t.users||0).toLocaleString())+gaStat('Page Views',(t.pageviews||0).toLocaleString())+
+    gaStat('Sessions',(t.sessions||0).toLocaleString())+gaStat('Avg. Session',durStr)+'</div></div>';
+  h += '<div class="card"><div class="card-title">Top Pages</div><table class="ga-table"><tbody>';
+  (s.topPages||[]).forEach(p=>{ h+='<tr><td>'+esc(p.path)+'</td><td style="text-align:right;font-weight:600">'+p.views.toLocaleString()+'</td></tr>'; });
+  if(!(s.topPages||[]).length) h+='<tr><td colspan="2" style="color:#8a7e72">No data in this period yet.</td></tr>';
+  h += '</tbody></table></div>';
+  h += '<div class="card"><div class="card-title">Traffic by Channel</div><table class="ga-table"><tbody>';
+  (s.byChannel||[]).forEach(c=>{ h+='<tr><td>'+esc(c.channel)+'</td><td style="text-align:right;font-weight:600">'+c.sessions.toLocaleString()+' sessions</td></tr>'; });
+  if(!(s.byChannel||[]).length) h+='<tr><td colspan="2" style="color:#8a7e72">No data in this period yet.</td></tr>';
+  h += '</tbody></table></div>';
+  return h;
+}
+function gaShowSettings(){ document.getElementById('gaContent').innerHTML = gaSetupForm({configured:true}); loadGAConfigInto(); }
+async function loadGAConfigInto(){ try{ const c=await api('GET','/api/ga-config'); const pe=document.getElementById('ga-prop'); if(pe)pe.value=c.propertyId||''; const ce=document.getElementById('ga-current-email'); if(ce&&c.clientEmail)ce.textContent=c.clientEmail; }catch(e){} }
+function gaSetupForm(cfg){
+  return '<div class="card"><div class="card-title">Connect Google Analytics 4</div>'+
+    '<div class="card-sub">Show live traffic (users, page views, top pages, channels) from your GA4 property here in the dashboard.</div>'+
+    '<div style="background:#f5f0ea;border-radius:8px;padding:12px 14px;font-size:.78rem;color:#5a544f;line-height:1.75;margin-bottom:14px">'+
+    '<strong style="color:#1A4530">One-time setup</strong><br>'+
+    '1. In <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a>, create/select a project and enable the <strong>Google Analytics Data API</strong>.<br>'+
+    '2. Create a <strong>Service Account</strong>, add a <strong>JSON key</strong>, and download it.<br>'+
+    '3. In GA4 → Admin → <strong>Property Access Management</strong>, add the service-account email as a <strong>Viewer</strong>.<br>'+
+    '4. Get your <strong>Property ID</strong> from GA4 → Admin → Property Settings (a number like 123456789).<br>'+
+    '5. Paste both below and Save.</div>'+
+    '<div class="frow"><div class="fg"><label>GA4 Property ID</label><input type="text" id="ga-prop" value="'+esc(cfg.propertyId||'')+'" placeholder="123456789"></div></div>'+
+    '<div class="frow full"><div class="fg"><label>Service Account JSON Key '+(cfg.configured?'<small style="color:#8a7e72">(leave blank to keep the existing key)</small>':'')+'</label>'+
+    '<textarea id="ga-key" style="min-height:120px;font-family:monospace;font-size:.72rem" placeholder=\'{ "type": "service_account", "client_email": "...", "private_key": "..." }\'></textarea></div></div>'+
+    '<div id="ga-current" style="font-size:.75rem;color:#5a544f;margin-bottom:10px'+(cfg.clientEmail?'':';display:none')+'">Connected service account: <strong id="ga-current-email">'+esc(cfg.clientEmail||'')+'</strong></div>'+
+    '<div style="display:flex;justify-content:space-between;gap:8px">'+
+    (cfg.configured?'<button class="btn btn-outline btn-sm" onclick="gaClear()" style="color:#b91c1c;border-color:#e7c3c3">Disconnect</button>':'<span></span>')+
+    '<div style="display:flex;gap:8px">'+(cfg.configured?'<button class="btn btn-outline btn-sm" onclick="loadGAPanel()">Cancel</button>':'')+
+    '<button class="btn btn-gold btn-sm" onclick="gaSave()">Save &amp; Connect</button></div></div>'+
+    '<div id="ga-msg" style="margin-top:10px;font-size:.8rem"></div></div>';
+}
+async function gaSave(){
+  const propertyId=(document.getElementById('ga-prop')||{}).value||'';
+  const serviceAccount=(document.getElementById('ga-key')||{}).value||'';
+  const msg=document.getElementById('ga-msg');
+  msg.textContent='Saving…'; msg.style.color='#5a544f';
+  try{
+    const body={propertyId};
+    if(serviceAccount.trim()) body.serviceAccount=serviceAccount.trim();
+    await api('POST','/api/ga-config',body);
+    msg.textContent='Connected. Loading traffic…'; msg.style.color='#166534';
+    loadGAPanel();
+  }catch(e){ msg.textContent=e.message; msg.style.color='#b91c1c'; }
+}
+async function gaClear(){
+  if(!confirm('Disconnect Google Analytics? The service-account key will be removed from the server.')) return;
+  try{ await api('POST','/api/ga-config',{clear:true}); loadGAPanel(); }catch(e){ alert(e.message); }
+}
 
 // ── HELPERS ───────────────────────────────────
 async function api(method, url, body) {
