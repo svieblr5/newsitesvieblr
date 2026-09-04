@@ -1,15 +1,80 @@
 // SVIE CMS Content Loader — applies saved CMS content to the live website
 (function () {
 
-  /* ── Call float: update href from CMS phone ── */
-  function applyPhone(phone1) {
-    if (!phone1) return;
+  /* ── Call float ──
+        One number  → the button dials it directly (original behaviour).
+        Two numbers → tapping the button opens a small chooser (Primary /
+        Alternate) so a visitor can try the backup if the first is busy or
+        unanswered. A website tap-to-call cannot detect "busy", so it can't
+        auto-forward — true failover is a carrier / virtual-number setting. ── */
+  function callTel(n) { return 'tel:' + String(n).replace(/[^0-9+]/g, ''); }
+  function applyCallChooser(site) {
+    if (!site) return;
     var btn = document.getElementById('callFloat');
-    if (btn) {
-      btn.href = 'tel:' + phone1.replace(/[^0-9+]/g, '');
+    if (!btn) return;
+    var p1 = (site.phone1 || '').trim();
+    var p2 = (site.phone2 || '').trim();
+    if (p1) {
+      btn.href = callTel(p1);
       var tip = btn.querySelector('.call-float-tooltip');
-      if (tip) tip.textContent = 'Call Us · ' + phone1;
+      if (tip) tip.textContent = 'Call Us · ' + p1;
     }
+    var pop = document.getElementById('callChooser');
+    // Only one usable number → keep the plain direct-dial link, no chooser.
+    if (!p2 || p2 === p1) { if (pop) pop.style.display = 'none'; return; }
+
+    if (!pop) {
+      pop = document.createElement('div');
+      pop.id = 'callChooser';
+      pop.style.cssText = 'position:fixed;z-index:9999;display:none;min-width:236px;background:#123524;border:1px solid rgba(201,160,90,.5);border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.45);padding:8px;font-family:inherit';
+      document.body.appendChild(pop);
+    }
+    function row(label, num) {
+      return '<a href="' + callTel(num) + '" data-callnum="' + label.toLowerCase() + '" ' +
+        'style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:8px;text-decoration:none;color:#F5EFE6" ' +
+        'onmouseover="this.style.background=\'rgba(201,160,90,.15)\'" onmouseout="this.style.background=\'transparent\'">' +
+        '<span style="width:34px;height:34px;flex:0 0 34px;border-radius:50%;border:1px solid rgba(201,160,90,.5);display:flex;align-items:center;justify-content:center;color:#E0C07E">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 19z"/></svg></span>' +
+        '<span><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#9FB6A6">' + label + '</span>' +
+        '<span style="display:block;font-size:15px;font-weight:600;color:#fff;margin-top:1px">' + num + '</span></span></a>';
+    }
+    pop.innerHTML =
+      '<div style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#E0C07E;padding:7px 12px 6px">Call SVIE</div>' +
+      row('Primary', p1) + row('Alternate', p2);
+
+    if (btn.getAttribute('data-chooser') === '1') return;   // handlers already bound
+    btn.setAttribute('data-chooser', '1');
+    btn.setAttribute('aria-haspopup', 'menu');
+
+    function place() {
+      var r = btn.getBoundingClientRect(), m = 8;
+      pop.style.display = 'block';
+      var pw = pop.offsetWidth, ph = pop.offsetHeight;
+      var left = (r.left < window.innerWidth / 2) ? r.left : r.right - pw;
+      if (left < m) left = m;
+      if (left + pw > window.innerWidth - m) left = window.innerWidth - m - pw;
+      var top = r.top - ph - 10;
+      if (top < m) top = r.bottom + 10;
+      pop.style.left = left + 'px';
+      pop.style.top = top + 'px';
+    }
+    function onDoc(e) { if (!pop.contains(e.target) && e.target !== btn && !btn.contains(e.target)) closeMenu(); }
+    function onKey(e) { if (e.key === 'Escape') closeMenu(); }
+    function closeMenu() { pop.style.display = 'none'; document.removeEventListener('click', onDoc, true); document.removeEventListener('keydown', onKey); }
+    function openMenu() { place(); document.addEventListener('click', onDoc, true); document.addEventListener('keydown', onKey); }
+
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (pop.style.display === 'block') closeMenu(); else openMenu();
+    });
+    pop.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="tel:"]');
+      if (a) {
+        if (typeof gtag !== 'undefined') gtag('event', 'click', { event_category: 'conversion', event_label: 'phone_click_' + (a.getAttribute('data-callnum') || '') });
+        setTimeout(closeMenu, 60);
+      }
+    });
+    window.addEventListener('resize', function () { if (pop.style.display === 'block') place(); });
   }
 
   /* ── Contact form: apply form settings from CMS ── */
@@ -253,7 +318,7 @@
     });
 
     if (data.site) {
-      if (data.site.phone1) applyPhone(data.site.phone1);
+      applyCallChooser(data.site);
       applySocials(data.site);
       applyContactLinks(data.site);
       applyWhatsApp(data.site);
@@ -267,7 +332,7 @@
   try {
     var stored = JSON.parse(localStorage.getItem('svie_site') || 'null');
     if (stored) {
-      applyPhone(stored.phone1);
+      applyCallChooser(stored);
       applyContent({ site: stored });
     }
   } catch {}
