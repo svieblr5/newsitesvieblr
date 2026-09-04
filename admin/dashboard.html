@@ -2055,9 +2055,9 @@ async function saveNavigation() {
 }
 
 // ── SEO ───────────────────────────────────────
-const SEO_PAGES = ['index','about','services','products','furniture','electronics','gallery','contact'];
-const SEO_LABELS = {index:'Home',about:'About Us',services:'Services',products:'Products',furniture:'Green Nest',electronics:'Venus World',gallery:'Gallery',contact:'Contact'};
-const SEO_SLUGS  = {index:'',about:'about.html',services:'services.html',products:'products.html',furniture:'furniture.html',electronics:'electronics.html',gallery:'gallery.html',contact:'contact.html'};
+const SEO_PAGES = ['index','about','services','products','furniture','electronics','gallery','contact','flipbook','privacy','terms'];
+const SEO_LABELS = {index:'Home',about:'About Us',services:'Services',products:'Products',furniture:'Green Nest',electronics:'Venus World',gallery:'Gallery',contact:'Contact',flipbook:'Company Brochure',privacy:'Privacy Policy',terms:'Terms of Service'};
+const SEO_SLUGS  = {index:'',about:'about.html',services:'services.html',products:'products.html',furniture:'furniture.html',electronics:'electronics.html',gallery:'gallery.html',contact:'contact.html',flipbook:'flipbook/',privacy:'privacy-policy.html',terms:'terms-of-service.html'};
 const SEO_DEFAULTS = {
   index:       {title:'SVIE — Sri Vasavi Interiors and Exteriors | Bengaluru',desc:"Sri Vasavi Interiors and Exteriors — Bengaluru's premier interior design, construction, and modular furniture company. Innovative ideas, stylish designs since 2017."},
   about:       {title:'About Us — SVIE | Sri Vasavi Interiors and Exteriors',desc:'About Sri Vasavi Interiors and Exteriors — our story, mission, values, and the team behind Bengaluru\'s premier interior design company.'},
@@ -2067,6 +2067,9 @@ const SEO_DEFAULTS = {
   electronics: {title:'Electronics & Appliances — Venus World by SVIE',desc:'Venus World — Electronics and Home Appliances in Malleshwaram, Bengaluru. 38+ years of legacy, top brands Samsung, LG, Sony, Bosch and more.'},
   gallery:     {title:'Portfolio — SVIE | Sri Vasavi Interiors and Exteriors',desc:'SVIE Portfolio — Our premium interior design, construction, and modular furniture projects across Bengaluru since 2017.'},
   contact:     {title:'Contact Us — SVIE | Sri Vasavi Interiors and Exteriors',desc:'Book a free consultation, call us, or visit Venus World at 172 A, B & E, Link Road, Malleshwaram, Bengaluru.'},
+  flipbook:    {title:'Company Brochure 2026 — SVIE | Sri Vasavi Interiors and Exteriors',desc:'Browse the Sri Vasavi Interiors and Exteriors company profile 2026 as an interactive flipbook — interiors, construction, modular furniture and products, Bengaluru.'},
+  privacy:     {title:'Privacy Policy — SVIE | Sri Vasavi Interiors and Exteriors',desc:'How Sri Vasavi Interiors and Exteriors collects, uses, and protects your personal data. GDPR & DPDPA 2023 compliant.'},
+  terms:       {title:'Terms of Service — SVIE | Sri Vasavi Interiors and Exteriors',desc:'The terms and conditions governing use of the Sri Vasavi Interiors and Exteriors website and services.'},
 };
 
 function seoTab(t) {
