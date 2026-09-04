@@ -168,8 +168,13 @@ app.get('/fonts.css', (req, res) => {
   const gfParts = [...new Set([dFont, sFont, bFont])].map(n => 'family=' + FONT_CATALOG[n].gf);
   const importUrl = `https://fonts.googleapis.com/css2?${gfParts.join('&')}&display=swap`;
 
+  // The pages ship a parallel <link> for the default fonts, so we only need the
+  // (render-blocking, uncacheable) @import here when the admin has switched to a
+  // non-default font — this avoids a font-loading waterfall on the common path.
+  const isDefaultFonts = dFont === 'Cormorant' && sFont === 'Raleway' && bFont === 'Jost';
+
   const css = [
-    `@import url('${importUrl}');`,
+    isDefaultFonts ? '' : `@import url('${importUrl}');`,
     `:root{`,
     `  --font-display:${FONT_CATALOG[dFont].css};`,
     `  --font-sans:${FONT_CATALOG[sFont].css};`,
