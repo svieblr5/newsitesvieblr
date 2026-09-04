@@ -50,11 +50,37 @@ body{
 .counter b{color:#fff;font-weight:600}
 .dot{font-family:var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7E9A87}
 .hint{position:absolute;bottom:8px;right:16px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6E8A77;z-index:5}
+/* tappable "text too small?" nudge — only shown on small screens */
+.readcue{display:none;position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:6;
+  font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.08em;color:var(--forest-ink);
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));border:0;border-radius:20px;padding:8px 15px;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);cursor:pointer;display:none;align-items:center;gap:7px}
+.readcue svg{width:14px;height:14px}
+/* ---- full-screen zoomable reader ---- */
+.reader{position:fixed;inset:0;z-index:50;background:rgba(8,26,17,.98);display:none;flex-direction:column}
+.reader.open{display:flex}
+.reader-top{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+.reader-top .rc{font-family:var(--serif);font-size:16px;color:var(--gold-light);letter-spacing:.02em}
+.reader-close{width:40px;height:40px;border-radius:50%;border:1px solid rgba(201,160,90,.5);background:rgba(0,0,0,.3);
+  color:var(--cream);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.reader-close svg{width:18px;height:18px}
+.reader-view{flex:1 1 auto;position:relative;overflow:hidden;min-height:0;touch-action:none;background:#0a1c12}
+.reader-view img{position:absolute;left:0;top:0;transform-origin:0 0;user-select:none;-webkit-user-drag:none;
+  transition:opacity .2s;will-change:transform}
+.reader-hint{position:absolute;left:0;right:0;bottom:14px;text-align:center;font-family:var(--sans);font-weight:600;
+  font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#9FB6A6;pointer-events:none;transition:opacity .4s}
+.reader-nav{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:26px;padding:12px}
+.reader-nav button{width:44px;height:44px;border-radius:50%;border:1px solid rgba(201,160,90,.5);
+  background:rgba(12,44,27,.55);color:var(--gold-light);font-size:22px;line-height:1;cursor:pointer;display:flex;
+  align-items:center;justify-content:center}
+.reader-nav button:hover{background:var(--gold);color:var(--forest-ink)}
+.reader-nav button[disabled]{opacity:.25;pointer-events:none}
 @media (max-width:640px){
   .brand .t1{font-size:16px}.brand img{height:28px}
   .btn{padding:8px 11px;font-size:11px}.btn .lbl{display:none}.btn svg{width:15px;height:15px}
   .nav{width:38px;height:38px}.nav.prev{left:6px}.nav.next{right:6px}
   .hint{display:none}
+  .readcue{display:flex}
 }
 </style>
 </head>
@@ -65,6 +91,10 @@ body{
       <div><div class="t1">Sri Vasavi Interiors &amp; Exteriors</div><div class="t2">Company Profile · 2026</div></div>
     </div>
     <div class="actions">
+      <button class="btn" id="readBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.2-4.2M11 8v6M8 11h6"/></svg>
+        <span class="lbl">Read / Zoom</span>
+      </button>
       <button class="btn ghost" id="fsBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
         <span class="lbl">Fullscreen</span>
@@ -77,12 +107,34 @@ body{
     <div id="flip"></div>
     <button class="nav next" id="next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
     <div class="hint">Drag a corner or use ← → to flip</div>
+    <button class="readcue" id="readCue">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.2-4.2M11 8v6M8 11h6"/></svg>
+      Tap to read &amp; zoom
+    </button>
   </div>
 
   <div class="bottom">
     <span class="dot">SVIE</span>
     <span class="counter" id="counter">— / —</span>
     <span class="dot">2026</span>
+  </div>
+
+  <!-- full-screen zoomable page reader -->
+  <div class="reader" id="reader" aria-hidden="true">
+    <div class="reader-top">
+      <span class="rc" id="readerCounter">Page 1 / 11</span>
+      <button class="reader-close" id="readerClose" aria-label="Close reader">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="reader-view" id="readerView">
+      <img id="readerImg" alt="Brochure page">
+      <div class="reader-hint" id="readerHint">Pinch or double-tap to zoom · swipe to turn</div>
+    </div>
+    <div class="reader-nav">
+      <button id="readerPrev" aria-label="Previous page">&#8249;</button>
+      <button id="readerNext" aria-label="Next page">&#8250;</button>
+    </div>
   </div>
 
   <script src="lib/page-flip.browser.js"></script>
@@ -166,6 +218,7 @@ body{
     prevBtn.addEventListener('click', function () { pageFlip.flipPrev(); });
     nextBtn.addEventListener('click', function () { pageFlip.flipNext(); });
     document.addEventListener('keydown', function (e) {
+      if (document.getElementById('reader').classList.contains('open')) return; // reader owns the keys
       if (e.key === 'ArrowRight') pageFlip.flipNext();
       else if (e.key === 'ArrowLeft') pageFlip.flipPrev();
     });
@@ -175,6 +228,145 @@ body{
       if (!document.fullscreenElement) document.documentElement.requestFullscreen();
       else document.exitFullscreen();
     });
+
+    /* ---------- full-screen zoomable reader (fixes tiny text on mobile) ---------- */
+    var reader = document.getElementById('reader');
+    var readerView = document.getElementById('readerView');
+    var readerImg = document.getElementById('readerImg');
+    var readerCounter = document.getElementById('readerCounter');
+    var readerHint = document.getElementById('readerHint');
+    var readerPrev = document.getElementById('readerPrev');
+    var readerNext = document.getElementById('readerNext');
+    var rIndex = 0;
+    // transform state: image drawn from top-left, origin 0 0, scale in absolute terms
+    var rs = { scale: 1, tx: 0, ty: 0, fit: 1, min: 1, max: 1 };
+
+    function applyTransform() {
+      readerImg.style.transform = 'translate(' + rs.tx + 'px,' + rs.ty + 'px) scale(' + rs.scale + ')';
+    }
+    function clampPan() {
+      var vw = readerView.clientWidth, vh = readerView.clientHeight;
+      var iw = readerImg.naturalWidth * rs.scale, ih = readerImg.naturalHeight * rs.scale;
+      rs.tx = iw <= vw ? (vw - iw) / 2 : Math.min(0, Math.max(vw - iw, rs.tx));
+      rs.ty = ih <= vh ? (vh - ih) / 2 : Math.min(0, Math.max(vh - ih, rs.ty));
+    }
+    function resetView() {
+      var vw = readerView.clientWidth, vh = readerView.clientHeight;
+      var nw = readerImg.naturalWidth, nh = readerImg.naturalHeight;
+      if (!nw || !nh) return;
+      rs.fit = Math.min(vw / nw, vh / nh);
+      rs.scale = rs.fit; rs.min = rs.fit; rs.max = rs.fit * 4;
+      clampPan(); applyTransform();
+    }
+    var zoomed = function () { return rs.scale > rs.fit * 1.02; };
+    function zoomAt(fx, fy, target) {
+      target = Math.max(rs.min, Math.min(rs.max, target));
+      var k = target / rs.scale;
+      rs.tx = fx - (fx - rs.tx) * k;
+      rs.ty = fy - (fy - rs.ty) * k;
+      rs.scale = target;
+      clampPan(); applyTransform();
+    }
+    function setReaderPage(i) {
+      rIndex = Math.max(0, Math.min(images.length - 1, i));
+      readerCounter.textContent = 'Page ' + (rIndex + 1) + ' / ' + images.length;
+      readerPrev.disabled = rIndex <= 0;
+      readerNext.disabled = rIndex >= images.length - 1;
+      readerImg.style.opacity = '0';
+      readerImg.onload = function () { readerImg.style.opacity = '1'; resetView(); };
+      readerImg.src = images[rIndex];
+    }
+    function openReader(i) {
+      setReaderPage(i);
+      reader.classList.add('open');
+      reader.setAttribute('aria-hidden', 'false');
+      readerHint.style.opacity = '1';
+      clearTimeout(openReader._h);
+      openReader._h = setTimeout(function () { readerHint.style.opacity = '0'; }, 2600);
+    }
+    function closeReader() {
+      reader.classList.remove('open');
+      reader.setAttribute('aria-hidden', 'true');
+      if (pageFlip.turnToPage) { pageFlip.turnToPage(rIndex); update(); }
+    }
+
+    // touch gestures: pinch-zoom, one-finger pan (when zoomed), double-tap, swipe
+    var ts = null, pinch = null, lastTap = 0;
+    readerView.addEventListener('touchstart', function (e) {
+      var r = readerView.getBoundingClientRect();
+      if (e.touches.length === 2) {
+        var a = e.touches[0], b = e.touches[1];
+        pinch = { d: Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY),
+                  mx: (a.clientX + b.clientX) / 2 - r.left, my: (a.clientY + b.clientY) / 2 - r.top,
+                  s: rs.scale, tx: rs.tx, ty: rs.ty };
+        ts = null;
+      } else if (e.touches.length === 1) {
+        ts = { x: e.touches[0].clientX, y: e.touches[0].clientY, tx: rs.tx, ty: rs.ty, t: Date.now(), moved: false };
+      }
+    }, { passive: false });
+    readerView.addEventListener('touchmove', function (e) {
+      var r = readerView.getBoundingClientRect();
+      if (pinch && e.touches.length === 2) {
+        e.preventDefault();
+        var a = e.touches[0], b = e.touches[1];
+        var d = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+        var mx = (a.clientX + b.clientX) / 2 - r.left, my = (a.clientY + b.clientY) / 2 - r.top;
+        var s = Math.max(rs.min, Math.min(rs.max, pinch.s * d / pinch.d));
+        rs.scale = s;
+        rs.tx = mx - (pinch.mx - pinch.tx) * (s / pinch.s);
+        rs.ty = my - (pinch.my - pinch.ty) * (s / pinch.s);
+        clampPan(); applyTransform();
+      } else if (ts && e.touches.length === 1) {
+        var dx = e.touches[0].clientX - ts.x, dy = e.touches[0].clientY - ts.y;
+        if (Math.abs(dx) > 6 || Math.abs(dy) > 6) ts.moved = true;
+        if (zoomed()) { e.preventDefault(); rs.tx = ts.tx + dx; rs.ty = ts.ty + dy; clampPan(); applyTransform(); }
+      }
+    }, { passive: false });
+    readerView.addEventListener('touchend', function (e) {
+      if (pinch && e.touches.length < 2) {
+        pinch = null;
+        if (rs.scale <= rs.fit * 1.02) resetView();
+      }
+      if (ts) {
+        var dx = e.changedTouches[0].clientX - ts.x, dy = e.changedTouches[0].clientY - ts.y;
+        var r = readerView.getBoundingClientRect();
+        if (!ts.moved && Date.now() - ts.t < 250) {
+          var now = Date.now();
+          if (now - lastTap < 300) {
+            lastTap = 0;
+            if (zoomed()) resetView(); else zoomAt(e.changedTouches[0].clientX - r.left, e.changedTouches[0].clientY - r.top, rs.fit * 2.6);
+          } else lastTap = now;
+        } else if (!zoomed() && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+          setReaderPage(rIndex + (dx < 0 ? 1 : -1));
+        }
+        ts = null;
+      }
+    }, { passive: false });
+
+    // desktop: double-click to zoom, wheel to zoom
+    readerView.addEventListener('dblclick', function (e) {
+      var r = readerView.getBoundingClientRect();
+      if (zoomed()) resetView(); else zoomAt(e.clientX - r.left, e.clientY - r.top, rs.fit * 2.6);
+    });
+    readerView.addEventListener('wheel', function (e) {
+      if (!reader.classList.contains('open')) return;
+      e.preventDefault();
+      var r = readerView.getBoundingClientRect();
+      zoomAt(e.clientX - r.left, e.clientY - r.top, rs.scale * (e.deltaY < 0 ? 1.15 : 0.87));
+    }, { passive: false });
+
+    document.getElementById('readBtn').addEventListener('click', function () { openReader(pageFlip.getCurrentPageIndex()); });
+    document.getElementById('readCue').addEventListener('click', function () { openReader(pageFlip.getCurrentPageIndex()); });
+    document.getElementById('readerClose').addEventListener('click', closeReader);
+    readerPrev.addEventListener('click', function () { setReaderPage(rIndex - 1); });
+    readerNext.addEventListener('click', function () { setReaderPage(rIndex + 1); });
+    document.addEventListener('keydown', function (e) {
+      if (!reader.classList.contains('open')) return;
+      if (e.key === 'Escape') closeReader();
+      else if (e.key === 'ArrowRight') setReaderPage(rIndex + 1);
+      else if (e.key === 'ArrowLeft') setReaderPage(rIndex - 1);
+    });
+    window.addEventListener('resize', function () { if (reader.classList.contains('open')) resetView(); });
 
     setTimeout(function () { fitToStage(); update(); }, 300);
   </script>
