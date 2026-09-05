@@ -12,6 +12,20 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 RewriteCond %{HTTP_HOST} ^www\.svie5\.com [NC]
 RewriteRule ^(.*)$ https://svie5.com/$1 [L,R=301]
 
+# ── Serve WebP to supporting browsers (transparent, no HTML changes) ─────────
+# When a browser accepts image/webp and a matching .webp twin exists next to
+# the requested .jpg/.jpeg/.png, serve the .webp instead. Icons / OG / logo
+# have no .webp twin (see scripts/convert-webp.js) so they are unaffected.
+<IfModule mod_rewrite.c>
+  RewriteCond %{HTTP_ACCEPT} image/webp
+  RewriteCond %{DOCUMENT_ROOT}/$1.webp -f
+  RewriteRule ^(.+)\.(jpe?g|png)$ $1.webp [T=image/webp,E=REQ_webp:1,L]
+</IfModule>
+<IfModule mod_headers.c>
+  # Different bytes depending on Accept — keep caches honest.
+  Header append Vary Accept env=REQ_webp
+</IfModule>
+
 # ── GZIP compression ────────────────────────────────────────────────────────
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
