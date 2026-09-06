@@ -694,8 +694,33 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
         </div>
         <div class="card">
           <div class="card-title">Social Media Links</div>
-          <div class="frow"><div class="fg"><label>Facebook URL</label><input id="site-fb" type="url"></div><div class="fg"><label>Instagram URL</label><input id="site-ig" type="url"></div></div>
-          <div class="frow"><div class="fg"><label>Twitter / X URL</label><input id="site-tw" type="url"></div><div class="fg"><label>WhatsApp Link</label><input id="site-wa" type="url"></div></div>
+          <div class="card-sub">Uncheck "Show icon" to hide a platform's footer icon without losing its saved link.</div>
+          <div class="frow">
+            <div class="fg">
+              <label>Facebook URL</label><input id="site-fb" type="url">
+              <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.78rem;color:#4a443e;cursor:pointer;margin-top:6px">
+                <input id="set-fb-enabled" type="checkbox" style="width:14px;height:14px;accent-color:#1A4530;cursor:pointer">
+                Show icon
+              </label>
+            </div>
+            <div class="fg">
+              <label>Instagram URL</label><input id="site-ig" type="url">
+              <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.78rem;color:#4a443e;cursor:pointer;margin-top:6px">
+                <input id="set-ig-enabled" type="checkbox" style="width:14px;height:14px;accent-color:#1A4530;cursor:pointer">
+                Show icon
+              </label>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fg">
+              <label>Twitter / X URL</label><input id="site-tw" type="url">
+              <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.78rem;color:#4a443e;cursor:pointer;margin-top:6px">
+                <input id="set-tw-enabled" type="checkbox" style="width:14px;height:14px;accent-color:#1A4530;cursor:pointer">
+                Show icon
+              </label>
+            </div>
+            <div class="fg"><label>WhatsApp Link</label><input id="site-wa" type="url"></div>
+          </div>
         </div>
 
         <div class="card">
@@ -1966,11 +1991,17 @@ function fillContact() {
   sv('site-tw',s.twitter); sv('site-wa',s.whatsapp);
   const waEn = document.getElementById('set-wa-enabled'); if (waEn) waEn.checked = s.wa_enabled !== false;
   sv('set-wa-position', s.wa_position || 'right');
+  const fbEn = document.getElementById('set-fb-enabled'); if (fbEn) fbEn.checked = s.facebook_enabled !== false;
+  const igEn = document.getElementById('set-ig-enabled'); if (igEn) igEn.checked = s.instagram_enabled !== false;
+  const twEn = document.getElementById('set-tw-enabled'); if (twEn) twEn.checked = s.twitter_enabled !== false;
 }
 
 async function saveContact() {
   const waEnEl = document.getElementById('set-wa-enabled');
-  const data = {...(C.site||{}), phone1:gv('site-phone1'), phone2:gv('site-phone2'), email:gv('site-email'), address:gv('site-address'), hours:gv('site-hours'), landmark:gv('site-landmark'), description:gv('site-description'), facebook:gv('site-fb'), instagram:gv('site-ig'), twitter:gv('site-tw'), whatsapp:gv('site-wa'), wa_enabled: waEnEl ? waEnEl.checked : true, wa_position: gv('set-wa-position')||'right'};
+  const fbEnEl = document.getElementById('set-fb-enabled');
+  const igEnEl = document.getElementById('set-ig-enabled');
+  const twEnEl = document.getElementById('set-tw-enabled');
+  const data = {...(C.site||{}), phone1:gv('site-phone1'), phone2:gv('site-phone2'), email:gv('site-email'), address:gv('site-address'), hours:gv('site-hours'), landmark:gv('site-landmark'), description:gv('site-description'), facebook:gv('site-fb'), instagram:gv('site-ig'), twitter:gv('site-tw'), whatsapp:gv('site-wa'), wa_enabled: waEnEl ? waEnEl.checked : true, wa_position: gv('set-wa-position')||'right', facebook_enabled: fbEnEl ? fbEnEl.checked : true, instagram_enabled: igEnEl ? igEnEl.checked : true, twitter_enabled: twEnEl ? twEnEl.checked : true};
   localStorage.setItem('svie_site', JSON.stringify(data));
   C.site = data;
   await api('POST','/api/content/site', data);

@@ -146,11 +146,13 @@
   function isSafeUrl(u) { return typeof u === 'string' && /^https?:\/\//i.test(u); }
   function applySocials(site) {
     var map = { facebook:'Facebook', instagram:'Instagram', twitter:'Twitter / X', whatsapp:'WhatsApp' };
+    var enabledKey = { facebook:'facebook_enabled', instagram:'instagram_enabled', twitter:'twitter_enabled', whatsapp:'wa_enabled' };
     Object.keys(map).forEach(function (k) {
       var url = site[k];
+      var enabled = site[enabledKey[k]] !== false;
       document.querySelectorAll('.footer-soc[aria-label="' + map[k] + '"]').forEach(function (a) {
-        if (isSafeUrl(url)) { a.href = url; a.style.display = ''; }
-        else { a.style.display = 'none'; } // hide icon if the link is cleared
+        if (enabled && isSafeUrl(url)) { a.href = url; a.style.display = ''; }
+        else { a.style.display = 'none'; } // hidden if disabled or the link is cleared
       });
     });
   }
