@@ -1695,6 +1695,8 @@ body:has(.nav-drawer.open) #svie-consent{transform:translateY(100%)!important}
   .visv-grid > div:first-child{border-radius:var(--r-lg) var(--r-lg) 0 0!important;border-right:1px solid rgba(201,160,90,.12)!important;border-bottom:none!important}
   .visv-grid > div:last-child{border-radius:0 0 var(--r-lg) var(--r-lg)!important;border-left:1px solid rgba(201,160,90,.12)!important;border-top:none!important}
   .visv-grid img{width:240px!important;max-width:65vw!important;margin:0 auto}
+  .mii-row{flex-direction:column!important;align-items:flex-start!important;gap:16px!important}
+  .mii-row .lion-img{align-self:center}
   /* Page-section grids */
   .resp-split,.resp-split-lg{grid-template-columns:1fr;gap:40px}
   .resp-3col{grid-template-columns:1fr 1fr}
