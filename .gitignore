@@ -2,3 +2,6 @@
 node_modules/
 data/
 .claude/settings.local.json
+
+# Google service-account keys (never commit — contain private keys)
+svie-new-*.json
