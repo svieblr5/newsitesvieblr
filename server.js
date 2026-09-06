@@ -1460,7 +1460,7 @@ const visitorLimiter = rateLimit({
 // ── POST /api/visitor-ping — public, called from frontend ──
 app.post('/api/visitor-ping', visitorLimiter, async (req, res) => {
   try {
-    const { page, referrer, consent, gps } = req.body;
+    const { page, referrer, consent, gps, utm } = req.body;
     if (!consent) return res.json({ ok: false });
 
     const rawIP = (String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()) ||
@@ -1488,6 +1488,9 @@ app.post('/api/visitor-ping', visitorLimiter, async (req, res) => {
       locationSource,
       page:         String(page || '/').slice(0, 200),
       referrer:     String(referrer || '').slice(0, 500),
+      utm_source:   utm && utm.utm_source   ? String(utm.utm_source).slice(0, 100)   : '',
+      utm_medium:   utm && utm.utm_medium   ? String(utm.utm_medium).slice(0, 100)   : '',
+      utm_campaign: utm && utm.utm_campaign ? String(utm.utm_campaign).slice(0, 100) : '',
       browser, device, os,
       isNewSession,
     };
@@ -1615,8 +1618,15 @@ app.get('/api/visitor-stats', requireAuth, (req, res) => {
     byDevice[v.device || 'Unknown'] = (byDevice[v.device || 'Unknown'] || 0) + 1;
     byBrowser[v.browser || 'Unknown'] = (byBrowser[v.browser || 'Unknown'] || 0) + 1;
     const ref = v.referrer || '';
+    const utmMedium = (v.utm_medium || '').toLowerCase();
+    const utmSource = (v.utm_source || '').toLowerCase();
     let src = 'Direct';
-    if (/google\.|bing\.|yahoo\.|duckduckgo\./.test(ref)) src = 'Search';
+    // UTM params take priority over referrer — social apps' in-app browsers
+    // (Instagram/Facebook bio links, etc.) commonly strip the referrer, so a
+    // tagged link is the only way to attribute that traffic correctly.
+    if (utmMedium === 'social' || /^(ig|instagram|fb|facebook|whatsapp|twitter|x|linkedin)$/.test(utmSource)) src = 'Social';
+    else if (utmMedium === 'cpc' || utmMedium === 'ppc' || utmSource === 'google' && utmMedium) src = 'Search';
+    else if (/google\.|bing\.|yahoo\.|duckduckgo\./.test(ref)) src = 'Search';
     else if (/facebook\.|instagram\.|twitter\.|x\.com|linkedin\.|whatsapp\.|t\.co/.test(ref)) src = 'Social';
     else if (ref && !/svie5\.com|localhost/.test(ref)) src = 'Referral';
     bySrc[src] = (bySrc[src] || 0) + 1;

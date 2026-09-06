@@ -26,6 +26,18 @@
     try { sessionStorage.setItem(PINGED_KEY, '1'); } catch {}
   }
 
+  function utmParams() {
+    try {
+      var p = new URLSearchParams(window.location.search);
+      var out = {};
+      ['utm_source', 'utm_medium', 'utm_campaign'].forEach(function (k) {
+        var v = p.get(k);
+        if (v) out[k] = v.slice(0, 100);
+      });
+      return out;
+    } catch (e) { return {}; }
+  }
+
   function send(gps) {
     fetch('/api/visitor-ping', {
       method: 'POST',
@@ -34,7 +46,8 @@
         page:     window.location.pathname,
         referrer: document.referrer,
         consent:  true,
-        gps:      gps || null
+        gps:      gps || null,
+        utm:      utmParams()
       }),
       keepalive: true
     }).catch(function () {});
