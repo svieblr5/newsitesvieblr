@@ -349,7 +349,20 @@ app.get(Object.keys(SEO_PAGE_KEY), (req, res, next) => {
   } catch (e) { next(); }                            // any error → fall through to static
 });
 
-app.use(express.static(ROOT));
+// Long cache lifetimes for true static assets (images/fonts/css/js) speed up
+// repeat visits; HTML is left at the express.static default (revalidate every
+// time) since pages are CMS-editable and must reflect the latest content.
+const STATIC_ASSET_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days — images, fonts
+const STATIC_CODE_MAX_AGE  = 24 * 60 * 60 * 1000;       // 1 day — css/js (no cache-busting filenames)
+function staticCacheHeaders(res, filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  if (['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.ico', '.woff', '.woff2', '.pdf'].includes(ext)) {
+    res.setHeader('Cache-Control', 'public, max-age=' + (STATIC_ASSET_MAX_AGE / 1000));
+  } else if (['.css', '.js'].includes(ext)) {
+    res.setHeader('Cache-Control', 'public, max-age=' + (STATIC_CODE_MAX_AGE / 1000));
+  }
+}
+app.use(express.static(ROOT, { setHeaders: staticCacheHeaders }));
 app.use('/admin', express.static(path.join(ROOT,'admin')));
 
 if (!process.env.SESSION_SECRET) {
