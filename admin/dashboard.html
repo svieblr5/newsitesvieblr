@@ -242,6 +242,36 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
 .seo-panel{display:none}.seo-panel.active{display:block}
 .seo-char{font-size:.65rem;float:right;margin-top:3px;font-weight:600;font-family:'Raleway',sans-serif}
 .seo-char.ok{color:#1A4530}.seo-char.warn{color:#C9A05A}.seo-char.bad{color:#ef4444}
+/* ── Social Media tab ── */
+.soc-accounts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.soc-account-card{border:1px solid #e8e4dd;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;background:#fff;transition:border-color .2s,box-shadow .2s}
+.soc-account-card:hover{border-color:#C9A05A;box-shadow:0 4px 16px rgba(201,160,90,.12)}
+.soc-account-top{display:flex;align-items:center;gap:10px}
+.soc-account-icon{width:38px;height:38px;border-radius:50%;background:#0C2C1B;color:#F5EFE6;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.soc-account-name{font-family:'Raleway',sans-serif;font-weight:700;font-size:.82rem;color:#1A4530}
+.soc-account-handle{font-size:.74rem;color:#8a7e72;word-break:break-all}
+.soc-status-pill{display:inline-flex;align-items:center;gap:5px;font-size:.62rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:20px;width:fit-content}
+.soc-status-pill.live{background:#eaf5ee;color:#1A4530}
+.soc-status-pill.live::before{content:'';width:6px;height:6px;border-radius:50%;background:#2f9e5c}
+.soc-status-pill.hidden{background:#faf3e6;color:#966a1f}
+.soc-status-pill.hidden::before{content:'';width:6px;height:6px;border-radius:50%;background:#C9A05A}
+.soc-status-pill.none{background:#f5f0ea;color:#8a7e72}
+.soc-status-pill.none::before{content:'';width:6px;height:6px;border-radius:50%;background:#c8bfb2}
+.soc-preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:14px}
+.soc-preview-label{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8a7e72;margin-bottom:8px}
+.soc-card-fb,.soc-card-tw{border:1px solid #dcdbd8;border-radius:8px;overflow:hidden;background:#fff;font-family:Helvetica,Arial,sans-serif}
+.soc-card-img{width:100%;aspect-ratio:1.91/1;background:#e8e4dd center/cover no-repeat;background-image:var(--soc-img,none);display:flex;align-items:center;justify-content:center;color:#8a7e72;font-size:.7rem}
+.soc-card-body{padding:9px 12px;background:#f2f3f5}
+.soc-card-tw .soc-card-body{background:#fff;border-top:1px solid #eee}
+.soc-card-domain{font-size:.68rem;color:#65676b;text-transform:uppercase;letter-spacing:.02em}
+.soc-card-title{font-size:.85rem;font-weight:600;color:#050505;margin-top:2px;line-height:1.3}
+.soc-card-desc{font-size:.76rem;color:#65676b;margin-top:2px;line-height:1.35}
+.soc-card-wa{display:flex;gap:0;border-radius:8px;overflow:hidden;background:#dcf8c6;font-family:'Segoe UI',Helvetica,sans-serif;border-left:4px solid #25D366}
+.soc-card-wa .soc-card-img{width:74px;height:74px;flex-shrink:0;aspect-ratio:auto;border-radius:6px;margin:8px 0 8px 8px}
+.soc-card-wa-body{padding:8px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0}
+.soc-card-wa .soc-card-title{font-size:.78rem;color:#111}
+.soc-card-wa .soc-card-desc{font-size:.7rem}
+.soc-card-wa .soc-card-domain{font-size:.64rem}
 /* ── Google Analytics Panel ── */
 .ga-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
 @media(max-width:640px){.ga-stats-grid{grid-template-columns:repeat(2,1fr)}}
@@ -2128,6 +2158,80 @@ function seoTab(t) {
   document.querySelector('.seo-tab[data-t="'+t+'"]').classList.add('active');
   document.getElementById('seo-panel-'+t).classList.add('active');
   if (t==='tools') previewMetaTags();
+  if (t==='social') { renderSocialAccounts(); updateSocialPreview(); }
+}
+
+// ── Social Media tab ──────────────────────────
+const SOC_ICONS = {
+  facebook:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
+  instagram: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>',
+  twitter:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+  whatsapp:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>',
+};
+const SOC_PLATFORMS = [
+  { key:'facebook',  name:'Facebook',    enabledKey:'facebook_enabled'  },
+  { key:'instagram', name:'Instagram',   enabledKey:'instagram_enabled' },
+  { key:'twitter',   name:'Twitter / X', enabledKey:'twitter_enabled'   },
+  { key:'whatsapp',  name:'WhatsApp',    enabledKey:'wa_enabled'        },
+];
+
+function renderSocialAccounts() {
+  const el = document.getElementById('soc-accounts'); if (!el) return;
+  const s = C.site || {};
+  el.innerHTML = SOC_PLATFORMS.map(function (p) {
+    const url = s[p.key] || '';
+    const hasUrl = /^https?:\/\//i.test(url);
+    const enabled = s[p.enabledKey] !== false;
+    let pill = '<span class="soc-status-pill none">Not connected</span>';
+    if (hasUrl) pill = enabled ? '<span class="soc-status-pill live">Live</span>' : '<span class="soc-status-pill hidden">Hidden</span>';
+    return '<div class="soc-account-card">'+
+      '<div class="soc-account-top"><div class="soc-account-icon">'+SOC_ICONS[p.key]+'</div><div class="soc-account-name">'+p.name+'</div></div>'+
+      '<div class="soc-account-handle">'+(hasUrl ? esc(url) : 'No link saved yet')+'</div>'+
+      pill+
+    '</div>';
+  }).join('');
+}
+
+let socialPreviewPage = 'index';
+function updateSocialPreview() {
+  const out = document.getElementById('soc-preview-out'); if (!out) return;
+  const sel = document.getElementById('soc-preview-page'); if (sel) sel.value = socialPreviewPage;
+  const seo = C.seo || JSON.parse(localStorage.getItem('svie_seo') || '{}');
+  const g = seo.global || {};
+  const def = SEO_DEFAULTS[socialPreviewPage] || {};
+  const page = socialPreviewPage;
+  const t = (document.getElementById('seo-t-'+page)||{}).value || (seo.pages && seo.pages[page] && seo.pages[page].title) || def.title || '';
+  const d = (document.getElementById('seo-d-'+page)||{}).value || (seo.pages && seo.pages[page] && seo.pages[page].desc) || def.desc || '';
+  const og = (document.getElementById('seo-og-'+page)||{}).value || g.og_image || '';
+  const base = ((document.getElementById('seo-g-baseurl')||{}).value || g.base_url || 'https://svie5.com').replace(/\/$/, '');
+  const slug = SEO_SLUGS[page] ? '/'+SEO_SLUGS[page] : '/';
+  const domain = base.replace(/^https?:\/\//i, '');
+  const imgStyle = og ? ' style="--soc-img:url(\''+og.replace(/'/g,"\\'")+'\')"' : '';
+  const imgPlaceholder = og ? '' : 'No OG image set';
+
+  out.innerHTML =
+    '<div><div class="soc-preview-label">Facebook</div><div class="soc-card-fb">'+
+      '<div class="soc-card-img"'+imgStyle+'>'+imgPlaceholder+'</div>'+
+      '<div class="soc-card-body"><div class="soc-card-domain">'+esc(domain)+'</div><div class="soc-card-title">'+esc(t.slice(0,88))+'</div><div class="soc-card-desc">'+esc(d.slice(0,110))+'</div></div>'+
+    '</div></div>'+
+    '<div><div class="soc-preview-label">Twitter / X</div><div class="soc-card-tw">'+
+      '<div class="soc-card-img"'+imgStyle+'>'+imgPlaceholder+'</div>'+
+      '<div class="soc-card-body"><div class="soc-card-title">'+esc(t.slice(0,70))+'</div><div class="soc-card-desc">'+esc(d.slice(0,125))+'</div><div class="soc-card-domain" style="margin-top:4px">'+esc(domain)+'</div></div>'+
+    '</div></div>'+
+    '<div><div class="soc-preview-label">WhatsApp</div><div class="soc-card-wa">'+
+      '<div class="soc-card-img"'+imgStyle+'>'+(og?'':'—')+'</div>'+
+      '<div class="soc-card-wa-body"><div class="soc-card-title">'+esc(t.slice(0,65))+'</div><div class="soc-card-desc">'+esc(d.slice(0,80))+'</div><div class="soc-card-domain">'+esc(domain)+'</div></div>'+
+    '</div></div>';
+}
+
+function socialSameAs() {
+  const s = C.site || {};
+  const out = [];
+  SOC_PLATFORMS.forEach(function (p) {
+    const url = s[p.key];
+    if (s[p.enabledKey] !== false && typeof url === 'string' && /^https?:\/\//i.test(url)) out.push(url);
+  });
+  return out.length ? out : ['https://www.facebook.com/SVIEBLR/','https://instagram.com/svie.blr','https://twitter.com/kiran4u1982'];
 }
 
 function seoCC(inp, out, lo, hi) {
@@ -2148,6 +2252,7 @@ function updateGP(page) {
   const base=((document.getElementById('seo-g-baseurl')||{}).value||g.base_url||'https://svie5.com').replace(/\/$/,'');
   const slug=SEO_SLUGS[page]?'/'+SEO_SLUGS[page]:'/';
   el.innerHTML='<div class="gp-url">'+esc(base+slug)+'</div><div class="gp-title">'+esc(t.slice(0,60))+'</div><div class="gp-desc">'+esc(d.slice(0,160))+'</div>';
+  if (page===socialPreviewPage) updateSocialPreview();
 }
 
 function _buildPerPageHtml(pp) {
@@ -2194,6 +2299,7 @@ function fillSEO() {
   el.innerHTML=
   '<div class="seo-tab-bar">'+
   '<button class="seo-tab active" data-t="global" onclick="seoTab(\'global\')">Global &amp; Social</button>'+
+  '<button class="seo-tab" data-t="social" onclick="seoTab(\'social\')">Social Media</button>'+
   '<button class="seo-tab" data-t="pages" onclick="seoTab(\'pages\')">Per-Page SEO</button>'+
   '<button class="seo-tab" data-t="schema" onclick="seoTab(\'schema\')">Structured Data</button>'+
   '<button class="seo-tab" data-t="security" onclick="seoTab(\'security\')">Security Headers</button>'+
@@ -2213,6 +2319,21 @@ function fillSEO() {
   '<div class="frow"><div class="fg"><label>Google Search Console verification <small style="color:#8a7e72">content= value only</small></label><input type="text" id="seo-g-gsc" value="'+esc(g.gsc||'')+'" placeholder="AbCdEfGh…"></div>'+
   '<div class="fg"><label>Bing Webmaster verification <small style="color:#8a7e72">content= value only</small></label><input type="text" id="seo-g-bing" value="'+esc(g.bing||'')+'" placeholder="AbCdEfGh…"></div></div>'+
   '<div style="background:#f5f0ea;border-radius:8px;padding:11px 14px;font-size:.78rem;color:#6a6460;margin-top:6px">Use the <strong style="color:#1A4530">Tools &amp; Export</strong> tab to generate the full meta tag block for any page — copy and paste it into each HTML file\'s &lt;head&gt;.</div>'+
+  '</div></div>'+
+
+  // ── SOCIAL MEDIA ──
+  '<div id="seo-panel-social" class="seo-panel">'+
+  '<div class="card"><div class="card-title">Connected Accounts</div>'+
+  '<div class="card-sub">Pulled live from Contact Settings — edit links and visibility there, it reflects here and in structured data automatically.</div>'+
+  '<div class="soc-accounts-grid" id="soc-accounts"></div>'+
+  '<div style="margin-top:12px"><button class="btn btn-outline btn-sm" onclick="show(\'contact\',document.querySelector(\'[data-p=contact]\'))">Manage in Contact Settings →</button></div>'+
+  '</div>'+
+  '<div class="card"><div class="card-title">Share Preview</div>'+
+  '<div class="card-sub">Exactly how a page will look when someone shares it on Facebook, Twitter/X, or WhatsApp — built live from that page\'s Title, Description, and OG Image in Per-Page SEO.</div>'+
+  '<div class="frow"><div class="fg" style="max-width:320px"><label>Preview Page</label><select id="soc-preview-page" onchange="socialPreviewPage=this.value;updateSocialPreview()">'+
+  SEO_PAGES.map(p=>'<option value="'+p+'">'+SEO_LABELS[p]+'</option>').join('')+
+  '</select></div></div>'+
+  '<div class="soc-preview-grid" id="soc-preview-out"></div>'+
   '</div></div>'+
 
   // ── PER-PAGE ──
@@ -2365,7 +2486,7 @@ function generateJSONLD() {
           {'@type':'Offer','itemOffered':{'@type':'Service','name':'Construction Management'}},
           {'@type':'Offer','itemOffered':{'@type':'Service','name':'Modular Furniture (Green Nest)'}}
         ]},
-        'sameAs':['https://www.facebook.com/SVIEBLR/','https://instagram.com/svie.blr','https://twitter.com/kiran4u1982'],
+        'sameAs': socialSameAs(),
         'currenciesAccepted':'INR',
         'paymentAccepted':'Cash, Credit Card, Bank Transfer, UPI'
       },
