@@ -88,7 +88,7 @@ RewriteRule ^(.*)$ https://svie5.com/$1 [L,R=301]
 </IfModule>
 
 # ── Block access to sensitive files ─────────────────────────────────────────
-<FilesMatch "(\.htaccess|\.htpasswd|\.env|package\.json|package-lock\.json|server\.js|cms-loader\.js)$">
+<FilesMatch "(\.htaccess|\.htpasswd|\.env|package\.json|package-lock\.json|server\.js)$">
   Order Allow,Deny
   Deny from all
 </FilesMatch>
