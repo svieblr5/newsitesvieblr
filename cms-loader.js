@@ -145,8 +145,8 @@
   /* ── Footer social links from CMS (site.facebook / instagram / twitter / whatsapp) ── */
   function isSafeUrl(u) { return typeof u === 'string' && /^https?:\/\//i.test(u); }
   function applySocials(site) {
-    var map = { facebook:'Facebook', instagram:'Instagram', twitter:'Twitter / X', whatsapp:'WhatsApp' };
-    var enabledKey = { facebook:'facebook_enabled', instagram:'instagram_enabled', twitter:'twitter_enabled', whatsapp:'wa_enabled' };
+    var map = { facebook:'Facebook', instagram:'Instagram', twitter:'Twitter / X', whatsapp:'WhatsApp', youtube:'YouTube', linkedin:'LinkedIn' };
+    var enabledKey = { facebook:'facebook_enabled', instagram:'instagram_enabled', twitter:'twitter_enabled', whatsapp:'wa_enabled', youtube:'youtube_enabled', linkedin:'linkedin_enabled' };
     Object.keys(map).forEach(function (k) {
       var url = site[k];
       var enabled = site[enabledKey[k]] !== false;
