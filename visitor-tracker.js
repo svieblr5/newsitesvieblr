@@ -1,6 +1,7 @@
-/* SVIE Visitor Tracker — GDPR & DPDPA Compliant
- * Collects only: country, city, browser type, device type, page visited.
- * No cookies, no personal data, no fingerprinting.
+/* SVIE Visitor Tracker
+ * Collects, after consent: IP address, precise device location (if the
+ * visitor's browser grants the geolocation permission prompt), country,
+ * city, browser type, device type, and page visited. No cookies.
  * Requires explicit analytics consent via banner.
  */
 (function () {
@@ -25,19 +26,39 @@
     try { sessionStorage.setItem(PINGED_KEY, '1'); } catch {}
   }
 
-  function ping() {
-    if (alreadyPinged()) return;
-    markPinged();
+  function send(gps) {
     fetch('/api/visitor-ping', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         page:     window.location.pathname,
         referrer: document.referrer,
-        consent:  true
+        consent:  true,
+        gps:      gps || null
       }),
       keepalive: true
     }).catch(function () {});
+  }
+
+  function ping() {
+    if (alreadyPinged()) return;
+    markPinged();
+    if (!navigator.geolocation) { send(null); return; }
+    var settled = false;
+    var finish = function (gps) { if (settled) return; settled = true; send(gps); };
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        finish({
+          lat:      pos.coords.latitude,
+          lon:      pos.coords.longitude,
+          accuracy: pos.coords.accuracy
+        });
+      },
+      function () { finish(null); },
+      { timeout: 5000, maximumAge: 300000 }
+    );
+    // Don't block the ping indefinitely on a slow/ignored permission prompt.
+    setTimeout(function () { finish(null); }, 6000);
   }
 
   function injectStyles() {
@@ -54,8 +75,9 @@
     b.innerHTML =
       '<p>' +
         '<span id="svie-consent-title">Analytics Notice</span>' +
-        'We collect anonymised visit data — country, city and browser type — to improve this website. ' +
-        'No personal information is stored. See our <a href="/privacy-policy.html">Privacy Policy</a>.' +
+        'We collect your IP address, browser and device type, and pages visited to improve this website. ' +
+        'Your browser may also ask permission to share your precise location, which we use to better understand where our visitors are. ' +
+        'See our <a href="/privacy-policy.html">Privacy Policy</a>.' +
       '</p>' +
       '<div id="svie-consent-btns">' +
         '<button id="svie-decline">Decline</button>' +

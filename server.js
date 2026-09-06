@@ -113,7 +113,7 @@ app.use(helmet({
     features: {
       camera:           [],
       microphone:       [],
-      geolocation:      [],
+      geolocation:      ["'self'"],
       interestCohort:   [],
     }
   }
@@ -1209,17 +1209,6 @@ app.get('/api/stats', requireAuth, (req,res) => {
 //  VISITOR ANALYTICS
 // ═══════════════════════════════════════════
 
-function maskIP(ip) {
-  if (!ip) return 'anon';
-  const v4 = ip.match(/^(\d{1,3}\.\d{1,3}\.\d{1,3})\.\d{1,3}$/);
-  if (v4) return v4[1] + '.0';
-  if (ip.includes(':')) {
-    const parts = ip.replace(/^::ffff:/, '').split(':');
-    return parts.slice(0, 4).join(':') + ':xxxx:xxxx:xxxx:xxxx';
-  }
-  return 'anon';
-}
-
 function isPrivateIP(ip) {
   if (!ip) return true;
   const clean = ip.replace(/^::ffff:/, '');
@@ -1458,7 +1447,7 @@ const visitorLimiter = rateLimit({
 // ── POST /api/visitor-ping — public, called from frontend ──
 app.post('/api/visitor-ping', visitorLimiter, async (req, res) => {
   try {
-    const { page, referrer, consent } = req.body;
+    const { page, referrer, consent, gps } = req.body;
     if (!consent) return res.json({ ok: false });
 
     const rawIP = (String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()) ||
@@ -1468,11 +1457,22 @@ app.post('/api/visitor-ping', visitorLimiter, async (req, res) => {
     const isNewSession = !req.session.svie_visit_counted;
     req.session.svie_visit_counted = true;
 
+    // Precise browser geolocation (if the visitor granted permission) overrides
+    // the IP-derived coordinates but keeps the IP-derived country/city/ISP.
+    let locationSource = 'ip';
+    if (gps && Number.isFinite(gps.lat) && Number.isFinite(gps.lon)) {
+      geo.lat = gps.lat;
+      geo.lon = gps.lon;
+      geo.accuracy = Number.isFinite(gps.accuracy) ? Math.round(gps.accuracy) : null;
+      locationSource = 'gps';
+    }
+
     const record = {
       id:           'v' + Date.now() + Math.random().toString(36).slice(2, 5),
       timestamp:    new Date().toISOString(),
-      ip_masked:    maskIP(rawIP),
+      ip:           rawIP,
       ...geo,
+      locationSource,
       page:         String(page || '/').slice(0, 200),
       referrer:     String(referrer || '').slice(0, 500),
       browser, device, os,

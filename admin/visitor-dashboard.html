@@ -293,10 +293,9 @@ input:checked + .toggle-slider:before{transform:translateX(18px)}
     <div class="gdpr-bar">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <div>
-        <strong>Privacy-First Analytics</strong> — Only anonymised data is stored: country, city, browser type, and device. Full IP addresses are never saved. Visitors are asked for consent before any tracking begins.
+        <strong>Consent-Based Analytics</strong> — Visitor IP address, precise device location (when granted via the browser's geolocation prompt), country, city, browser type, and device are stored. Visitors are asked for consent before any tracking begins.
         <div class="compliance-badges">
-          <span class="comp-badge gdpr">GDPR Compliant</span>
-          <span class="comp-badge dpdpa">DPDPA Compliant</span>
+          <span class="comp-badge gdpr">Review Required</span>
         </div>
       </div>
     </div>
@@ -403,6 +402,7 @@ input:checked + .toggle-slider:before{transform:translateX(18px)}
           <thead>
             <tr>
               <th>Time (IST)</th>
+              <th>IP Address</th>
               <th>Location</th>
               <th>Page</th>
               <th>Device</th>
@@ -411,7 +411,7 @@ input:checked + .toggle-slider:before{transform:translateX(18px)}
             </tr>
           </thead>
           <tbody id="visitorTbody">
-            <tr><td colspan="6"><div class="empty"><div class="skeleton" style="width:200px;height:14px"></div></div></td></tr>
+            <tr><td colspan="7"><div class="empty"><div class="skeleton" style="width:200px;height:14px"></div></div></td></tr>
           </tbody>
         </table>
       </div>
@@ -463,9 +463,11 @@ input:checked + .toggle-slider:before{transform:translateX(18px)}
 
     <!-- ── Compliance note ── -->
     <div style="text-align:center;padding:16px 0 8px;font-size:.72rem;color:#8a7e72">
-      SVIE Visitor Dashboard collects only anonymised analytics data. Compliant with
-      <strong>GDPR</strong> (EU Regulation 2016/679) and <strong>DPDPA 2023</strong> (India).
-      Visitor consent is obtained before any data is recorded. No cookies, no personal identifiers.
+      SVIE Visitor Dashboard collects IP address and, where granted, precise device location, in addition to
+      country, city, browser, and device. Visitor consent is obtained before any data is recorded. No cookies.
+      This level of data collection falls under <strong>GDPR</strong> (EU Regulation 2016/679) and
+      <strong>DPDPA 2023</strong> (India) as personal data — have counsel confirm your privacy policy and
+      lawful basis before relying on a compliance claim.
     </div>
 
   </div><!-- /area -->
@@ -772,7 +774,7 @@ function renderTable(data) {
   sub.textContent = `${data.total.toLocaleString('en-IN')} visit records in selected period`;
 
   if (!data.data || !data.data.length) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><h3>No visitors recorded yet</h3><p style="font-size:.78rem">Visitors who accept analytics will appear here once they arrive.</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><h3>No visitors recorded yet</h3><p style="font-size:.78rem">Visitors who accept analytics will appear here once they arrive.</p></div></td></tr>';
     return;
   }
 
@@ -783,9 +785,12 @@ function renderTable(data) {
     const sesBadge = v.isNewSession ? 'badge-new' : 'badge-ret';
     const sesLabel = v.isNewSession ? 'New' : 'Return';
     const pageLabel = v.page === '/' ? 'Home' : v.page;
+    const precise = v.locationSource === 'gps';
+    const locTitle = precise ? `Precise location (±${v.accuracy || '?'}m)` : 'City-level (from IP)';
     return `<tr>
       <td>${ist}</td>
-      <td class="city-col">${flag} ${v.city || '—'}, <span style="color:#8a7e72">${v.country || 'Unknown'}</span></td>
+      <td title="${esc(v.ip || '')}">${esc(v.ip || '—')}</td>
+      <td class="city-col" title="${esc(locTitle)}">${flag} ${v.city || '—'}, <span style="color:#8a7e72">${v.country || 'Unknown'}</span>${precise ? ' <span style="color:#C9A05A">◎</span>' : ''}</td>
       <td title="${esc(v.page)}">${esc(pageLabel)}</td>
       <td><span class="badge ${devBadge}">${v.device||'?'}</span></td>
       <td>${esc(v.browser||'?')}</td>
