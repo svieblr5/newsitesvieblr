@@ -428,6 +428,17 @@ const enquiryLimiter = rateLimit({
   message: { error: 'Too many enquiries submitted. Please try again later.' },
 });
 
+// Public AI chat widget — the API key lives server-side, so this endpoint is the
+// only thing between the open internet and the Gemini quota. Cap it per-IP so a
+// single visitor (or a bot) can't drain the free-tier allowance.
+const chatLimiter = rateLimit({
+  windowMs: 60 * 1000,         // 1 minute
+  max:      20,                 // 20 chat messages per IP per minute
+  standardHeaders: true,
+  legacyHeaders:   false,
+  message: { error: 'You are sending messages too quickly. Please wait a moment.' },
+});
+
 // API responses are per-session and must never be cached. Without this the
 // Hostinger CDN (and the browser) can cache a response — notably an anonymous
 // /api/auth/check {loggedIn:false} — and later serve it to a logged-in user,
@@ -1121,6 +1132,99 @@ app.delete('/api/enquiries/:id', requireAuth, csrfProtect, (req,res) => {
     writeJSON(ENQUIRY_FILE, list);
     res.json({ success:true });
   } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// ═══════════════════════════════════════════
+//  AI CHAT ASSISTANT  (Google Gemini — free tier)
+// ═══════════════════════════════════════════
+// A server-side proxy so the Gemini API key is NEVER exposed to the browser.
+// The key comes from the GEMINI_API_KEY env var (set in hPanel, like
+// SESSION_SECRET) or, as a fallback, config.geminiApiKey in data/config.json.
+// If neither is set the widget degrades gracefully to a "call us" message.
+
+// Default knowledge the assistant answers from. Editable at runtime via
+// config.chatSystemPrompt without a code change/redeploy.
+const CHAT_SYSTEM_PROMPT = `You are "SVIE Assistant", the friendly virtual assistant for Sri Vasavi Interiors and Exteriors (SVIE), an interior design, construction and modular furniture company in Bengaluru, India, established in 2017.
+
+BUSINESS FACTS (only state these as facts — never invent others):
+- Services: Interior Design & Decor; Design & Quality Management; Construction Management; Modular Furniture (brand "Green Nest").
+- Serves: Bengaluru and across Karnataka.
+- Phone/WhatsApp: +91 95139 61740 (also +91 98455 81156).
+- Email: svie.blr5@gmail.com
+- Address: 172 A, B & E, Link Road, 5th Cross Road, Malleshwaram, Bengaluru, Karnataka 560003.
+- Hours: 10:00 AM to 9:00 PM, all days.
+- Website: https://svie5.com
+
+HOW TO BEHAVE:
+- Be warm, concise and helpful. Keep replies short (2–4 sentences) unless asked for detail.
+- Help visitors understand SVIE's services and guide them toward getting a quote or consultation.
+- You do NOT know exact prices, timelines, or project availability. For those, invite the visitor to call/WhatsApp +91 95139 61740 or use the contact form on the website. Never make up numbers.
+- If a question is unrelated to SVIE or interiors/construction, politely steer back.
+- Reply in the same language the visitor uses (English, Hindi, Kannada, etc.).`;
+
+app.post('/api/chat', chatLimiter, async (req,res) => {
+  try {
+    const cfg    = getConfig();
+    const apiKey = process.env.GEMINI_API_KEY || cfg.geminiApiKey;
+    if (!apiKey) {
+      return res.status(503).json({
+        error: 'The chat assistant is not set up yet. Please call us at +91 95139 61740 or use the contact form.'
+      });
+    }
+    const model  = process.env.GEMINI_MODEL || cfg.geminiModel || 'gemini-2.0-flash';
+
+    // Sanitize the incoming conversation: keep only well-formed user/model turns,
+    // cap each message length and the number of turns to control token cost.
+    let { messages } = req.body;
+    if (!Array.isArray(messages)) messages = [];
+    messages = messages
+      .filter(m => m && typeof m.text === 'string' && (m.role === 'user' || m.role === 'model'))
+      .slice(-12)
+      .map(m => ({ role: m.role, text: m.text.trim().slice(0, 2000) }))
+      .filter(m => m.text);
+    if (!messages.length || messages[messages.length - 1].role !== 'user')
+      return res.status(400).json({ error: 'No message provided.' });
+
+    const systemInstruction = (typeof cfg.chatSystemPrompt === 'string' && cfg.chatSystemPrompt.trim())
+      ? cfg.chatSystemPrompt : CHAT_SYSTEM_PROMPT;
+    const contents = messages.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
+
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/'
+      + encodeURIComponent(model) + ':generateContent?key=' + encodeURIComponent(apiKey);
+
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 20000);
+    let r;
+    try {
+      r = await fetch(url, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal:  ctrl.signal,
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          contents,
+          generationConfig: { temperature: 0.6, maxOutputTokens: 600 },
+        }),
+      });
+    } finally { clearTimeout(timer); }
+
+    if (!r.ok) {
+      const detail = await r.text().catch(() => '');
+      console.warn('[chat] Gemini API error', r.status, detail.slice(0, 300));
+      return res.status(502).json({ error: 'The assistant is busy right now. Please try again in a moment.' });
+    }
+
+    const data  = await r.json();
+    const reply = (data?.candidates?.[0]?.content?.parts || [])
+      .map(p => p.text || '').join('').trim();
+    if (!reply)
+      return res.json({ reply: 'Sorry, I could not answer that. Please call us at +91 95139 61740 and our team will help.' });
+
+    res.json({ reply });
+  } catch (e) {
+    console.warn('[chat]', e.message);
+    res.status(500).json({ error: 'Something went wrong. Please try again in a moment.' });
+  }
 });
 
 // ═══════════════════════════════════════════
