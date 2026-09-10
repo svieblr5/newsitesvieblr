@@ -3674,8 +3674,8 @@ function chatCfgForm(c){
     '<div style="display:flex;align-items:center;gap:8px;margin:6px 0 16px;font-weight:600;font-size:.86rem;color:'+statusColor+'"><span style="width:9px;height:9px;border-radius:50%;background:'+statusColor+';display:inline-block"></span>'+esc(statusText)+'</div>'+
     '<label style="display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;font-size:.9rem"><input type="checkbox" id="chat-enabled" '+(c.enabled?'checked':'')+' style="width:18px;height:18px"> Show the chat assistant on the website</label>'+
     keyBlock+
-    '<div class="frow" style="margin-top:14px"><div class="fg"><label>AI Model</label><input type="text" id="chat-model" value="'+esc(c.model||'')+'" '+(c.modelLocked?'disabled':'')+' placeholder="gemini-2.0-flash">'+
-    '<div style="font-size:.72rem;color:#8a7e72;margin-top:4px">'+(c.modelLocked?'Locked by the GEMINI_MODEL env var.':'Default: <code>gemini-2.0-flash</code> (free tier). Change only if you know the model name.')+'</div></div></div>'+
+    '<div class="frow" style="margin-top:14px"><div class="fg"><label>AI Model</label><input type="text" id="chat-model" value="'+esc(c.model||'')+'" '+(c.modelLocked?'disabled':'')+' placeholder="gemini-3.6-flash">'+
+    '<div style="font-size:.72rem;color:#8a7e72;margin-top:4px">'+(c.modelLocked?'Locked by the GEMINI_MODEL env var.':'Default: <code>gemini-3.6-flash</code> (free tier). Change only if you know the model name.')+'</div></div></div>'+
     '<div class="frow full"><div class="fg"><label>Greeting message <small style="color:#8a7e72">(first thing visitors see)</small></label>'+
     '<textarea id="chat-greeting" style="min-height:60px">'+esc(c.greeting||'')+'</textarea></div></div>'+
     '<div class="frow full"><div class="fg"><label>Assistant instructions &amp; knowledge <small style="color:#8a7e72">(what the AI knows and how it behaves)</small></label>'+
