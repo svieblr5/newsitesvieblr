@@ -12,6 +12,14 @@
   window.__svieChatLoaded = true;
 
   var ENDPOINT   = '/api/chat';
+  // A per-tab id so the server can group a visitor's turns into one conversation.
+  var SESSION_ID = (function () {
+    try {
+      var k = 'svieChatSession', v = sessionStorage.getItem(k);
+      if (!v) { v = 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); sessionStorage.setItem(k, v); }
+      return v;
+    } catch (e) { return 's' + Date.now().toString(36); }
+  })();
   var GREETING   = 'Hi! 👋 I’m the SVIE Assistant. Ask me about our interior design, construction or modular furniture services — or how to get a free quote.';
   var MAX_TURNS  = 12;                            // history sent to the server
   var history    = [];                            // [{role:'user'|'model', text}]
@@ -167,7 +175,7 @@
       var res = await fetch(ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history.slice(-MAX_TURNS) }),
+        body: JSON.stringify({ messages: history.slice(-MAX_TURNS), sessionId: SESSION_ID, page: location.pathname }),
       });
       var data = await res.json().catch(function () { return {}; });
       typing.remove();

@@ -48,7 +48,9 @@ const ENQUIRY_FILE  = path.join(DATA_DIR, 'enquiries.json');
 const ACTIVITY_FILE = path.join(DATA_DIR, 'activity.json');
 const CONFIG_FILE   = path.join(DATA_DIR, 'config.json');
 const VISITORS_FILE = path.join(DATA_DIR, 'visitors.json');
+const CHATLOG_FILE  = path.join(DATA_DIR, 'chatlogs.json');       // AI chat transcripts
 const MAX_VERSIONS  = 50; // keep the 50 most recent restore points
+const MAX_CHATLOGS  = 500; // keep the newest 500 chat conversations
 
 // ── Geo-IP in-memory cache (ip → {data, ts}) ──
 const GEO_CACHE = new Map();
@@ -1164,6 +1166,36 @@ HOW TO BEHAVE:
 
 const CHAT_DEFAULT_GREETING = 'Hi! 👋 I’m the SVIE Assistant. Ask me about our interior design, construction or modular furniture services — or how to get a free quote.';
 
+// Persist a conversation so it shows in the admin "Chat Logs" panel. Conversations
+// are grouped by the client-supplied sessionId (upsert): each turn overwrites the
+// stored transcript with the latest full message list + the assistant's reply.
+function recordChat(sessionId, page, messages, reply) {
+  try {
+    const id = String(sessionId || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40) || ('s' + Date.now());
+    const transcript = messages.concat([{ role: 'model', text: reply }])
+      .map(m => ({ role: m.role, text: String(m.text || '').slice(0, 2000) }));
+    const now  = new Date().toISOString();
+    const list = readJSON(CHATLOG_FILE, []);
+    const i    = list.findIndex(c => c.id === id);
+    if (i !== -1) {
+      list[i].messages  = transcript;
+      list[i].updatedAt = now;
+      // move the just-updated conversation to the top
+      const [row] = list.splice(i, 1);
+      list.unshift(row);
+    } else {
+      list.unshift({
+        id,
+        createdAt: now,
+        updatedAt: now,
+        page: String(page || '').slice(0, 200),
+        messages: transcript,
+      });
+    }
+    writeJSON(CHATLOG_FILE, list.slice(0, MAX_CHATLOGS));
+  } catch (e) { console.warn('[chat] failed to record transcript:', e.message); }
+}
+
 // Public — the front-end widget calls this on load to decide whether to render
 // the launcher and which greeting to show. Never exposes the API key or prompt.
 app.get('/api/chat/config', (req,res) => {
@@ -1191,7 +1223,7 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
 
     // Sanitize the incoming conversation: keep only well-formed user/model turns,
     // cap each message length and the number of turns to control token cost.
-    let { messages } = req.body;
+    let { messages, sessionId, page } = req.body;
     if (!Array.isArray(messages)) messages = [];
     messages = messages
       .filter(m => m && typeof m.text === 'string' && (m.role === 'user' || m.role === 'model'))
@@ -1245,6 +1277,9 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
     if (!reply)
       return res.json({ reply: 'Sorry, I could not answer that. Please call us at +91 95139 61740 and our team will help.' });
 
+    // Log the transcript for the admin Chat Logs panel (unless logging is off).
+    if (cfg.chatLogging !== false) recordChat(sessionId, page, messages, reply);
+
     res.json({ reply });
   } catch (e) {
     console.warn('[chat]', e.message);
@@ -1268,6 +1303,7 @@ app.get('/api/chat-config', requireAuth, (req,res) => {
     usingDefaultPrompt: !(typeof cfg.chatSystemPrompt === 'string' && cfg.chatSystemPrompt.trim()),
     defaultGreeting:    CHAT_DEFAULT_GREETING,
     defaultSystemPrompt: CHAT_SYSTEM_PROMPT,
+    logging:       cfg.chatLogging !== false,
   });
 });
 
@@ -1279,6 +1315,7 @@ app.post('/api/chat-config', requireAuth, csrfProtect, (req,res) => {
     const cfg = getConfig();
     const b   = req.body || {};
     if (typeof b.enabled === 'boolean') cfg.chatEnabled = b.enabled;
+    if (typeof b.logging === 'boolean') cfg.chatLogging = b.logging;
     if (typeof b.model === 'string' && b.model.trim()) cfg.geminiModel = b.model.trim().slice(0,60);
     if (typeof b.greeting === 'string') {
       const g = b.greeting.trim();
@@ -1293,6 +1330,27 @@ app.post('/api/chat-config', requireAuth, csrfProtect, (req,res) => {
     saveConfig(cfg);
     logActivity('Updated AI chat assistant settings', req.session.user);
     res.json({ ok:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// Admin — list saved chat conversations (newest first).
+app.get('/api/chat-logs', requireAuth, (req,res) => {
+  res.json(readJSON(CHATLOG_FILE, []).slice(0, 200));
+});
+// Admin — delete a single conversation.
+app.delete('/api/chat-logs/:id', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const list = readJSON(CHATLOG_FILE, []).filter(c => c.id !== req.params.id);
+    writeJSON(CHATLOG_FILE, list);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+// Admin — clear all conversations.
+app.delete('/api/chat-logs', requireAuth, csrfProtect, (req,res) => {
+  try {
+    writeJSON(CHATLOG_FILE, []);
+    logActivity('Cleared all AI chat logs', req.session.user);
+    res.json({ success:true });
   } catch(e) { res.status(500).json({ error:e.message }); }
 });
 
