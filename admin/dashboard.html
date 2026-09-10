@@ -518,6 +518,10 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
         Click to Call
         <span class="nav-badge" id="callBadge" style="display:none;background:#16a34a">0</span>
       </button>
+      <button class="nav-btn" data-p="chatlogs" onclick="show('chatlogs',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Chat Logs
+      </button>
 
       <div class="nav-hd">Design</div>
       <button class="nav-btn" data-p="typography" onclick="show('typography',this)">
@@ -896,6 +900,11 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
       <!-- ══ AI CHAT ASSISTANT ══ -->
       <div id="p-chat" class="panel">
         <div id="chatCfgContent"></div>
+      </div>
+
+      <!-- ══ AI CHAT LOGS ══ -->
+      <div id="p-chatlogs" class="panel">
+        <div id="chatLogsContent"></div>
       </div>
 
       <!-- ══ ENQUIRIES ══ -->
@@ -1723,7 +1732,7 @@ const titles = {
   calltracking:'Click to Call — Call Log', settings:'Site Settings',
   visitors:'Visitor Analytics Dashboard', ga:'Google Analytics',
   typography:'Typography & Fonts', branding:'Logo & Branding',
-  chat:'AI Chat Assistant',
+  chat:'AI Chat Assistant', chatlogs:'Chat Logs',
 };
 
 // ── Init ──────────────────────────────────────
@@ -1774,6 +1783,7 @@ function show(id, btn) {
   if (id==='visitors')    loadVisitorDashboard();
   if (id==='ga')          loadGAPanel();
   if (id==='chat')        loadChatConfig();
+  if (id==='chatlogs')    loadChatLogs();
   if (id==='typography')  loadTypography();
   if (id==='settings')    loadRobots();
   if (id==='branding')    loadBranding();
@@ -3672,7 +3682,8 @@ function chatCfgForm(c){
     '<div class="card-title">AI Chat Assistant</div>'+
     '<div class="card-sub">A free AI chat bubble on your website (powered by Google Gemini) that answers visitor questions about SVIE and guides them toward a quote.</div>'+
     '<div style="display:flex;align-items:center;gap:8px;margin:6px 0 16px;font-weight:600;font-size:.86rem;color:'+statusColor+'"><span style="width:9px;height:9px;border-radius:50%;background:'+statusColor+';display:inline-block"></span>'+esc(statusText)+'</div>'+
-    '<label style="display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;font-size:.9rem"><input type="checkbox" id="chat-enabled" '+(c.enabled?'checked':'')+' style="width:18px;height:18px"> Show the chat assistant on the website</label>'+
+    '<label style="display:flex;align-items:center;gap:10px;margin-bottom:10px;cursor:pointer;font-size:.9rem"><input type="checkbox" id="chat-enabled" '+(c.enabled?'checked':'')+' style="width:18px;height:18px"> Show the chat assistant on the website</label>'+
+    '<label style="display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;font-size:.9rem"><input type="checkbox" id="chat-logging" '+(c.logging!==false?'checked':'')+' style="width:18px;height:18px"> Save visitor chat transcripts to <strong>Chat Logs</strong></label>'+
     keyBlock+
     '<div class="frow" style="margin-top:14px"><div class="fg"><label>AI Model</label><input type="text" id="chat-model" value="'+esc(c.model||'')+'" '+(c.modelLocked?'disabled':'')+' placeholder="gemini-3.6-flash">'+
     '<div style="font-size:.72rem;color:#8a7e72;margin-top:4px">'+(c.modelLocked?'Locked by the GEMINI_MODEL env var.':'Default: <code>gemini-3.6-flash</code> (free tier). Change only if you know the model name.')+'</div></div></div>'+
@@ -3697,6 +3708,7 @@ async function saveChatConfig(){
   msg.style.color='#5a544f'; msg.textContent='Saving…';
   const body = {
     enabled:      document.getElementById('chat-enabled').checked,
+    logging:      document.getElementById('chat-logging').checked,
     greeting:     (document.getElementById('chat-greeting')||{}).value||'',
     systemPrompt: (document.getElementById('chat-prompt')||{}).value||'',
   };
@@ -3714,11 +3726,57 @@ async function chatTest(){
   const out = document.getElementById('chat-test-out');
   out.innerHTML = '<div style="color:#5a544f;font-size:.82rem">Testing… (if you just changed the key, Save first)</div>';
   try{
-    const r = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',text:'Hello, what services does SVIE offer?'}]})});
+    const r = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',text:'Hello, what services does SVIE offer?'}],sessionId:'admin-test',page:'(admin test)'})});
     const d = await r.json().catch(()=>({}));
     if(r.ok && d.reply) out.innerHTML = '<div style="background:#f6f4f1;border:1px solid #eae4dc;border-radius:10px;padding:12px;font-size:.84rem;line-height:1.5"><strong>Assistant:</strong><br>'+esc(d.reply).replace(/\n/g,'<br>')+'</div>';
     else out.innerHTML = '<div style="background:#fff4f4;border:1px solid #f3c9c6;border-radius:10px;padding:12px;font-size:.82rem;color:#b91c1c;line-height:1.5"><strong>'+esc(d.error||'No response')+'</strong>'+(d.detail?'<br><span style="color:#7a2620">Google says'+(d.status?' ('+esc(String(d.status))+')':'')+': '+esc(d.detail)+'</span>':'')+'</div>';
   }catch(e){ out.innerHTML = '<div style="color:#b91c1c;font-size:.82rem">'+esc(e.message)+'</div>'; }
+}
+
+// ── AI Chat Logs ──────────────────────────────
+let _chatLogs = [];
+async function loadChatLogs(){
+  const el = document.getElementById('chatLogsContent');
+  el.innerHTML = '<div class="card"><div class="card-sub">Loading…</div></div>';
+  try { _chatLogs = await api('GET','/api/chat-logs'); }
+  catch(e){ el.innerHTML = '<div class="card"><div class="card-title">Chat Logs</div><div style="color:#b91c1c">'+esc(e.message)+'</div></div>'; return; }
+  renderChatLogs();
+}
+function chatLogDate(s){ try{ return new Date(s).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){ return s||''; } }
+function renderChatLogs(){
+  const el = document.getElementById('chatLogsContent');
+  const head = '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">'+
+    '<div><div class="card-title" style="margin:0">Chat Logs</div><div class="card-sub" style="margin:2px 0 0">Conversations visitors had with the AI assistant — newest first. Click a row to read the full chat.</div></div>'+
+    '<div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" onclick="loadChatLogs()">↻ Refresh</button>'+
+    (_chatLogs.length?'<button class="btn btn-outline btn-sm" style="color:#b91c1c;border-color:#e7c3c3" onclick="clearChatLogs()">Clear all</button>':'')+'</div></div>';
+  if(!_chatLogs.length){ el.innerHTML = head + '<div class="card" style="text-align:center;color:#8a7e72;padding:30px">No conversations yet. When visitors chat with the assistant, they will appear here.</div>'; return; }
+  const rows = _chatLogs.map(function(c){
+    const msgs = c.messages||[];
+    const firstUser = msgs.find(function(m){return m.role==='user';});
+    const preview = firstUser ? firstUser.text : '(no message)';
+    const turns = msgs.filter(function(m){return m.role==='user';}).length;
+    const bubbles = msgs.map(function(m){
+      const isUser = m.role==='user';
+      return '<div style="display:flex;justify-content:'+(isUser?'flex-end':'flex-start')+';margin:4px 0"><div style="max-width:80%;padding:8px 11px;border-radius:12px;font-size:.82rem;line-height:1.45;white-space:pre-wrap;'+(isUser?'background:#C9A05A;color:#fff':'background:#f0ece5;color:#2b2b2b')+'">'+esc(m.text)+'</div></div>';
+    }).join('');
+    return '<div class="card" style="padding:0;overflow:hidden">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:#faf8f5" onclick="var b=this.nextElementSibling;b.style.display=(b.style.display===\'none\'?\'block\':\'none\')">'+
+        '<div style="min-width:0"><div style="font-weight:600;font-size:.85rem;color:#2b2b2b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(preview)+'</div>'+
+        '<div style="font-size:.72rem;color:#8a7e72;margin-top:2px">'+chatLogDate(c.updatedAt||c.createdAt)+' · '+turns+' question'+(turns===1?'':'s')+(c.page?' · '+esc(c.page):'')+'</div></div>'+
+        '<button class="btn-ico" title="Delete conversation" onclick="event.stopPropagation();deleteChatLog(\''+esc(c.id)+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'+
+      '</div>'+
+      '<div style="display:none;padding:12px 14px;border-top:1px solid #eee">'+bubbles+'</div>'+
+    '</div>';
+  }).join('');
+  el.innerHTML = head + rows;
+}
+async function deleteChatLog(id){
+  if(!confirm('Delete this conversation?')) return;
+  try{ await api('DELETE','/api/chat-logs/'+encodeURIComponent(id)); loadChatLogs(); }catch(e){ alert(e.message); }
+}
+async function clearChatLogs(){
+  if(!confirm('Delete ALL saved chat conversations? This cannot be undone.')) return;
+  try{ await api('DELETE','/api/chat-logs'); loadChatLogs(); }catch(e){ alert(e.message); }
 }
 
 // ── HELPERS ───────────────────────────────────
