@@ -1187,7 +1187,7 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
         error: 'The chat assistant is not set up yet. Please call us at +91 95139 61740 or use the contact form.'
       });
     }
-    const model  = process.env.GEMINI_MODEL || cfg.geminiModel || 'gemini-3.8-flash';
+    const model  = process.env.GEMINI_MODEL || cfg.geminiModel || 'gemini-3.6-flash';
 
     // Sanitize the incoming conversation: keep only well-formed user/model turns,
     // cap each message length and the number of turns to control token cost.
@@ -1209,7 +1209,7 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
       + encodeURIComponent(model) + ':generateContent?key=' + encodeURIComponent(apiKey);
 
     const ctrl  = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 20000);
+    const timer = setTimeout(() => ctrl.abort(), 30000);
     let r;
     try {
       r = await fetch(url, {
@@ -1261,7 +1261,7 @@ app.get('/api/chat-config', requireAuth, (req,res) => {
     enabled:       cfg.chatEnabled !== false,
     hasKey:        envKey || !!cfg.geminiApiKey,
     keySource:     envKey ? 'env' : (cfg.geminiApiKey ? 'config' : 'none'),
-    model:         process.env.GEMINI_MODEL || cfg.geminiModel || 'gemini-3.8-flash',
+    model:         process.env.GEMINI_MODEL || cfg.geminiModel || 'gemini-3.6-flash',
     modelLocked:   !!process.env.GEMINI_MODEL,
     greeting:      cfg.chatGreeting || CHAT_DEFAULT_GREETING,
     systemPrompt:  cfg.chatSystemPrompt || CHAT_SYSTEM_PROMPT,
