@@ -3717,7 +3717,7 @@ async function chatTest(){
     const r = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',text:'Hello, what services does SVIE offer?'}]})});
     const d = await r.json().catch(()=>({}));
     if(r.ok && d.reply) out.innerHTML = '<div style="background:#f6f4f1;border:1px solid #eae4dc;border-radius:10px;padding:12px;font-size:.84rem;line-height:1.5"><strong>Assistant:</strong><br>'+esc(d.reply).replace(/\n/g,'<br>')+'</div>';
-    else out.innerHTML = '<div style="color:#b91c1c;font-size:.82rem">'+esc(d.error||'No response')+'</div>';
+    else out.innerHTML = '<div style="background:#fff4f4;border:1px solid #f3c9c6;border-radius:10px;padding:12px;font-size:.82rem;color:#b91c1c;line-height:1.5"><strong>'+esc(d.error||'No response')+'</strong>'+(d.detail?'<br><span style="color:#7a2620">Google says'+(d.status?' ('+esc(String(d.status))+')':'')+': '+esc(d.detail)+'</span>':'')+'</div>';
   }catch(e){ out.innerHTML = '<div style="color:#b91c1c;font-size:.82rem">'+esc(e.message)+'</div>'; }
 }
 

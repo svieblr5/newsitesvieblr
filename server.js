@@ -1225,9 +1225,18 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
     } finally { clearTimeout(timer); }
 
     if (!r.ok) {
-      const detail = await r.text().catch(() => '');
-      console.warn('[chat] Gemini API error', r.status, detail.slice(0, 300));
-      return res.status(502).json({ error: 'The assistant is busy right now. Please try again in a moment.' });
+      const raw = await r.text().catch(() => '');
+      let reason = '';
+      try { const j = JSON.parse(raw); reason = (j.error && j.error.message) || ''; } catch { reason = raw; }
+      console.warn('[chat] Gemini API error', r.status, reason.slice(0, 400));
+      // Keep the public-facing message friendly, but attach the real Google
+      // reason + status so the admin "Send test message" can diagnose setup
+      // issues (bad key, model not available, API not enabled, etc.).
+      return res.status(502).json({
+        error:  'The assistant is busy right now. Please try again in a moment.',
+        status: r.status,
+        detail: (reason || 'Unknown error from Google').slice(0, 400),
+      });
     }
 
     const data  = await r.json();
