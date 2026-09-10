@@ -3207,6 +3207,8 @@ async function loadEnquiries() {
         <div class="enq-name">
           ${esc(e.name||(e.fname||'')+' '+(e.lname||'')).trim()||'Anonymous'}
           ${e.status==='new'?'<span class="badge badge-gold" style="margin-left:6px">New</span>':''}
+          ${e.source==='chat'?'<span class="badge" style="margin-left:6px;background:#e0f2fe;color:#0369a1">💬 Chat</span>':''}
+          ${e.source==='brochure'?'<span class="badge" style="margin-left:6px;background:#f3e8ff;color:#7c3aed">📘 Brochure</span>':''}
         </div>
         <div class="enq-meta">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:2px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4"/><polyline points="22,6 12,13 2,6"/></svg>
@@ -3257,6 +3259,7 @@ function viewEnq(id) {
     <div style="display:flex;gap:14px;padding:12px 0;border-top:1px solid #e8e4dd;font-size:.76rem;color:#8a7e72">
       <span>Submitted: <strong>${fmtTime(e.date)}</strong></span>
       <span>Status: <strong style="color:${e.status==='new'?'#C9A05A':'#1A4530'}">${e.status==='new'?'New':'Read'}</strong></span>
+      <span>Source: <strong>${e.source==='chat'?'💬 AI Chat':e.source==='brochure'?'📘 Brochure':'Contact Form'}</strong></span>
       <span>ID: <code style="font-size:.68rem">${esc(e.id)}</code></span>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
