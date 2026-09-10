@@ -1162,9 +1162,25 @@ HOW TO BEHAVE:
 - If a question is unrelated to SVIE or interiors/construction, politely steer back.
 - Reply in the same language the visitor uses (English, Hindi, Kannada, etc.).`;
 
+const CHAT_DEFAULT_GREETING = 'Hi! 👋 I’m the SVIE Assistant. Ask me about our interior design, construction or modular furniture services — or how to get a free quote.';
+
+// Public — the front-end widget calls this on load to decide whether to render
+// the launcher and which greeting to show. Never exposes the API key or prompt.
+app.get('/api/chat/config', (req,res) => {
+  const cfg    = getConfig();
+  const hasKey = !!(process.env.GEMINI_API_KEY || cfg.geminiApiKey);
+  res.json({
+    enabled:  hasKey && cfg.chatEnabled !== false,
+    greeting: (typeof cfg.chatGreeting === 'string' && cfg.chatGreeting.trim())
+      ? cfg.chatGreeting : CHAT_DEFAULT_GREETING,
+  });
+});
+
 app.post('/api/chat', chatLimiter, async (req,res) => {
   try {
     const cfg    = getConfig();
+    if (cfg.chatEnabled === false)
+      return res.status(503).json({ error: 'The chat assistant is currently unavailable. Please call us at +91 95139 61740.' });
     const apiKey = process.env.GEMINI_API_KEY || cfg.geminiApiKey;
     if (!apiKey) {
       return res.status(503).json({
@@ -1225,6 +1241,50 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
     console.warn('[chat]', e.message);
     res.status(500).json({ error: 'Something went wrong. Please try again in a moment.' });
   }
+});
+
+// Admin — read current chat-assistant settings. The API key itself is never
+// returned; we only report whether one is set and where it comes from.
+app.get('/api/chat-config', requireAuth, (req,res) => {
+  const cfg    = getConfig();
+  const envKey = !!process.env.GEMINI_API_KEY;
+  res.json({
+    enabled:       cfg.chatEnabled !== false,
+    hasKey:        envKey || !!cfg.geminiApiKey,
+    keySource:     envKey ? 'env' : (cfg.geminiApiKey ? 'config' : 'none'),
+    model:         process.env.GEMINI_MODEL || cfg.geminiModel || 'gemini-2.0-flash',
+    modelLocked:   !!process.env.GEMINI_MODEL,
+    greeting:      cfg.chatGreeting || CHAT_DEFAULT_GREETING,
+    systemPrompt:  cfg.chatSystemPrompt || CHAT_SYSTEM_PROMPT,
+    usingDefaultPrompt: !(typeof cfg.chatSystemPrompt === 'string' && cfg.chatSystemPrompt.trim()),
+    defaultGreeting:    CHAT_DEFAULT_GREETING,
+    defaultSystemPrompt: CHAT_SYSTEM_PROMPT,
+  });
+});
+
+// Admin — save chat-assistant settings. Only overwrites the stored key when a
+// non-empty value is provided; clearKey removes the config-stored key (an env
+// key, if any, still wins and cannot be removed from here).
+app.post('/api/chat-config', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const cfg = getConfig();
+    const b   = req.body || {};
+    if (typeof b.enabled === 'boolean') cfg.chatEnabled = b.enabled;
+    if (typeof b.model === 'string' && b.model.trim()) cfg.geminiModel = b.model.trim().slice(0,60);
+    if (typeof b.greeting === 'string') {
+      const g = b.greeting.trim();
+      if (g) cfg.chatGreeting = g.slice(0,500); else delete cfg.chatGreeting;
+    }
+    if (typeof b.systemPrompt === 'string') {
+      const sp = b.systemPrompt.trim();
+      if (sp) cfg.chatSystemPrompt = sp.slice(0,8000); else delete cfg.chatSystemPrompt;
+    }
+    if (b.clearKey) delete cfg.geminiApiKey;
+    else if (typeof b.apiKey === 'string' && b.apiKey.trim()) cfg.geminiApiKey = b.apiKey.trim().slice(0,200);
+    saveConfig(cfg);
+    logActivity('Updated AI chat assistant settings', req.session.user);
+    res.json({ ok:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
 });
 
 // ═══════════════════════════════════════════

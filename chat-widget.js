@@ -96,9 +96,6 @@
     '</div>' +
     '<div class="svie-chat-note">AI assistant · for exact quotes call +91 95139 61740</div>';
 
-  document.body.appendChild(launch);
-  document.body.appendChild(panel);
-
   var body     = panel.querySelector('.svie-chat-body');
   var input    = panel.querySelector('textarea');
   var sendBtn  = panel.querySelector('.svie-chat-send');
@@ -203,4 +200,18 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && panel.classList.contains('open')) closePanel();
   });
+
+  /* ── Init: ask the server whether the assistant is on, then mount ─────── */
+  function mount() {
+    document.body.appendChild(launch);
+    document.body.appendChild(panel);
+  }
+  fetch('/api/chat/config')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (cfg) {
+      if (cfg && cfg.enabled === false) return;         // admin turned it off / no key
+      if (cfg && typeof cfg.greeting === 'string' && cfg.greeting.trim()) GREETING = cfg.greeting;
+      mount();
+    })
+    .catch(function () { mount(); });                    // network hiccup → still show
 })();
