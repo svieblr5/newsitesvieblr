@@ -1318,11 +1318,17 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
       let reason = '';
       try { const j = JSON.parse(raw); reason = (j.error && j.error.message) || ''; } catch { reason = raw; }
       console.warn('[chat] Gemini API error', r.status, reason.slice(0, 400));
-      // Keep the public-facing message friendly, but attach the real Google
-      // reason + status so the admin "Send test message" can diagnose setup
-      // issues (bad key, model not available, API not enabled, etc.).
+      // Tailor the visitor-facing message to the failure: rate limits / overload
+      // get a warmer "lots of questions right now" note, everything else stays
+      // generic. The real Google reason + status are attached for the admin
+      // "Send test message" to diagnose setup issues.
+      let friendly = 'The assistant is busy right now. Please try again in a moment.';
+      if (r.status === 429)
+        friendly = 'I’m getting a lot of questions right now 😅 — please try again in a few seconds, or reach us on +91 95139 61740 (call/WhatsApp).';
+      else if (r.status === 503)
+        friendly = 'The assistant is very busy at the moment. Please try again shortly, or reach us on +91 95139 61740 (call/WhatsApp).';
       return res.status(502).json({
-        error:  'The assistant is busy right now. Please try again in a moment.',
+        error:  friendly,
         status: r.status,
         detail: (reason || 'Unknown error from Google').slice(0, 400),
       });
