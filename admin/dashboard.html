@@ -534,6 +534,10 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Site Settings
       </button>
+      <button class="nav-btn" data-p="chat" onclick="show('chat',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        AI Chat Assistant
+      </button>
     </nav>
     <div class="sb-foot">
       <div style="flex:1;overflow:hidden">
@@ -887,6 +891,11 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
       <!-- ══ GOOGLE ANALYTICS ══ -->
       <div id="p-ga" class="panel">
         <div id="gaContent"></div>
+      </div>
+
+      <!-- ══ AI CHAT ASSISTANT ══ -->
+      <div id="p-chat" class="panel">
+        <div id="chatCfgContent"></div>
       </div>
 
       <!-- ══ ENQUIRIES ══ -->
@@ -1714,6 +1723,7 @@ const titles = {
   calltracking:'Click to Call — Call Log', settings:'Site Settings',
   visitors:'Visitor Analytics Dashboard', ga:'Google Analytics',
   typography:'Typography & Fonts', branding:'Logo & Branding',
+  chat:'AI Chat Assistant',
 };
 
 // ── Init ──────────────────────────────────────
@@ -1763,6 +1773,7 @@ function show(id, btn) {
   if (id==='calltracking') loadCallTracking();
   if (id==='visitors')    loadVisitorDashboard();
   if (id==='ga')          loadGAPanel();
+  if (id==='chat')        loadChatConfig();
   if (id==='typography')  loadTypography();
   if (id==='settings')    loadRobots();
   if (id==='branding')    loadBranding();
@@ -3635,6 +3646,79 @@ async function gaSave(){
 async function gaClear(){
   if(!confirm('Disconnect Google Analytics? The service-account key will be removed from the server.')) return;
   try{ await api('POST','/api/ga-config',{clear:true}); loadGAPanel(); }catch(e){ alert(e.message); }
+}
+
+// ── AI Chat Assistant settings ────────────────
+let _chatCfg = null;
+async function loadChatConfig(){
+  const el = document.getElementById('chatCfgContent');
+  el.innerHTML = '<div class="card"><div class="card-sub">Loading…</div></div>';
+  let c;
+  try { c = await api('GET','/api/chat-config'); }
+  catch(e){ el.innerHTML = '<div class="card"><div class="card-title">AI Chat Assistant</div><div style="color:#b91c1c">'+esc(e.message)+'</div></div>'; return; }
+  _chatCfg = c;
+  el.innerHTML = chatCfgForm(c);
+}
+function chatCfgForm(c){
+  const statusColor = (c.enabled && c.hasKey) ? '#166534' : '#b45309';
+  const statusText  = !c.hasKey ? 'Not active yet — add an API key below to switch it on'
+                    : (c.enabled ? 'Active — the chat bubble is live on your website' : 'Turned off — the chat bubble is hidden from visitors');
+  const keyBlock = c.keySource==='env'
+    ? '<div style="background:#eefaf1;border:1px solid #bfe6cd;border-radius:8px;padding:10px 12px;font-size:.78rem;color:#166534">✓ API key is set via the server environment variable <code>GEMINI_API_KEY</code>. To change it, update that env var in Hostinger. (An env key always takes priority over anything entered here.)</div>'
+    : '<div class="fg"><label>Gemini API Key '+(c.hasKey?'<small style="color:#8a7e72">(leave blank to keep the current key)</small>':'')+'</label>'+
+      '<input type="password" id="chat-key" autocomplete="off" placeholder="'+(c.hasKey?'•••••••••• (a key is saved)':'Paste your free Gemini API key')+'">'+
+      '<div style="font-size:.72rem;color:#8a7e72;margin-top:4px">Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Stored on your server only — never shown on the website.</div></div>';
+  return '<div class="card">'+
+    '<div class="card-title">AI Chat Assistant</div>'+
+    '<div class="card-sub">A free AI chat bubble on your website (powered by Google Gemini) that answers visitor questions about SVIE and guides them toward a quote.</div>'+
+    '<div style="display:flex;align-items:center;gap:8px;margin:6px 0 16px;font-weight:600;font-size:.86rem;color:'+statusColor+'"><span style="width:9px;height:9px;border-radius:50%;background:'+statusColor+';display:inline-block"></span>'+esc(statusText)+'</div>'+
+    '<label style="display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;font-size:.9rem"><input type="checkbox" id="chat-enabled" '+(c.enabled?'checked':'')+' style="width:18px;height:18px"> Show the chat assistant on the website</label>'+
+    keyBlock+
+    '<div class="frow" style="margin-top:14px"><div class="fg"><label>AI Model</label><input type="text" id="chat-model" value="'+esc(c.model||'')+'" '+(c.modelLocked?'disabled':'')+' placeholder="gemini-2.0-flash">'+
+    '<div style="font-size:.72rem;color:#8a7e72;margin-top:4px">'+(c.modelLocked?'Locked by the GEMINI_MODEL env var.':'Default: <code>gemini-2.0-flash</code> (free tier). Change only if you know the model name.')+'</div></div></div>'+
+    '<div class="frow full"><div class="fg"><label>Greeting message <small style="color:#8a7e72">(first thing visitors see)</small></label>'+
+    '<textarea id="chat-greeting" style="min-height:60px">'+esc(c.greeting||'')+'</textarea></div></div>'+
+    '<div class="frow full"><div class="fg"><label>Assistant instructions &amp; knowledge <small style="color:#8a7e72">(what the AI knows and how it behaves)</small></label>'+
+    '<textarea id="chat-prompt" style="min-height:220px;font-size:.78rem;line-height:1.5">'+esc(c.systemPrompt||'')+'</textarea>'+
+    '<div style="font-size:.72rem;color:#8a7e72;margin-top:4px">'+(c.usingDefaultPrompt?'Currently using the built-in default. ':'Customised. ')+'<a href="#" onclick="chatResetPrompt();return false">Reset to default</a></div></div></div>'+
+    '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:8px">'+
+    '<button class="btn btn-outline btn-sm" onclick="chatTest()">Send test message</button>'+
+    '<button class="btn btn-gold btn-sm" onclick="saveChatConfig()">Save Settings</button></div>'+
+    '<div id="chat-msg" style="margin-top:10px;font-size:.82rem"></div>'+
+    '<div id="chat-test-out" style="margin-top:10px"></div>'+
+  '</div>';
+}
+function chatResetPrompt(){
+  if(_chatCfg && typeof _chatCfg.defaultSystemPrompt==='string')
+    document.getElementById('chat-prompt').value = _chatCfg.defaultSystemPrompt;
+}
+async function saveChatConfig(){
+  const msg = document.getElementById('chat-msg');
+  msg.style.color='#5a544f'; msg.textContent='Saving…';
+  const body = {
+    enabled:      document.getElementById('chat-enabled').checked,
+    greeting:     (document.getElementById('chat-greeting')||{}).value||'',
+    systemPrompt: (document.getElementById('chat-prompt')||{}).value||'',
+  };
+  const modelEl = document.getElementById('chat-model');
+  if(modelEl && !modelEl.disabled) body.model = modelEl.value||'';
+  const keyEl = document.getElementById('chat-key');
+  if(keyEl && keyEl.value.trim()) body.apiKey = keyEl.value.trim();
+  try{
+    await api('POST','/api/chat-config',body);
+    msg.style.color='#166534'; msg.textContent='Saved. Changes are live on the website.';
+    loadChatConfig();
+  }catch(e){ msg.style.color='#b91c1c'; msg.textContent=e.message; }
+}
+async function chatTest(){
+  const out = document.getElementById('chat-test-out');
+  out.innerHTML = '<div style="color:#5a544f;font-size:.82rem">Testing… (if you just changed the key, Save first)</div>';
+  try{
+    const r = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',text:'Hello, what services does SVIE offer?'}]})});
+    const d = await r.json().catch(()=>({}));
+    if(r.ok && d.reply) out.innerHTML = '<div style="background:#f6f4f1;border:1px solid #eae4dc;border-radius:10px;padding:12px;font-size:.84rem;line-height:1.5"><strong>Assistant:</strong><br>'+esc(d.reply).replace(/\n/g,'<br>')+'</div>';
+    else out.innerHTML = '<div style="color:#b91c1c;font-size:.82rem">'+esc(d.error||'No response')+'</div>';
+  }catch(e){ out.innerHTML = '<div style="color:#b91c1c;font-size:.82rem">'+esc(e.message)+'</div>'; }
 }
 
 // ── HELPERS ───────────────────────────────────
