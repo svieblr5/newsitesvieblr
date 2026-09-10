@@ -1162,7 +1162,8 @@ HOW TO BEHAVE:
 - Help visitors understand SVIE's services and guide them toward getting a quote or consultation.
 - You do NOT know exact prices, timelines, or project availability. For those, invite the visitor to call/WhatsApp +91 95139 61740 or use the contact form on the website. Never make up numbers.
 - If a question is unrelated to SVIE or interiors/construction, politely steer back.
-- Reply in the same language the visitor uses (English, Hindi, Kannada, etc.).`;
+- Reply in the same language the visitor uses (English, Hindi, Kannada, etc.).
+- LEAD CAPTURE: when a visitor is interested (wants a quote, callback, consultation, or a site visit), warmly offer to have the SVIE team follow up and ask for their name and a phone/WhatsApp number (email is fine too). Ask for one detail at a time, confirm the number back, and reassure them the team will contact them soon. Do not be pushy — only collect details if they show interest.`;
 
 const CHAT_DEFAULT_GREETING = 'Hi! 👋 I’m the SVIE Assistant. Ask me about our interior design, construction or modular furniture services — or how to get a free quote.';
 
@@ -1194,6 +1195,62 @@ function recordChat(sessionId, page, messages, reply) {
     }
     writeJSON(CHATLOG_FILE, list.slice(0, MAX_CHATLOGS));
   } catch (e) { console.warn('[chat] failed to record transcript:', e.message); }
+}
+
+// Scan a conversation's visitor messages for a phone/email and, if found, drop a
+// lead into the same Enquiries inbox as the contact form. Deduped per session:
+// the first capture creates the enquiry and emails a notification; later messages
+// enrich the same record in place without re-notifying.
+function captureLeadFromChat(sessionId, page, messages) {
+  try {
+    const id = String(sessionId || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+    if (!id || id === 'admin-test') return;
+
+    const userText = messages.filter(m => m.role === 'user').map(m => m.text).join('\n');
+    const email = (userText.match(/[^\s@]+@[^\s@]+\.[^\s@]{2,}/) || [])[0] || '';
+    // Phone: scan digit runs (allowing spaces/dashes/+), then normalise to a valid
+    // 10-digit Indian mobile (strip a 91 country code or leading 0).
+    let phone = '';
+    for (const run of (userText.match(/[+\d][\d\s-]{7,}\d/g) || [])) {
+      let d = run.replace(/\D/g, '');
+      if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
+      else if (d.length === 11 && d.startsWith('0')) d = d.slice(1);
+      else if (d.length > 10) d = d.slice(-10);
+      if (d.length === 10 && /^[6-9]/.test(d)) { phone = d; break; }
+    }
+    if (!email && !phone) return;   // no usable contact yet — nothing to capture
+
+    // Best-effort name from natural phrasing ("my name is X", "I'm X", …).
+    let name = '';
+    const nm = userText.match(/(?:my name is|i am|i'm|this is|name[:\-]) *([A-Za-z][A-Za-z .]{1,40})/i);
+    if (nm) name = nm[1].trim().replace(/\s+/g, ' ');
+
+    const list       = readJSON(ENQUIRY_FILE, []);
+    const existing   = list.find(e => e.source === 'chat' && e.chatSessionId === id);
+    const firstQ     = (messages.find(m => m.role === 'user') || {}).text || '';
+    const transcript = messages.map(m => (m.role === 'user' ? 'Visitor: ' : 'Assistant: ') + m.text).join('\n');
+    const safe = {
+      name:    (name || (existing && existing.name) || 'Website Visitor (chat)').slice(0, 100),
+      email:   (email || (existing && existing.email) || '').slice(0, 200),
+      phone:   (phone || (existing && existing.phone) || '').slice(0, 20),
+      service: 'AI Chat Lead',
+      budget:  '',
+      message: ('💬 Captured from the AI chat assistant' + (page ? ' on ' + page : '') +
+                '\nFirst question: ' + firstQ + '\n\n--- Transcript ---\n' + transcript).slice(0, 2000),
+      source:  'chat',
+      chatSessionId: id,
+    };
+
+    if (existing) {                          // enrich the existing lead, no re-notify
+      Object.assign(existing, { name: safe.name, email: safe.email, phone: safe.phone, message: safe.message });
+      writeJSON(ENQUIRY_FILE, list);
+      return;
+    }
+    list.unshift({ id: 'e' + Date.now(), ...safe, status: 'new', date: new Date().toISOString() });
+    writeJSON(ENQUIRY_FILE, list);
+    logActivity('Captured a lead from the AI chat assistant', 'system');
+    sendEnquiryEmails(safe).catch(() => {});
+  } catch (e) { console.warn('[chat] lead capture failed:', e.message); }
 }
 
 // Public — the front-end widget calls this on load to decide whether to render
@@ -1279,6 +1336,8 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
 
     // Log the transcript for the admin Chat Logs panel (unless logging is off).
     if (cfg.chatLogging !== false) recordChat(sessionId, page, messages, reply);
+    // Auto-capture a lead into the Enquiries inbox if the visitor shared contact info.
+    if (cfg.chatLeadCapture !== false) captureLeadFromChat(sessionId, page, messages);
 
     res.json({ reply });
   } catch (e) {
@@ -1304,6 +1363,7 @@ app.get('/api/chat-config', requireAuth, (req,res) => {
     defaultGreeting:    CHAT_DEFAULT_GREETING,
     defaultSystemPrompt: CHAT_SYSTEM_PROMPT,
     logging:       cfg.chatLogging !== false,
+    leadCapture:   cfg.chatLeadCapture !== false,
   });
 });
 
@@ -1316,6 +1376,7 @@ app.post('/api/chat-config', requireAuth, csrfProtect, (req,res) => {
     const b   = req.body || {};
     if (typeof b.enabled === 'boolean') cfg.chatEnabled = b.enabled;
     if (typeof b.logging === 'boolean') cfg.chatLogging = b.logging;
+    if (typeof b.leadCapture === 'boolean') cfg.chatLeadCapture = b.leadCapture;
     if (typeof b.model === 'string' && b.model.trim()) cfg.geminiModel = b.model.trim().slice(0,60);
     if (typeof b.greeting === 'string') {
       const g = b.greeting.trim();
