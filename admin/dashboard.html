@@ -3764,13 +3764,17 @@ function renderChatLogs(){
       const isUser = m.role==='user';
       return '<div style="display:flex;justify-content:'+(isUser?'flex-end':'flex-start')+';margin:4px 0"><div style="max-width:80%;padding:8px 11px;border-radius:12px;font-size:.82rem;line-height:1.45;white-space:pre-wrap;'+(isUser?'background:#C9A05A;color:#fff':'background:#f0ece5;color:#2b2b2b')+'">'+esc(m.text)+'</div></div>';
     }).join('');
+    // The last turn failed upstream (rate limit / overload / timeout): flag it so
+    // the admin can see the bad experiences, not just the successful chats.
+    const failBadge = c.error ? '<span style="display:inline-block;margin-left:6px;padding:1px 7px;border-radius:9px;font-size:.66rem;font-weight:700;background:#fbe9e9;color:#b91c1c;vertical-align:middle">⚠ Failed'+(c.status?' '+c.status:'')+'</span>' : '';
+    const errNote = c.error ? '<div style="margin-top:8px;padding:8px 11px;border-radius:8px;background:#fbe9e9;color:#8a2b2b;font-size:.74rem;line-height:1.4"><b>Last reply failed'+(c.status?' (HTTP '+esc(c.status)+')':'')+':</b> '+esc(c.error)+'</div>' : '';
     return '<div class="card" style="padding:0;overflow:hidden">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:#faf8f5" onclick="var b=this.nextElementSibling;b.style.display=(b.style.display===\'none\'?\'block\':\'none\')">'+
-        '<div style="min-width:0"><div style="font-weight:600;font-size:.85rem;color:#2b2b2b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(preview)+'</div>'+
+        '<div style="min-width:0"><div style="font-weight:600;font-size:.85rem;color:#2b2b2b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(preview)+failBadge+'</div>'+
         '<div style="font-size:.72rem;color:#8a7e72;margin-top:2px">'+chatLogDate(c.updatedAt||c.createdAt)+' · '+turns+' question'+(turns===1?'':'s')+(c.page?' · '+esc(c.page):'')+'</div></div>'+
         '<button class="btn-ico" title="Delete conversation" onclick="event.stopPropagation();deleteChatLog(\''+esc(c.id)+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'+
       '</div>'+
-      '<div style="display:none;padding:12px 14px;border-top:1px solid #eee">'+bubbles+'</div>'+
+      '<div style="display:none;padding:12px 14px;border-top:1px solid #eee">'+bubbles+errNote+'</div>'+
     '</div>';
   }).join('');
   el.innerHTML = head + rows;
