@@ -1313,24 +1313,35 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
       ? cfg.chatSystemPrompt : CHAT_SYSTEM_PROMPT;
     const contents = messages.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
 
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/'
-      + encodeURIComponent(model) + ':generateContent?key=' + encodeURIComponent(apiKey);
+    // One upstream call to a given model, with a 30s timeout.
+    const callGemini = async (modelName) => {
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/'
+        + encodeURIComponent(modelName) + ':generateContent?key=' + encodeURIComponent(apiKey);
+      const ctrl  = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 30000);
+      try {
+        return await fetch(url, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal:  ctrl.signal,
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemInstruction }] },
+            contents,
+            generationConfig: { temperature: 0.6, maxOutputTokens: 600 },
+          }),
+        });
+      } finally { clearTimeout(timer); }
+    };
 
-    const ctrl  = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 30000);
-    let r;
-    try {
-      r = await fetch(url, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal:  ctrl.signal,
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          contents,
-          generationConfig: { temperature: 0.6, maxOutputTokens: 600 },
-        }),
-      });
-    } finally { clearTimeout(timer); }
+    // Try the configured model; if it's rate-limited / overloaded / missing
+    // (429/500/503/404), fall back once to the reliable free-tier model so a bad,
+    // overloaded or deprecated saved model can't take the whole assistant down.
+    const FALLBACK_MODEL = 'gemini-3.6-flash';
+    let r = await callGemini(model);
+    if (!r.ok && model !== FALLBACK_MODEL && [429, 500, 503, 404].includes(r.status)) {
+      console.warn(`[chat] model ${model} failed ${r.status} — falling back to ${FALLBACK_MODEL}`);
+      r = await callGemini(FALLBACK_MODEL);
+    }
 
     if (!r.ok) {
       const raw = await r.text().catch(() => '');
