@@ -65,6 +65,22 @@
   '.svie-chat-foot button:hover:not(:disabled){background:#b3894a}' +
   '.svie-chat-foot button:disabled{opacity:.5;cursor:not-allowed}' +
   '.svie-chat-note{font-size:.6rem;color:#9a8f80;text-align:center;padding:0 0 7px}' +
+  '.svie-chat-note .svie-cb{color:#b3894a;font-weight:700;cursor:pointer;text-decoration:underline}' +
+  /* ── Enquiry / callback form card (rendered inside the chat body) ── */
+  '.svie-form{align-self:stretch;background:#fff;border:1px solid #eae4dc;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:9px}' +
+  '.svie-form h4{margin:0;font-size:.9rem;color:#2b2b2b}' +
+  '.svie-form p{margin:0;font-size:.74rem;color:#8a8073;line-height:1.4}' +
+  '.svie-form label{font-size:.7rem;font-weight:600;color:#6b6155;display:block;margin-bottom:3px}' +
+  '.svie-form input,.svie-form select{width:100%;box-sizing:border-box;border:1px solid #ddd4c8;border-radius:9px;padding:9px 10px;' +
+    'font:inherit;font-size:.82rem;color:#2b2b2b;outline:none;background:#fff}' +
+  '.svie-form input:focus,.svie-form select:focus{border-color:#C9A05A}' +
+  '.svie-form .svie-form-err{color:#b3261e;font-size:.72rem;margin:0}' +
+  '.svie-form .svie-form-actions{display:flex;gap:8px;margin-top:2px}' +
+  '.svie-form button.svie-form-submit{flex:1;border:none;border-radius:10px;background:linear-gradient(135deg,#C9A05A,#b3894a);color:#fff;' +
+    'font:inherit;font-weight:700;font-size:.82rem;padding:10px;cursor:pointer}' +
+  '.svie-form button.svie-form-submit:disabled{opacity:.55;cursor:not-allowed}' +
+  '.svie-form button.svie-form-cancel{border:1px solid #ddd4c8;border-radius:10px;background:#fff;color:#8a8073;font:inherit;font-size:.82rem;' +
+    'padding:10px 14px;cursor:pointer}' +
   '@media(max-width:768px){' +
     '.svie-chat-launch{bottom:138px;right:18px;width:50px;height:50px}' +
     '.svie-chat-panel{bottom:0;right:0;width:100vw;max-width:100vw;height:100vh;max-height:100vh;border-radius:0}' +
@@ -102,12 +118,15 @@
         '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4 20-7z"/></svg>' +
       '</button>' +
     '</div>' +
-    '<div class="svie-chat-note">AI assistant · for exact quotes call +91 95139 61740</div>';
+    '<div class="svie-chat-note">AI assistant · <span class="svie-cb" role="button" tabindex="0">Request a callback</span> · call +91 95139 61740</div>';
 
   var body     = panel.querySelector('.svie-chat-body');
   var input    = panel.querySelector('textarea');
   var sendBtn  = panel.querySelector('.svie-chat-send');
   var closeBtn = panel.querySelector('.svie-chat-close');
+  var cbLink   = panel.querySelector('.svie-cb');
+  var formOpen = false;                            // an enquiry form is on screen
+  var leadSent = false;                            // a lead was already submitted this session
 
   /* ── Helpers ────────────────────────────────────────────────────────── */
   function escapeHTML(s) {
@@ -138,6 +157,90 @@
     body.appendChild(t);
     body.scrollTop = body.scrollHeight;
     return t;
+  }
+
+  /* ── Enquiry / callback form ─────────────────────────────────────────────
+     Renders a small form card inside the chat so a visitor can always leave
+     their details — name, phone, email, type of query — and it drops straight
+     into the CMS Enquiries inbox (POST /api/enquiries), even when the AI can't
+     reply. `intro` lets the caller tailor the heading (e.g. after an error). */
+  function showEnquiryForm(intro) {
+    if (formOpen || leadSent) return;
+    formOpen = true;
+    var card = document.createElement('form');
+    card.className = 'svie-form';
+    card.setAttribute('novalidate', '');
+    card.innerHTML =
+      '<h4>Request a callback</h4>' +
+      '<p>' + escapeHTML(intro || 'Share your details and our team will get back to you shortly on phone / email / WhatsApp.') + '</p>' +
+      '<div><label>Name</label><input type="text" name="name" autocomplete="name" placeholder="Your full name" maxlength="100"></div>' +
+      '<div><label>Phone</label><input type="tel" name="phone" autocomplete="tel" inputmode="numeric" placeholder="10-digit mobile number" maxlength="20"></div>' +
+      '<div><label>Email</label><input type="email" name="email" autocomplete="email" placeholder="you@example.com" maxlength="200"></div>' +
+      '<div><label>Type of query</label><select name="service">' +
+        '<option value="Interior Design">Interior Design</option>' +
+        '<option value="Construction">Construction</option>' +
+        '<option value="Modular Furniture">Modular Furniture</option>' +
+        '<option value="Other">Other / General enquiry</option>' +
+      '</select></div>' +
+      '<p class="svie-form-err" style="display:none"></p>' +
+      '<div class="svie-form-actions">' +
+        '<button type="button" class="svie-form-cancel">Cancel</button>' +
+        '<button type="submit" class="svie-form-submit">Send</button>' +
+      '</div>';
+    body.appendChild(card);
+    body.scrollTop = body.scrollHeight;
+
+    var errEl  = card.querySelector('.svie-form-err');
+    var subBtn = card.querySelector('.svie-form-submit');
+    var fName  = card.querySelector('[name=name]');
+    var fPhone = card.querySelector('[name=phone]');
+    var fEmail = card.querySelector('[name=email]');
+    var fSvc   = card.querySelector('[name=service]');
+    setTimeout(function () { fName.focus(); }, 60);
+
+    function showErr(msg) { errEl.textContent = msg; errEl.style.display = 'block'; }
+
+    card.querySelector('.svie-form-cancel').addEventListener('click', function () {
+      card.remove();
+      formOpen = false;
+    });
+
+    card.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var name  = fName.value.trim();
+      var phone = fPhone.value.trim();
+      var email = fEmail.value.trim();
+      var svc   = fSvc.value;
+      if (name.length < 2)                          return showErr('Please enter your name.');
+      if (phone.replace(/\D/g, '').length !== 10)   return showErr('Please enter a valid 10-digit mobile number.');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showErr('Please enter a valid email address.');
+      errEl.style.display = 'none';
+      subBtn.disabled = true; subBtn.textContent = 'Sending…';
+      try {
+        var res = await fetch('/api/enquiries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name, phone: phone, email: email, service: svc,
+            message: '📋 Callback request via chat assistant (page: ' + location.pathname + ')',
+          }),
+        });
+        var data = await res.json().catch(function () { return {}; });
+        if (res.ok && data.success) {
+          leadSent = true; formOpen = false;
+          card.remove();
+          addMsg('Thanks, ' + name + '! ✅ We’ve received your details and our team will reach out to you shortly. For anything urgent, call us at +91 95139 61740.', 'bot');
+          if (typeof gtag !== 'undefined')
+            gtag('event', 'generate_lead', { event_category: 'engagement', event_label: 'chat_callback', value: 1 });
+        } else {
+          subBtn.disabled = false; subBtn.textContent = 'Send';
+          showErr(data.error || 'Could not send. Please try again or call +91 95139 61740.');
+        }
+      } catch (err) {
+        subBtn.disabled = false; subBtn.textContent = 'Send';
+        showErr('Network error. Please check your connection or call +91 95139 61740.');
+      }
+    });
   }
 
   function openPanel() {
@@ -184,10 +287,13 @@
         history.push({ role: 'model', text: data.reply });
       } else {
         addMsg(data.error || 'Sorry, something went wrong. Please call us at +91 95139 61740.', 'err');
+        // The AI couldn't reply — offer the callback form so the lead isn't lost.
+        showEnquiryForm('Leave your details below and we’ll get back to you shortly.');
       }
     } catch (e) {
       typing.remove();
       addMsg('Network error. Please check your connection or call +91 95139 61740.', 'err');
+      showEnquiryForm('Leave your details below and we’ll get back to you shortly.');
     } finally {
       sending = false;
       sendBtn.disabled = false;
@@ -201,6 +307,13 @@
   });
   closeBtn.addEventListener('click', closePanel);
   sendBtn.addEventListener('click', send);
+  cbLink.addEventListener('click', function () {
+    if (leadSent) { addMsg('You’ve already shared your details — thanks! Our team will be in touch. 🙏', 'bot'); return; }
+    showEnquiryForm();
+  });
+  cbLink.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cbLink.click(); }
+  });
   input.addEventListener('input', autoGrow);
   input.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
