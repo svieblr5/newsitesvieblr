@@ -1163,7 +1163,7 @@ HOW TO BEHAVE:
 - You do NOT know exact prices, timelines, or project availability. For those, invite the visitor to call/WhatsApp +91 95139 61740 or use the contact form on the website. Never make up numbers.
 - If a question is unrelated to SVIE or interiors/construction, politely steer back.
 - Reply in the same language the visitor uses (English, Hindi, Kannada, etc.).
-- LEAD CAPTURE: when a visitor is interested (wants a quote, callback, consultation, or a site visit), warmly offer to have the SVIE team follow up and ask for their name and a phone/WhatsApp number (email is fine too). Ask for one detail at a time, confirm the number back, and reassure them the team will contact them soon. Do not be pushy — only collect details if they show interest.`;
+- LEAD CAPTURE: when a visitor is interested (wants a quote, callback, consultation, or a site visit), warmly offer to have the SVIE team follow up and collect four things: their name, phone/WhatsApp number, email, and what they need help with (interior design, construction, or modular furniture). Ask for one detail at a time, confirm the number back, and reassure them the team will contact them soon. Do not be pushy — only collect details if they show interest.`;
 
 const CHAT_DEFAULT_GREETING = 'Hi! 👋 I’m the SVIE Assistant. Ask me about our interior design, construction or modular furniture services — or how to get a free quote.';
 
@@ -1202,6 +1202,17 @@ function recordChat(sessionId, page, messages, reply, meta) {
 // lead into the same Enquiries inbox as the contact form. Deduped per session:
 // the first capture creates the enquiry and emails a notification; later messages
 // enrich the same record in place without re-notifying.
+// Infer which SVIE service the visitor's query is about, from keywords in their
+// messages, for the Enquiries "service" column. Returns '' when nothing matches.
+function detectChatServiceType(userText) {
+  const t = (userText || '').toLowerCase();
+  const hits = [];
+  if (/interior|design|d[eé]cor|false ceiling|paint|renovat|living room|bedroom/.test(t)) hits.push('Interior Design');
+  if (/construct|building|civil|villa|home build|slab|foundation|floor plan/.test(t))     hits.push('Construction');
+  if (/modular|kitchen|wardrobe|furniture|cupboard|green nest/.test(t))                    hits.push('Modular Furniture');
+  return hits.join(' / ');
+}
+
 function captureLeadFromChat(sessionId, page, messages) {
   try {
     const id = String(sessionId || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
@@ -1230,20 +1241,27 @@ function captureLeadFromChat(sessionId, page, messages) {
     const existing   = list.find(e => e.source === 'chat' && e.chatSessionId === id);
     const firstQ     = (messages.find(m => m.role === 'user') || {}).text || '';
     const transcript = messages.map(m => (m.role === 'user' ? 'Visitor: ' : 'Assistant: ') + m.text).join('\n');
+    // "Type of query": detected service category, else keep any previously detected
+    // one, else a trimmed first-question snippet, else the generic chat-lead label.
+    const detected = detectChatServiceType(userText);
+    const prevSvc  = existing && existing.service && existing.service !== 'AI Chat Lead' ? existing.service : '';
+    const service  = detected || prevSvc ||
+      (firstQ ? ('Chat: ' + firstQ.trim().replace(/\s+/g, ' ').slice(0, 60)) : 'AI Chat Lead');
     const safe = {
       name:    (name || (existing && existing.name) || 'Website Visitor (chat)').slice(0, 100),
       email:   (email || (existing && existing.email) || '').slice(0, 200),
       phone:   (phone || (existing && existing.phone) || '').slice(0, 20),
-      service: 'AI Chat Lead',
+      service: service.slice(0, 120),
       budget:  '',
       message: ('💬 Captured from the AI chat assistant' + (page ? ' on ' + page : '') +
+                '\nType of query: ' + service +
                 '\nFirst question: ' + firstQ + '\n\n--- Transcript ---\n' + transcript).slice(0, 2000),
       source:  'chat',
       chatSessionId: id,
     };
 
     if (existing) {                          // enrich the existing lead, no re-notify
-      Object.assign(existing, { name: safe.name, email: safe.email, phone: safe.phone, message: safe.message });
+      Object.assign(existing, { name: safe.name, email: safe.email, phone: safe.phone, service: safe.service, message: safe.message });
       writeJSON(ENQUIRY_FILE, list);
       return;
     }
@@ -1324,7 +1342,7 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
       // their contact details and turn the failed chat into a callback lead.
       // The real Google reason + status are still attached for the admin
       // "Send test message" to diagnose setup issues.
-      const friendly = 'Sorry, I can’t reply right now 🙏 — but we’ll get back to you shortly on email/WhatsApp. Please share your name, email ID and phone number.';
+      const friendly = 'Sorry, I can’t reply right now 🙏 — but we’ll get back to you shortly on email/WhatsApp. Please share your name, phone number, email ID, and what you need help with (interior design / construction / modular furniture).';
       // Log the failed turn too, so the admin has visibility into bad experiences.
       if (cfg.chatLogging !== false)
         recordChat(sessionId, page, messages, friendly, { error: reason || `HTTP ${r.status}`, status: r.status });
@@ -1358,7 +1376,7 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
     console.warn('[chat]', e.message);
     // Network error / 30s timeout (AbortError): same callback-lead fallback — invite
     // the visitor to leave contact details, and still record/capture what they sent.
-    const friendly = 'Sorry, I can’t reply right now 🙏 — but we’ll get back to you shortly on email/WhatsApp. Please share your name, email ID and phone number.';
+    const friendly = 'Sorry, I can’t reply right now 🙏 — but we’ll get back to you shortly on email/WhatsApp. Please share your name, phone number, email ID, and what you need help with (interior design / construction / modular furniture).';
     try {
       const cfg = getConfig();
       if (req.body && Array.isArray(req.body.messages)) {
