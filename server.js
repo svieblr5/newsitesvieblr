@@ -1319,18 +1319,18 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
       let reason = '';
       try { const j = JSON.parse(raw); reason = (j.error && j.error.message) || ''; } catch { reason = raw; }
       console.warn('[chat] Gemini API error', r.status, reason.slice(0, 400));
-      // Tailor the visitor-facing message to the failure: rate limits / overload
-      // get a warmer "lots of questions right now" note, everything else stays
-      // generic. The real Google reason + status are attached for the admin
+      // When the assistant can't answer (rate limit / overload / any upstream
+      // error), retrying rarely helps — so instead invite the visitor to leave
+      // their contact details and turn the failed chat into a callback lead.
+      // The real Google reason + status are still attached for the admin
       // "Send test message" to diagnose setup issues.
-      let friendly = 'The assistant is busy right now. Please try again in a moment.';
-      if (r.status === 429)
-        friendly = 'I’m getting a lot of questions right now 😅 — please try again in a few seconds, or reach us on +91 95139 61740 (call/WhatsApp).';
-      else if (r.status === 503)
-        friendly = 'The assistant is very busy at the moment. Please try again shortly, or reach us on +91 95139 61740 (call/WhatsApp).';
+      const friendly = 'Sorry, I can’t reply right now 🙏 — but we’ll get back to you shortly on email/WhatsApp. Please share your name, email ID and phone number.';
       // Log the failed turn too, so the admin has visibility into bad experiences.
       if (cfg.chatLogging !== false)
         recordChat(sessionId, page, messages, friendly, { error: reason || `HTTP ${r.status}`, status: r.status });
+      // Capture a lead from anything the visitor already shared (e.g. after they
+      // answer the prompt above) so a broken assistant still collects the enquiry.
+      if (cfg.chatLeadCapture !== false) captureLeadFromChat(sessionId, page, messages);
       return res.status(502).json({
         error:  friendly,
         status: r.status,
@@ -1356,21 +1356,26 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
     res.json({ reply });
   } catch (e) {
     console.warn('[chat]', e.message);
-    // Network error / 30s timeout (AbortError) — still record what the visitor sent.
+    // Network error / 30s timeout (AbortError): same callback-lead fallback — invite
+    // the visitor to leave contact details, and still record/capture what they sent.
+    const friendly = 'Sorry, I can’t reply right now 🙏 — but we’ll get back to you shortly on email/WhatsApp. Please share your name, email ID and phone number.';
     try {
       const cfg = getConfig();
-      if (cfg.chatLogging !== false && req.body && Array.isArray(req.body.messages)) {
+      if (req.body && Array.isArray(req.body.messages)) {
         const msgs = req.body.messages
           .filter(m => m && typeof m.text === 'string' && (m.role === 'user' || m.role === 'model'))
           .map(m => ({ role: m.role, text: m.text.trim().slice(0, 2000) }))
           .filter(m => m.text);
-        if (msgs.length)
-          recordChat(req.body.sessionId, req.body.page, msgs,
-            'Something went wrong. Please try again in a moment.',
-            { error: e.name === 'AbortError' ? 'Upstream timeout (30s)' : e.message, status: 0 });
+        if (msgs.length) {
+          if (cfg.chatLogging !== false)
+            recordChat(req.body.sessionId, req.body.page, msgs, friendly,
+              { error: e.name === 'AbortError' ? 'Upstream timeout (30s)' : e.message, status: 0 });
+          if (cfg.chatLeadCapture !== false)
+            captureLeadFromChat(req.body.sessionId, req.body.page, msgs);
+        }
       }
     } catch { /* best effort */ }
-    res.status(500).json({ error: 'Something went wrong. Please try again in a moment.' });
+    res.status(500).json({ error: friendly });
   }
 });
 
