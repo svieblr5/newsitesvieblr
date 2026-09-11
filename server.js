@@ -1170,29 +1170,30 @@ const CHAT_DEFAULT_GREETING = 'Hi! 👋 I’m the SVIE Assistant. Ask me about o
 // Persist a conversation so it shows in the admin "Chat Logs" panel. Conversations
 // are grouped by the client-supplied sessionId (upsert): each turn overwrites the
 // stored transcript with the latest full message list + the assistant's reply.
-function recordChat(sessionId, page, messages, reply) {
+// `meta` optionally flags a turn that failed upstream ({ error, status }) so the
+// admin can see the bad experiences too; on a later successful turn the flag clears.
+function recordChat(sessionId, page, messages, reply, meta) {
   try {
     const id = String(sessionId || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40) || ('s' + Date.now());
     const transcript = messages.concat([{ role: 'model', text: reply }])
       .map(m => ({ role: m.role, text: String(m.text || '').slice(0, 2000) }));
-    const now  = new Date().toISOString();
+    const now     = new Date().toISOString();
+    const failed  = !!(meta && meta.error);
     const list = readJSON(CHATLOG_FILE, []);
     const i    = list.findIndex(c => c.id === id);
+    let row;
     if (i !== -1) {
-      list[i].messages  = transcript;
-      list[i].updatedAt = now;
-      // move the just-updated conversation to the top
-      const [row] = list.splice(i, 1);
-      list.unshift(row);
+      row = list[i];
+      row.messages  = transcript;
+      row.updatedAt = now;
+      list.splice(i, 1);         // will re-unshift below to move it to the top
     } else {
-      list.unshift({
-        id,
-        createdAt: now,
-        updatedAt: now,
-        page: String(page || '').slice(0, 200),
-        messages: transcript,
-      });
+      row = { id, createdAt: now, updatedAt: now, page: String(page || '').slice(0, 200), messages: transcript };
     }
+    // Record or clear the failure marker for this (latest) turn.
+    if (failed) { row.error = String(meta.error).slice(0, 400); row.status = meta.status || 0; }
+    else        { delete row.error; delete row.status; }
+    list.unshift(row);           // move the just-updated conversation to the top
     writeJSON(CHATLOG_FILE, list.slice(0, MAX_CHATLOGS));
   } catch (e) { console.warn('[chat] failed to record transcript:', e.message); }
 }
@@ -1327,6 +1328,9 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
         friendly = 'I’m getting a lot of questions right now 😅 — please try again in a few seconds, or reach us on +91 95139 61740 (call/WhatsApp).';
       else if (r.status === 503)
         friendly = 'The assistant is very busy at the moment. Please try again shortly, or reach us on +91 95139 61740 (call/WhatsApp).';
+      // Log the failed turn too, so the admin has visibility into bad experiences.
+      if (cfg.chatLogging !== false)
+        recordChat(sessionId, page, messages, friendly, { error: reason || `HTTP ${r.status}`, status: r.status });
       return res.status(502).json({
         error:  friendly,
         status: r.status,
@@ -1337,8 +1341,12 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
     const data  = await r.json();
     const reply = (data?.candidates?.[0]?.content?.parts || [])
       .map(p => p.text || '').join('').trim();
-    if (!reply)
-      return res.json({ reply: 'Sorry, I could not answer that. Please call us at +91 95139 61740 and our team will help.' });
+    if (!reply) {
+      const fallback = 'Sorry, I could not answer that. Please call us at +91 95139 61740 and our team will help.';
+      if (cfg.chatLogging !== false)
+        recordChat(sessionId, page, messages, fallback, { error: 'Empty reply from model', status: 0 });
+      return res.json({ reply: fallback });
+    }
 
     // Log the transcript for the admin Chat Logs panel (unless logging is off).
     if (cfg.chatLogging !== false) recordChat(sessionId, page, messages, reply);
@@ -1348,6 +1356,20 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
     res.json({ reply });
   } catch (e) {
     console.warn('[chat]', e.message);
+    // Network error / 30s timeout (AbortError) — still record what the visitor sent.
+    try {
+      const cfg = getConfig();
+      if (cfg.chatLogging !== false && req.body && Array.isArray(req.body.messages)) {
+        const msgs = req.body.messages
+          .filter(m => m && typeof m.text === 'string' && (m.role === 'user' || m.role === 'model'))
+          .map(m => ({ role: m.role, text: m.text.trim().slice(0, 2000) }))
+          .filter(m => m.text);
+        if (msgs.length)
+          recordChat(req.body.sessionId, req.body.page, msgs,
+            'Something went wrong. Please try again in a moment.',
+            { error: e.name === 'AbortError' ? 'Upstream timeout (30s)' : e.message, status: 0 });
+      }
+    } catch { /* best effort */ }
     res.status(500).json({ error: 'Something went wrong. Please try again in a moment.' });
   }
 });
