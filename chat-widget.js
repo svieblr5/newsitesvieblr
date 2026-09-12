@@ -331,12 +331,21 @@
     history.push({ role: 'user', text: text });
     var typing = showTyping();
 
+    // Client-side timeout so the typing indicator can never spin forever: if the
+    // server hasn't responded in 45s (it should reply or self-timeout well before
+    // then), abort and show the callback form instead of hanging the visitor.
+    var ctrl     = ('AbortController' in window) ? new AbortController() : null;
+    var timedOut = false;
+    var timer    = setTimeout(function () { timedOut = true; if (ctrl) ctrl.abort(); }, 45000);
+
     try {
       var res = await fetch(ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: ctrl ? ctrl.signal : undefined,
         body: JSON.stringify({ messages: history.slice(-MAX_TURNS), sessionId: SESSION_ID, page: location.pathname }),
       });
+      clearTimeout(timer);
       var data = await res.json().catch(function () { return {}; });
       typing.remove();
       if (res.ok && data.reply) {
@@ -348,8 +357,12 @@
         showEnquiryForm('Leave your details below and we’ll get back to you shortly.');
       }
     } catch (e) {
+      clearTimeout(timer);
       typing.remove();
-      addMsg('Network error. Please check your connection or call +91 95139 61740.', 'err');
+      if (timedOut)
+        addMsg('Sorry, this is taking longer than usual 🙏 — please leave your details below and we’ll get right back to you, or call +91 95139 61740.', 'err');
+      else
+        addMsg('Network error. Please check your connection or call +91 95139 61740.', 'err');
       showEnquiryForm('Leave your details below and we’ll get back to you shortly.');
     } finally {
       sending = false;
