@@ -3693,6 +3693,9 @@ function chatCfgForm(c){
     '<div style="font-size:.72rem;color:#8a7e72;margin-top:4px">'+(c.modelLocked?'Locked by the GEMINI_MODEL env var.':'Default: <code>gemini-3.6-flash</code> (free tier). Change only if you know the model name.')+'</div></div></div>'+
     '<div class="frow full"><div class="fg"><label>Greeting message <small style="color:#8a7e72">(first thing visitors see)</small></label>'+
     '<textarea id="chat-greeting" style="min-height:60px">'+esc(c.greeting||'')+'</textarea></div></div>'+
+    '<div class="frow full"><div class="fg"><label>Invite popup message <small style="color:#8a7e72">(teaser that pops up a few seconds after a visitor lands, nudging them to chat)</small></label>'+
+    '<textarea id="chat-invite" style="min-height:56px">'+esc(c.inviteText||'')+'</textarea>'+
+    '<div style="font-size:.72rem;color:#8a7e72;margin-top:4px">Shows once per visit. <a href="#" onclick="chatResetInvite();return false">Reset to default</a></div></div></div>'+
     '<div class="frow full"><div class="fg"><label>Assistant instructions &amp; knowledge <small style="color:#8a7e72">(what the AI knows and how it behaves)</small></label>'+
     '<textarea id="chat-prompt" style="min-height:220px;font-size:.78rem;line-height:1.5">'+esc(c.systemPrompt||'')+'</textarea>'+
     '<div style="font-size:.72rem;color:#8a7e72;margin-top:4px">'+(c.usingDefaultPrompt?'Currently using the built-in default. ':'Customised. ')+'<a href="#" onclick="chatResetPrompt();return false">Reset to default</a></div></div></div>'+
@@ -3707,6 +3710,10 @@ function chatResetPrompt(){
   if(_chatCfg && typeof _chatCfg.defaultSystemPrompt==='string')
     document.getElementById('chat-prompt').value = _chatCfg.defaultSystemPrompt;
 }
+function chatResetInvite(){
+  if(_chatCfg && typeof _chatCfg.defaultInvite==='string')
+    document.getElementById('chat-invite').value = _chatCfg.defaultInvite;
+}
 async function saveChatConfig(){
   const msg = document.getElementById('chat-msg');
   msg.style.color='#5a544f'; msg.textContent='Saving…';
@@ -3715,6 +3722,7 @@ async function saveChatConfig(){
     logging:      document.getElementById('chat-logging').checked,
     leadCapture:  document.getElementById('chat-leadcapture').checked,
     greeting:     (document.getElementById('chat-greeting')||{}).value||'',
+    inviteText:   (document.getElementById('chat-invite')||{}).value||'',
     systemPrompt: (document.getElementById('chat-prompt')||{}).value||'',
   };
   const modelEl = document.getElementById('chat-model');
