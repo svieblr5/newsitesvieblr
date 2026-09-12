@@ -1178,6 +1178,9 @@ HOW TO BEHAVE:
 - LEAD CAPTURE: when a visitor is interested (wants a quote, callback, consultation, or a site visit), warmly offer to have the SVIE team follow up and collect four things: their name, phone/WhatsApp number, email, and what they need help with (interior design, construction, or modular furniture). Ask for one detail at a time, confirm the number back, and reassure them the team will contact them soon. Do not be pushy — only collect details if they show interest.`;
 
 const CHAT_DEFAULT_GREETING = 'Hi! 👋 I’m the SVIE Assistant. Ask me about our interior design, construction or modular furniture services — or how to get a free quote.';
+// Proactive invite bubble text — the teaser that pops up a few seconds after a
+// visitor lands, nudging them to open the chat. Editable in the admin panel.
+const CHAT_DEFAULT_INVITE = 'Hi there! 👋 Looking for interior design, construction or modular furniture? Chat with us — we’re here to help.';
 
 // Persist a conversation so it shows in the admin "Chat Logs" panel. Conversations
 // are grouped by the client-supplied sessionId (upsert): each turn overwrites the
@@ -1293,6 +1296,8 @@ app.get('/api/chat/config', (req,res) => {
     enabled:  hasKey && cfg.chatEnabled !== false,
     greeting: (typeof cfg.chatGreeting === 'string' && cfg.chatGreeting.trim())
       ? cfg.chatGreeting : CHAT_DEFAULT_GREETING,
+    inviteText: (typeof cfg.chatInviteText === 'string' && cfg.chatInviteText.trim())
+      ? cfg.chatInviteText : CHAT_DEFAULT_INVITE,
   });
 });
 
@@ -1432,9 +1437,11 @@ app.get('/api/chat-config', requireAuth, (req,res) => {
     model:         process.env.GEMINI_MODEL || cfg.geminiModel || 'gemini-3.6-flash',
     modelLocked:   !!process.env.GEMINI_MODEL,
     greeting:      cfg.chatGreeting || CHAT_DEFAULT_GREETING,
+    inviteText:    cfg.chatInviteText || CHAT_DEFAULT_INVITE,
     systemPrompt:  cfg.chatSystemPrompt || CHAT_SYSTEM_PROMPT,
     usingDefaultPrompt: !(typeof cfg.chatSystemPrompt === 'string' && cfg.chatSystemPrompt.trim()),
     defaultGreeting:    CHAT_DEFAULT_GREETING,
+    defaultInvite:      CHAT_DEFAULT_INVITE,
     defaultSystemPrompt: CHAT_SYSTEM_PROMPT,
     logging:       cfg.chatLogging !== false,
     leadCapture:   cfg.chatLeadCapture !== false,
@@ -1455,6 +1462,10 @@ app.post('/api/chat-config', requireAuth, csrfProtect, (req,res) => {
     if (typeof b.greeting === 'string') {
       const g = b.greeting.trim();
       if (g) cfg.chatGreeting = g.slice(0,500); else delete cfg.chatGreeting;
+    }
+    if (typeof b.inviteText === 'string') {
+      const iv = b.inviteText.trim();
+      if (iv) cfg.chatInviteText = iv.slice(0,300); else delete cfg.chatInviteText;
     }
     if (typeof b.systemPrompt === 'string') {
       const sp = b.systemPrompt.trim();

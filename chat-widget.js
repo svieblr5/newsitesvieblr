@@ -35,6 +35,18 @@
   '.svie-chat-launch svg{width:26px;height:26px}' +
   '.svie-chat-launch .svie-chat-badge{position:absolute;top:-3px;right:-3px;background:#e53935;color:#fff;font:700 10px/1 system-ui,sans-serif;' +
     'padding:3px 5px;border-radius:10px;border:2px solid #fff}' +
+  /* ── Proactive invite bubble (teaser that nudges the visitor to chat) ── */
+  '.svie-chat-invite{position:fixed;bottom:100px;right:94px;max-width:250px;background:#fff;color:#2b2b2b;border:1px solid #eae4dc;' +
+    'border-radius:14px;border-bottom-right-radius:4px;box-shadow:0 10px 34px rgba(0,0,0,.18);padding:13px 32px 13px 15px;z-index:939;' +
+    'font:400 .84rem/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer;opacity:0;transform:translateY(10px) scale(.96);' +
+    'transition:opacity .3s,transform .3s;pointer-events:none}' +
+  '.svie-chat-invite.show{opacity:1;transform:none;pointer-events:auto}' +
+  '.svie-chat-invite b{display:block;color:#b3894a;font-size:.8rem;margin-bottom:2px}' +
+  '.svie-chat-invite .svie-invite-x{position:absolute;top:5px;right:6px;width:20px;height:20px;border:none;background:none;color:#b0a89b;' +
+    'cursor:pointer;font-size:15px;line-height:1;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0}' +
+  '.svie-chat-invite .svie-invite-x:hover{background:#f0ece5;color:#6b6155}' +
+  '.svie-chat-invite::after{content:"";position:absolute;bottom:14px;right:-7px;width:0;height:0;border:7px solid transparent;' +
+    'border-left-color:#fff;border-right:0}' +
   '.svie-chat-panel{position:fixed;bottom:30px;right:30px;width:370px;max-width:calc(100vw - 40px);height:540px;max-height:calc(100vh - 60px);' +
     'background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.28);z-index:950;display:none;flex-direction:column;overflow:hidden;' +
     'font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;opacity:0;transform:translateY(20px) scale(.98);transition:opacity .22s,transform .22s}' +
@@ -84,6 +96,8 @@
   '@media(max-width:768px){' +
     '.svie-chat-launch{bottom:138px;right:18px;width:50px;height:50px}' +
     '.svie-chat-panel{bottom:0;right:0;width:100vw;max-width:100vw;height:100vh;max-height:100vh;border-radius:0}' +
+    '.svie-chat-invite{bottom:196px;right:18px;left:auto;max-width:220px}' +
+    '.svie-chat-invite::after{display:none}' +
   '}';
 
   var style = document.createElement('style');
@@ -98,6 +112,16 @@
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
     '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>' +
     '<span class="svie-chat-badge">AI</span>';
+
+  // Proactive invite bubble — appears a few seconds after load to nudge the
+  // visitor to start a chat. Text is overridden by the admin greeting/config.
+  var INVITE_TITLE = 'SVIE Assistant';
+  var INVITE_TEXT  = 'Hi there! 👋 Looking for interior design, construction or modular furniture? Chat with us — we’re here to help.';
+  var invite = document.createElement('div');
+  invite.className = 'svie-chat-invite';
+  invite.setAttribute('role', 'button');
+  invite.setAttribute('tabindex', '0');
+  invite.setAttribute('aria-label', 'Open chat with SVIE Assistant');
 
   var panel = document.createElement('div');
   panel.className = 'svie-chat-panel';
@@ -243,7 +267,40 @@
     });
   }
 
+  /* ── Proactive invite bubble ─────────────────────────────────────────────
+     Pops up after a short delay to invite the visitor into a chat. Shown once
+     per browsing session (sessionStorage) so it doesn't nag on every page. */
+  var inviteTimer = null;
+  function inviteDismissed() {
+    try { return sessionStorage.getItem('svieChatInvite') === 'done'; } catch (e) { return false; }
+  }
+  function markInviteDone() {
+    try { sessionStorage.setItem('svieChatInvite', 'done'); } catch (e) {}
+  }
+  function hideInvite() {
+    invite.classList.remove('show');
+    setTimeout(function () { if (invite.parentNode) invite.parentNode.removeChild(invite); }, 320);
+  }
+  function scheduleInvite() {
+    if (inviteDismissed()) return;
+    inviteTimer = setTimeout(function () {
+      if (opened || panel.classList.contains('open') || inviteDismissed()) return;
+      invite.innerHTML =
+        '<button type="button" class="svie-invite-x" aria-label="Dismiss">&times;</button>' +
+        '<b>' + escapeHTML(INVITE_TITLE) + '</b>' + render(INVITE_TEXT);
+      invite.querySelector('.svie-invite-x').addEventListener('click', function (e) {
+        e.stopPropagation();
+        markInviteDone();
+        hideInvite();
+      });
+      document.body.appendChild(invite);
+      requestAnimationFrame(function () { invite.classList.add('show'); });
+    }, 3500);
+  }
+
   function openPanel() {
+    markInviteDone();
+    hideInvite();
     panel.classList.add('open');
     var badge = launch.querySelector('.svie-chat-badge');
     if (badge) badge.style.display = 'none';
@@ -305,6 +362,10 @@
   launch.addEventListener('click', function () {
     panel.classList.contains('open') ? closePanel() : openPanel();
   });
+  invite.addEventListener('click', openPanel);
+  invite.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPanel(); }
+  });
   closeBtn.addEventListener('click', closePanel);
   sendBtn.addEventListener('click', send);
   cbLink.addEventListener('click', function () {
@@ -326,12 +387,15 @@
   function mount() {
     document.body.appendChild(launch);
     document.body.appendChild(panel);
+    scheduleInvite();                                    // proactive nudge after a short delay
   }
   fetch('/api/chat/config')
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (cfg) {
       if (cfg && cfg.enabled === false) return;         // admin turned it off / no key
       if (cfg && typeof cfg.greeting === 'string' && cfg.greeting.trim()) GREETING = cfg.greeting;
+      // Let the admin tailor the proactive invite text too (optional config key).
+      if (cfg && typeof cfg.inviteText === 'string' && cfg.inviteText.trim()) INVITE_TEXT = cfg.inviteText;
       mount();
     })
     .catch(function () { mount(); });                    // network hiccup → still show
