@@ -1054,6 +1054,17 @@ app.get('/api/enquiries/export.csv', requireAuth, (req,res) => {
   logActivity('Exported enquiries CSV (' + list.length + ' leads)', req.session.user);
 });
 
+// Normalise an Indian mobile to 10 digits, or return '' if invalid. Accepts
+// spaces/dashes/+, strips a 91 country code or leading 0, and requires a
+// 10-digit number starting 6-9 (same rule as the chat lead-capture parser),
+// so "+91 95139 61740" and "09513961740" both pass while "123" is rejected.
+function normalizeIndianMobile(raw) {
+  let d = (raw || '').toString().replace(/\D/g, '');
+  if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
+  else if (d.length === 11 && d.startsWith('0')) d = d.slice(1);
+  return (d.length === 10 && /^[6-9]/.test(d)) ? d : '';
+}
+
 app.post('/api/enquiries', enquiryLimiter, (req,res) => {
   try {
     const { name, email, phone, service, budget, message } = req.body;
@@ -1062,15 +1073,16 @@ app.post('/api/enquiries', enquiryLimiter, (req,res) => {
       return res.status(400).json({ error: 'Valid name is required (2–100 characters).' });
     if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
       return res.status(400).json({ error: 'Valid email address is required.' });
-    if (phone && (typeof phone !== 'string' || phone.trim().length > 20))
-      return res.status(400).json({ error: 'Phone number too long.' });
+    const mobile = normalizeIndianMobile(phone);
+    if (!mobile)
+      return res.status(400).json({ error: 'A valid 10-digit mobile number is required.' });
     if (message && typeof message === 'string' && message.trim().length > 2000)
       return res.status(400).json({ error: 'Message must be under 2000 characters.' });
 
     const safe = {
       name:    name.trim().slice(0,100),
       email:   email.trim().toLowerCase().slice(0,200),
-      phone:   (phone||'').toString().trim().slice(0,20),
+      phone:   mobile,
       service: (service||'').toString().trim().slice(0,100),
       budget:  (budget||'').toString().trim().slice(0,50),
       message: (message||'').toString().trim().slice(0,2000),
@@ -1091,8 +1103,8 @@ app.post('/api/brochure-request', enquiryLimiter, (req,res) => {
     const { name, phone, location, requirement } = req.body;
     if (!name || typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 100)
       return res.status(400).json({ error: 'Valid full name is required (2–100 characters).' });
-    const phoneDigits = (phone || '').toString().replace(/\D/g, '');
-    if (phoneDigits.length !== 10)
+    const phoneDigits = normalizeIndianMobile(phone);
+    if (!phoneDigits)
       return res.status(400).json({ error: 'A valid 10-digit mobile number is required.' });
 
     const loc = (location || '').toString().trim().slice(0,120);
