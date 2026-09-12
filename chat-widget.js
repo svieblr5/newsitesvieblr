@@ -76,7 +76,7 @@
     'display:flex;align-items:center;justify-content:center;transition:background .2s}' +
   '.svie-chat-foot button:hover:not(:disabled){background:#b3894a}' +
   '.svie-chat-foot button:disabled{opacity:.5;cursor:not-allowed}' +
-  '.svie-chat-note{font-size:.6rem;color:#9a8f80;text-align:center;padding:0 0 7px}' +
+  '.svie-chat-note{font-size:.74rem;color:#9a8f80;text-align:center;padding:0 0 7px}' +
   '.svie-chat-note .svie-cb{color:#b3894a;font-weight:700;cursor:pointer;text-decoration:underline}' +
   /* ── Enquiry / callback form card (rendered inside the chat body) ── */
   '.svie-form{align-self:stretch;background:#fff;border:1px solid #eae4dc;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:9px}' +
