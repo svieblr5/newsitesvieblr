@@ -221,6 +221,57 @@ const FONT_CATALOG = {
 const VALID_FONTS = new Set(Object.keys(FONT_CATALOG));
 
 // ── GET /fonts.css — dynamic font stylesheet for all public pages ──
+// ── Colour theme: 3 brand anchors → a derived :root palette (injected via /fonts.css) ──
+//   The public palette in styles.css has ~14 shades; rather than ask the admin for all
+//   of them, they set the 3 anchor colours (primary/accent/background) and the tints &
+//   shades are re-derived by holding hue+saturation and re-lighting to fixed per-role
+//   lightness targets (measured from the original defaults, so leaving them = ~no change).
+const THEME_DEFAULTS = { primary:'#1A4530', accent:'#C9A05A', bg:'#F5EFE6' };
+const isHex = v => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v.trim());
+function hexToHsl(hex) {
+  const r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+  const mx = Math.max(r,g,b), mn = Math.min(r,g,b); let h = 0, s = 0; const l = (mx+mn)/2;
+  if (mx !== mn) {
+    const d = mx - mn;
+    s = l > 0.5 ? d/(2-mx-mn) : d/(mx+mn);
+    h = mx === r ? (g-b)/d + (g<b?6:0) : mx === g ? (b-r)/d + 2 : (r-g)/d + 4;
+    h /= 6;
+  }
+  return { h: h*360, s: s*100, l: l*100 };
+}
+function hslToHex(h, s, l) {
+  h /= 360; s /= 100; l /= 100;
+  const hue2rgb = (p,q,t) => { if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; };
+  let r, g, b;
+  if (s === 0) { r = g = b = l; }
+  else { const q = l < 0.5 ? l*(1+s) : l+s-l*s; const p = 2*l-q; r = hue2rgb(p,q,h+1/3); g = hue2rgb(p,q,h); b = hue2rgb(p,q,h-1/3); }
+  const to = x => Math.round(x*255).toString(16).padStart(2,'0');
+  return '#' + to(r) + to(g) + to(b);
+}
+// Re-light a colour to a target lightness (0–100), keeping its hue + saturation.
+const relight = (hex, targetL) => { const { h, s } = hexToHsl(hex); return hslToHex(h, s, targetL); };
+function buildThemeVars(theme) {
+  const primary = isHex(theme.primary) ? theme.primary : THEME_DEFAULTS.primary;
+  const accent  = isHex(theme.accent)  ? theme.accent  : THEME_DEFAULTS.accent;
+  const bg      = isHex(theme.bg)      ? theme.bg      : THEME_DEFAULTS.bg;
+  return [
+    `  --forest:${primary};`,
+    `  --charcoal:${primary};`,
+    `  --forest-ink:${relight(primary,11)};`,
+    `  --forest-deep:${relight(primary,14)};`,
+    `  --forest-mid:${relight(primary,24)};`,
+    `  --forest-light:${relight(primary,30)};`,
+    `  --mid-gray:${relight(primary,22)};`,
+    `  --gold:${accent};`,
+    `  --gold-light:${relight(accent,69)};`,
+    `  --gold-pale:${relight(accent,82)};`,
+    `  --gold-dark:${relight(accent,41)};`,
+    `  --cream:${bg};`,
+    `  --cream-2:${relight(bg,89)};`,
+    `  --sand:${relight(bg,81)};`,
+  ];
+}
+
 app.get('/fonts.css', (req, res) => {
   const cfg   = getConfig();
   const clampN = (v, mn, mx, def) => Math.min(Math.max(parseFloat(v) || def, mn), mx);
@@ -266,6 +317,8 @@ app.get('/fonts.css', (req, res) => {
     `  --fm-fw-sans:${fwSans};`,
     `  --fm-lh-body:${lhBody};`,
     `  --fm-ls-heading:${lsHeading}em;`,
+    // Colour theme overrides (only when the admin has set a custom palette).
+    ...(cfg.theme ? buildThemeVars(cfg.theme) : []),
     `}`,
     `html{font-size:${fSize}px}`,
   ].join('\n');
@@ -1827,6 +1880,37 @@ app.patch('/api/font-settings', requireAuth, csrfProtect, (req, res) => {
     if (b.lsHeading   !== undefined) cfg.lsHeading   = clampN(b.lsHeading,   -0.05,0.1,  -0.02);
     saveConfig(cfg);
     logActivity('Updated typography settings', req.session.user);
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Colour theme (applies immediately via /fonts.css, not draft-gated) ──
+app.get('/api/theme', requireAuth, (req, res) => {
+  const cfg = getConfig();
+  const t   = cfg.theme || {};
+  res.json({
+    primary:    isHex(t.primary) ? t.primary : THEME_DEFAULTS.primary,
+    accent:     isHex(t.accent)  ? t.accent  : THEME_DEFAULTS.accent,
+    bg:         isHex(t.bg)      ? t.bg      : THEME_DEFAULTS.bg,
+    customized: !!cfg.theme,
+    defaults:   THEME_DEFAULTS,
+  });
+});
+
+app.post('/api/theme', requireAuth, csrfProtect, (req, res) => {
+  try {
+    const cfg = getConfig();
+    if (req.body && req.body.reset) {
+      delete cfg.theme; saveConfig(cfg);
+      logActivity('Reset colour theme to default', req.session.user);
+      return res.json({ success: true, reset: true });
+    }
+    const { primary, accent, bg } = req.body || {};
+    if (![primary, accent, bg].every(isHex))
+      return res.status(400).json({ error: 'All three colours must be valid 6-digit hex values (e.g. #1A4530).' });
+    cfg.theme = { primary, accent, bg };
+    saveConfig(cfg);
+    logActivity('Updated colour theme', req.session.user);
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

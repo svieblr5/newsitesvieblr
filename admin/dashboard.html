@@ -1338,6 +1338,12 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
             </div>
           </div>
         </div>
+
+        <div class="card">
+          <div class="card-title">Colour Theme</div>
+          <div class="card-sub">Set the three brand colours. Lighter and darker shades are derived automatically. Applies immediately across the whole site (not draft-gated) — reload a page to see it.</div>
+          <div id="theme-body"><div style="color:#8a7e72;font-size:.82rem">Loading…</div></div>
+        </div>
       </div>
 
       <!-- ══ SETTINGS ══ -->
@@ -2743,6 +2749,73 @@ function loadBranding() {
   // Show the current logo, cache-busted so a recent upload is reflected.
   const img = document.getElementById('logoPreview');
   if (img) img.src = '../images/logo.png?t=' + Date.now();
+  loadTheme();
+}
+
+// ── Colour Theme ──────────────────────────────
+async function loadTheme() {
+  const box = document.getElementById('theme-body'); if (!box) return;
+  const t = await api('GET','/api/theme').catch(()=>({primary:'#1A4530',accent:'#C9A05A',bg:'#F5EFE6',customized:false}));
+  const row = (id,val,label,desc) => `
+    <div style="display:flex;align-items:center;gap:12px">
+      <input type="color" id="th-${id}" value="${val}" oninput="thSync('${id}',true)" style="width:46px;height:38px;border:1px solid #e0dbd4;border-radius:8px;background:none;cursor:pointer;padding:2px;flex-shrink:0">
+      <div style="flex:1;min-width:0"><div style="font-size:.82rem;font-weight:600;color:#3a3530">${label}</div><div style="font-size:.68rem;color:#8a7e72">${desc}</div></div>
+      <input type="text" id="th-${id}-hex" value="${val}" oninput="thSync('${id}',false)" maxlength="7" style="width:96px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem;text-transform:uppercase;padding:8px 10px;border:1px solid #e0dbd4;border-radius:8px;background:#faf9f7">
+    </div>`;
+  box.innerHTML = `
+    <div style="display:grid;gap:14px;max-width:470px;margin-bottom:16px">
+      ${row('primary', t.primary, 'Primary (Forest Green)', 'Headers, dark sections, primary buttons')}
+      ${row('accent',  t.accent,  'Accent (Gold)',          'Highlights, calls-to-action, links')}
+      ${row('bg',      t.bg,      'Background (Cream)',      'Page and section backgrounds')}
+    </div>
+    <div id="theme-preview" style="margin-bottom:16px;border-radius:12px;overflow:hidden;border:1px solid #e8e4dd;max-width:470px">
+      <div id="tp-header" style="padding:14px 16px;color:#fff;font-family:'Cormorant',serif;font-size:1.15rem;font-weight:600">Sri Vasavi Interiors &amp; Exteriors</div>
+      <div id="tp-body" style="padding:18px 16px">
+        <div id="tp-text" style="font-size:.86rem;margin-bottom:14px;font-weight:500">See how your brand colours look together.</div>
+        <button id="tp-btn" type="button" style="border:none;padding:9px 18px;border-radius:8px;font-weight:700;font-size:.74rem;letter-spacing:.04em;cursor:default">Book Consultation</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-gold" onclick="saveTheme()">Save Colours</button>
+      <button class="btn btn-outline btn-sm" onclick="resetTheme()">Reset to Default</button>
+      ${t.customized ? '<span style="font-size:.72rem;color:#8a7e72">Custom theme active</span>' : '<span style="font-size:.72rem;color:#8a7e72">Using default palette</span>'}
+    </div>`;
+  thPreview();
+}
+
+// Keep the colour picker and hex box in sync, then refresh the live preview.
+function thSync(id, fromPicker) {
+  const c = document.getElementById('th-'+id), h = document.getElementById('th-'+id+'-hex');
+  if (fromPicker) { h.value = c.value.toUpperCase(); }
+  else { let v = h.value.trim(); if (v && v[0] !== '#') v = '#'+v; if (/^#[0-9a-fA-F]{6}$/.test(v)) c.value = v; }
+  thPreview();
+}
+
+function thPreview() {
+  const p = gv('th-primary'), a = gv('th-accent'), b = gv('th-bg');
+  const set = (id,prop,val) => { const el = document.getElementById(id); if (el) el.style[prop] = val; };
+  set('tp-header','background', p);
+  set('tp-body','background', b);
+  set('tp-text','color', p);
+  set('tp-btn','background', a);
+  set('tp-btn','color', p);
+}
+
+async function saveTheme() {
+  const primary = gv('th-primary'), accent = gv('th-accent'), bg = gv('th-bg');
+  for (const v of [primary,accent,bg])
+    if (!/^#[0-9a-fA-F]{6}$/.test(v)) return toast('Enter valid 6-digit hex colours (e.g. #1A4530)','err');
+  const r = await api('POST','/api/theme',{primary,accent,bg}).catch(e=>({error:e.message}));
+  if (r.error) return toast(r.error,'err');
+  toast('Colour theme saved — reload the site to see it');
+  loadTheme();
+}
+
+async function resetTheme() {
+  const r = await api('POST','/api/theme',{reset:true}).catch(e=>({error:e.message}));
+  if (r.error) return toast(r.error,'err');
+  toast('Reverted to the default palette');
+  loadTheme();
 }
 
 async function uploadLogo() {
