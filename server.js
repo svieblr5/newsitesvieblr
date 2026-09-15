@@ -523,6 +523,28 @@ const upload = multer({
   },
 });
 
+// ── Multer: before/after slider uploads (two images per pair) ──
+const beforeafterStorage = multer.diskStorage({
+  destination: (req,file,cb) => {
+    const d = path.join(ROOT,'images','beforeafter');
+    if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
+    cb(null, d);
+  },
+  filename: (req,file,cb) => {
+    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const base = crypto.randomBytes(8).toString('hex');
+    cb(null, Date.now() + '-' + file.fieldname + '-' + base + ext);
+  }
+});
+const uploadBA = multer({
+  storage: beforeafterStorage,
+  limits:  { fileSize: 10*1024*1024 },
+  fileFilter: (req,file,cb) => {
+    const ok = ALLOWED_IMG_MIME.has(file.mimetype);
+    cb(ok ? null : new Error('Images only (JPEG, PNG, WebP, GIF)'), ok);
+  },
+});
+
 // ── Multer: team photo uploads ──
 const teamStorage = multer.diskStorage({
   destination: (req,file,cb) => {
@@ -925,6 +947,77 @@ app.post('/api/gallery/reorder', requireAuth, csrfProtect, (req,res) => {
   try {
     const c   = readContent();
     c.gallery = req.body.order.map(id=>c.gallery.find(g=>g.id===id)).filter(Boolean);
+    writeContent(c);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// ═══════════════════════════════════════════
+//  BEFORE / AFTER SLIDER
+// ═══════════════════════════════════════════
+app.get('/api/beforeafter', requireAuth, (req,res) => res.json(readContent().beforeafter||[]));
+
+// Upload a new before/after pair. Both images are required and each is optimized to WebP.
+app.post('/api/beforeafter/upload', requireAuth, csrfProtect,
+  uploadBA.fields([{ name:'before', maxCount:1 }, { name:'after', maxCount:1 }]),
+  async (req,res) => {
+  try {
+    const bf = req.files && req.files.before && req.files.before[0];
+    const af = req.files && req.files.after  && req.files.after[0];
+    if (!bf || !af) {
+      // clean up whichever single file did arrive so we don't orphan it
+      [bf,af].forEach(f => { if (f) try { fs.unlinkSync(f.path); } catch {} });
+      return res.status(400).json({ error:'Both a "before" and an "after" image are required.' });
+    }
+    const bName = await optimizeImage(bf.path, { maxW:1600, quality:80 }) || bf.filename;
+    const aName = await optimizeImage(af.path, { maxW:1600, quality:80 }) || af.filename;
+    const c    = readContent();
+    const item = {
+      id:'ba'+Date.now(),
+      title:  (req.body.title||'Project Transformation').toString().slice(0,120),
+      before: 'images/beforeafter/'+bName,
+      after:  'images/beforeafter/'+aName,
+    };
+    (c.beforeafter = c.beforeafter||[]).push(item);
+    writeContent(c);
+    logActivity('Added before/after pair: '+item.title, req.session.user);
+    res.json({ success:true, item });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+app.put('/api/beforeafter/:id', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const c = readContent();
+    const i = (c.beforeafter||[]).findIndex(b=>b.id===req.params.id);
+    if (i===-1) return res.status(404).json({ error:'Not found' });
+    // Only the title is editable here; images are replaced by re-uploading.
+    if (typeof req.body.title === 'string') c.beforeafter[i].title = req.body.title.slice(0,120);
+    writeContent(c);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+app.delete('/api/beforeafter/:id', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const c    = readContent();
+    const item = (c.beforeafter||[]).find(b=>b.id===req.params.id);
+    if (!item) return res.status(404).json({ error:'Not found' });
+    ['before','after'].forEach(k => {
+      if (item[k] && item[k].startsWith('images/beforeafter/')) {
+        const fp = path.join(ROOT, item[k]);
+        if (fs.existsSync(fp)) try { fs.unlinkSync(fp); } catch {}
+      }
+    });
+    c.beforeafter = c.beforeafter.filter(b=>b.id!==req.params.id);
+    writeContent(c);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+app.post('/api/beforeafter/reorder', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const c       = readContent();
+    c.beforeafter = req.body.order.map(id=>(c.beforeafter||[]).find(b=>b.id===id)).filter(Boolean);
     writeContent(c);
     res.json({ success:true });
   } catch(e) { res.status(500).json({ error:e.message }); }

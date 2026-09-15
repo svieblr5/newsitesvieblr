@@ -475,6 +475,10 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         Gallery
       </button>
+      <button class="nav-btn" data-p="beforeafter" onclick="show('beforeafter',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><polyline points="7 9 5 11 7 13"/><polyline points="17 9 19 11 17 13"/></svg>
+        Before &amp; After
+      </button>
       <button class="nav-btn" data-p="testimonials" onclick="show('testimonials',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Testimonials
@@ -842,6 +846,33 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
           <span class="badge badge-gold" id="galCount">0 items</span>
         </div>
         <div class="gal-grid" id="galGrid"></div>
+      </div>
+
+      <!-- ══ BEFORE / AFTER ══ -->
+      <div id="p-beforeafter" class="panel">
+        <div class="section-row">
+          <div>
+            <div style="font-family:'Cormorant',serif;font-size:1.3rem;font-weight:600;color:#1A4530">Before &amp; After</div>
+            <div style="font-size:.76rem;color:#8a7e72;margin-top:2px">Upload transformation pairs — visitors drag a slider to reveal the change. Shown on the Gallery page.</div>
+          </div>
+        </div>
+        <div style="background:#faf9f7;border:1px solid #e8e4de;border-radius:12px;padding:16px 18px;margin-bottom:18px">
+          <div style="font-size:.7rem;font-weight:700;color:#215840;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px">Add a new pair</div>
+          <div class="frow"><div class="fg"><label>Title</label><input type="text" id="ba-title" placeholder="e.g. Malleshwaram Living Room Makeover"></div></div>
+          <div class="frow">
+            <div class="fg"><label>Before image</label><input type="file" id="ba-before" accept="image/*"></div>
+            <div class="fg"><label>After image</label><input type="file" id="ba-after" accept="image/*"></div>
+          </div>
+          <button class="btn btn-gold" id="ba-add-btn" onclick="handleBAUpload()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Pair
+          </button>
+        </div>
+        <div class="gal-toolbar">
+          <span style="font-family:'Cormorant',serif;font-size:1.1rem;font-weight:600;color:#1A4530">Current Pairs</span>
+          <span class="badge badge-gold" id="baCount">0 pairs</span>
+        </div>
+        <div class="gal-grid" id="baGrid"></div>
       </div>
 
       <!-- ══ TESTIMONIALS ══ -->
@@ -1727,7 +1758,7 @@ const titles = {
   about:'About Page', services:'Services Page', products:'Products Page',
   furniture:'Furniture Page', electronics:'Electronics Page',
   contact:'Contact Info', navigation:'Navigation', gallery:'Gallery',
-  testimonials:'Testimonials', blog:'Blog & News', media:'Media Library',
+  beforeafter:'Before & After', testimonials:'Testimonials', blog:'Blog & News', media:'Media Library',
   seo:'SEO Settings', enquiries:'Enquiries Inbox',
   calltracking:'Click to Call — Call Log', settings:'Site Settings',
   visitors:'Visitor Analytics Dashboard', ga:'Google Analytics',
@@ -1774,6 +1805,7 @@ function show(id, btn) {
   closeSidebar();   // collapse the drawer after picking a section on mobile
   document.getElementById('topTitle').textContent = titles[id]||id;
   if (id==='gallery')      loadGallery();
+  if (id==='beforeafter')  loadBeforeAfter();
   if (id==='testimonials') loadTestimonials();
   if (id==='blog')         loadBlog();
   if (id==='media')        loadMedia();
@@ -2814,6 +2846,61 @@ function delGallery(id,title) {
     async()=>{ await api('DELETE','/api/gallery/'+id); C=await api('GET','/api/content'); loadGallery(); toast('Deleted: '+title); },'Delete','btn-ok' );
 }
 
+// ── BEFORE / AFTER ────────────────────────────
+async function loadBeforeAfter() {
+  const items = await api('GET','/api/beforeafter').catch(()=>[]);
+  const grid = document.getElementById('baGrid');
+  document.getElementById('baCount').textContent = items.length+(items.length===1?' pair':' pairs');
+  if (!items.length) { grid.innerHTML='<p style="color:#8a7e72;font-size:.82rem;grid-column:1/-1">No before/after pairs yet. Add one above!</p>'; return; }
+  grid.innerHTML = items.map(item=>`
+    <div class="gal-item" id="ba-${item.id}">
+      <div style="display:flex;gap:2px">
+        <div style="position:relative;flex:1"><img src="../${esc(item.before)}" alt="Before" onerror="this.style.opacity='.3'" style="width:100%;display:block"><span style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);color:#fff;font-size:.58rem;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:4px">BEFORE</span></div>
+        <div style="position:relative;flex:1"><img src="../${esc(item.after)}" alt="After" onerror="this.style.opacity='.3'" style="width:100%;display:block"><span style="position:absolute;top:6px;right:6px;background:rgba(33,88,64,.85);color:#fff;font-size:.58rem;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:4px">AFTER</span></div>
+      </div>
+      <div class="gal-info"><div class="gal-info-title">${esc(item.title)}</div></div>
+      <div class="gal-actions">
+        <button class="gal-btn gal-btn-e" onclick="editBA('${item.id}')" title="Rename">✏️</button>
+        <button class="gal-btn gal-btn-d" onclick="delBA('${item.id}','${esc(item.title)}')" title="Delete">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+async function handleBAUpload() {
+  const bf = document.getElementById('ba-before').files[0];
+  const af = document.getElementById('ba-after').files[0];
+  if (!bf || !af) { toast('Pick both a before and an after image','err'); return; }
+  const btn = document.getElementById('ba-add-btn');
+  btn.disabled = true; const label = btn.innerHTML; btn.textContent = 'Uploading…';
+  const fd = new FormData();
+  fd.append('before',bf); fd.append('after',af);
+  fd.append('title', gv('ba-title') || bf.name.replace(/\.[^/.]+$/,'').replace(/[-_]/g,' '));
+  const r = await fetch('/api/beforeafter/upload',{method:'POST',body:fd,headers:{'X-CSRF-Token':_csrfToken}}).then(x=>x.json()).catch(e=>({error:e.message}));
+  btn.disabled = false; btn.innerHTML = label;
+  if (r.success) {
+    toast('Pair added');
+    document.getElementById('ba-title').value=''; document.getElementById('ba-before').value=''; document.getElementById('ba-after').value='';
+    C=await api('GET','/api/content'); loadBeforeAfter(); schedulePubRefresh();
+  } else toast('Upload failed: '+(r.error||''),'err');
+}
+
+function editBA(id) {
+  const item = (C.beforeafter||[]).find(b=>b.id===id);
+  if (!item) return;
+  openModal('Rename Pair',`
+    <div class="frow full"><div class="fg"><label>Title</label><input type="text" id="ba-edit-title" value="${esc(item.title||'')}"></div></div>
+    <p style="color:#8a7e72;font-size:.75rem;margin-top:4px">To change the images, delete this pair and add a new one.</p>`,
+    async()=>{
+      await api('PUT','/api/beforeafter/'+id,{title:gv('ba-edit-title')});
+      C=await api('GET','/api/content'); loadBeforeAfter(); toast('Pair updated');
+    },'Save Changes','btn-ok-gold');
+}
+
+function delBA(id,title) {
+  openModal('Delete Pair',`<p style="color:#4a5568;font-size:.85rem">Delete <strong>"${esc(title)}"</strong>? Both images will be removed. This cannot be undone.</p>`,
+    async()=>{ await api('DELETE','/api/beforeafter/'+id); C=await api('GET','/api/content'); loadBeforeAfter(); toast('Deleted: '+title); },'Delete','btn-ok' );
+}
+
 // ── TESTIMONIALS ──────────────────────────────
 async function loadTestimonials() {
   const items = await api('GET','/api/testimonials').catch(()=>[]);
@@ -3811,7 +3898,7 @@ async function api(method, url, body) {
   if (!r.ok && data.error) throw new Error(data.error);
   // After any successful content edit, refresh the unpublished-changes indicator.
   if (r.ok && ['POST','PUT','PATCH','DELETE'].includes(method) &&
-      /^\/api\/(content|gallery|testimonials|blog|team|restore)\b/.test(url)) {
+      /^\/api\/(content|gallery|beforeafter|testimonials|blog|team|restore)\b/.test(url)) {
     schedulePubRefresh();
   }
   return data;
@@ -3896,6 +3983,7 @@ async function reloadAllContent() {
     fillServices(); fillProducts(); fillFurniture(); fillElectronics();
     loadStats();
     if (curPanel==='gallery')      loadGallery();
+    if (curPanel==='beforeafter')  loadBeforeAfter();
     if (curPanel==='testimonials') loadTestimonials();
     if (curPanel==='blog')         loadBlog();
   } catch(e) {}

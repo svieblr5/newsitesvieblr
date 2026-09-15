@@ -90,6 +90,32 @@
 @media(max-width:900px){ .gal-masonry { columns: 2; } }
 @media(max-width:500px){ .gal-masonry { columns: 1; } }
 
+/* ── Before / After slider ── */
+.ba-sec { background:#f6f3ee; }
+.ba-head { text-align:center; margin-bottom:34px; }
+.ba-heading { font-family:'Cormorant',serif; font-size:clamp(2rem,4vw,2.8rem); font-weight:600; color:#1A4530; line-height:1.1; margin:6px 0 8px; }
+.ba-heading em { font-style:italic; color:#C9A05A; }
+.ba-sub { color:#6b6459; font-size:.95rem; max-width:520px; margin:0 auto; }
+.ba-track { display:grid; grid-template-columns:repeat(2,1fr); gap:26px; }
+@media(max-width:820px){ .ba-track { grid-template-columns:1fr; } }
+.ba-item { }
+.ba-slider { position:relative; width:100%; aspect-ratio:4/3; overflow:hidden; border-radius:14px;
+  box-shadow:0 14px 40px rgba(26,69,48,.16); cursor:ew-resize; user-select:none; touch-action:none;
+  background:#e8e2d8; }
+.ba-slider img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
+.ba-before { clip-path: inset(0 calc(100% - var(--pos,50%)) 0 0); }
+.ba-tag { position:absolute; top:12px; font-size:.62rem; font-weight:700; letter-spacing:.08em;
+  color:#fff; padding:4px 10px; border-radius:20px; backdrop-filter:blur(4px); pointer-events:none; z-index:2; }
+.ba-tag-b { left:12px; background:rgba(0,0,0,.5); }
+.ba-tag-a { right:12px; background:rgba(33,88,64,.72); }
+.ba-divider { position:absolute; top:0; bottom:0; left:var(--pos,50%); width:3px;
+  background:#fff; transform:translateX(-50%); box-shadow:0 0 8px rgba(0,0,0,.35); z-index:2; }
+.ba-handle { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:42px; height:42px; border-radius:50%; background:#fff; box-shadow:0 3px 12px rgba(0,0,0,.3);
+  display:flex; align-items:center; justify-content:center; color:#1A4530; }
+.ba-caption { margin-top:12px; text-align:center; font-family:'Cormorant',serif; font-size:1.15rem;
+  font-weight:600; color:#1A4530; }
+
 /* ── Card ── */
 .gal-card {
   break-inside: avoid; margin-bottom: 16px;
@@ -628,6 +654,18 @@
   </div>
 </section>
 
+<!-- BEFORE / AFTER -->
+<section class="sec ba-sec" id="ba-section" style="display:none">
+  <div class="wrap">
+    <div class="ba-head">
+      <div class="eyebrow reveal" style="justify-content:center">The Transformation</div>
+      <h2 class="ba-heading reveal d1">Before <em>&amp;</em> After</h2>
+      <p class="ba-sub reveal d2">Drag the slider to reveal how we transformed these Bengaluru spaces.</p>
+    </div>
+    <div class="ba-track" id="ba-track"></div>
+  </div>
+</section>
+
 <!-- CTA -->
 <section class="cta-sec">
   <div class="wrap"><div class="cta-inner">
@@ -718,6 +756,50 @@
     '</div>';
   }
 
+  /* ── Before / After: render CMS pairs + wire up drag sliders ── */
+  function baRender(items){
+    var sec = document.getElementById('ba-section');
+    if(!sec) return;
+    if(!items || !items.length){ sec.style.display='none'; return; }
+    var track = document.getElementById('ba-track');
+    track.innerHTML = items.map(function(it){
+      var t = esc(it.title||'');
+      return '<div class="ba-item reveal">'+
+        '<div class="ba-slider" style="--pos:50%">'+
+          '<img class="ba-after" src="'+esc(it.after)+'" alt="After — '+t+'" loading="lazy">'+
+          '<img class="ba-before" src="'+esc(it.before)+'" alt="Before — '+t+'" loading="lazy">'+
+          '<span class="ba-tag ba-tag-b">Before</span>'+
+          '<span class="ba-tag ba-tag-a">After</span>'+
+          '<div class="ba-divider"><div class="ba-handle">'+
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="14 6 8 12 14 18"/><polyline points="10 6 16 12 10 18"/></svg>'+
+          '</div></div>'+
+        '</div>'+
+        (t ? '<div class="ba-caption">'+t+'</div>' : '')+
+      '</div>';
+    }).join('');
+    sec.style.display='';
+    track.querySelectorAll('.ba-slider').forEach(baBindSlider);
+    if(window.revealObserver){
+      track.querySelectorAll('.reveal').forEach(function(el){ window.revealObserver.observe(el); });
+    }
+  }
+
+  function baBindSlider(sl){
+    var dragging=false;
+    function setPos(clientX){
+      var r=sl.getBoundingClientRect();
+      var p=Math.max(0,Math.min(100,(clientX-r.left)/r.width*100));
+      sl.style.setProperty('--pos', p+'%');
+    }
+    function pt(e){ return e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX; }
+    sl.addEventListener('mousedown', function(e){ dragging=true; setPos(pt(e)); e.preventDefault(); });
+    sl.addEventListener('touchstart',function(e){ dragging=true; setPos(pt(e)); }, {passive:true});
+    window.addEventListener('mousemove', function(e){ if(dragging) setPos(pt(e)); });
+    window.addEventListener('touchmove', function(e){ if(dragging){ setPos(pt(e)); e.preventDefault(); } }, {passive:false});
+    window.addEventListener('mouseup',  function(){ dragging=false; });
+    window.addEventListener('touchend', function(){ dragging=false; });
+  }
+
   /* ── Init filter + lightbox (called after any render) ── */
   function initGallery(){
     var chips = document.querySelectorAll('.gal-chip');
@@ -781,6 +863,7 @@
   fetch('/api/site-content')
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(data){
+      if(data) baRender(data.beforeafter);
       var items = data && data.gallery;
       if(!items || !items.length){ initGallery(); return; }
 
