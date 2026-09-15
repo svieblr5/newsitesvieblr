@@ -367,22 +367,59 @@ function siteBaseUrl() {
   const base = (seo.global && seo.global.base_url) || 'https://svie5.com';
   return String(base).replace(/\/+$/, '');
 }
+const sitemapXmlEsc = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+
+// Absolutize a stored image path ("images/gallery/g01.jpg") against the site base.
+function absImg(base, src) {
+  if (!src) return null;
+  if (/^https?:\/\//i.test(src)) return src;
+  return base + '/' + String(src).replace(/^\/+/, '');
+}
+
+// Image sitemap entries for a given page slug, drawn from the LIVE published content
+// so the sitemap mirrors what actually renders. Only the gallery page carries images.
+function sitemapImagesFor(slug, base, content) {
+  if (slug !== 'gallery.html') return [];
+  const out = [];
+  (content.gallery || []).forEach(g => {
+    const loc = absImg(base, g.src);
+    if (loc) out.push({ loc, title: g.title || 'SVIE project — Bengaluru' });
+  });
+  (content.beforeafter || []).forEach(b => {
+    ['before', 'after'].forEach(k => {
+      const loc = absImg(base, b[k]);
+      if (loc) out.push({ loc, title: ((b.title ? b.title + ' — ' : '') + k) });
+    });
+  });
+  return out;
+}
+
 function generateSitemapXml() {
-  const base = siteBaseUrl();
+  const base    = siteBaseUrl();
+  const content = readLive();
   // lastmod tracks the published-content file's modification time.
   let lastmod;
   try { lastmod = fs.statSync(CONTENT_FILE).mtime.toISOString().slice(0,10); }
   catch { lastmod = new Date().toISOString().slice(0,10); }
-  const urls = SITEMAP_PAGES.map(p =>
-    '  <url>\n' +
-    '    <loc>' + base + (p.slug ? '/' + p.slug : '/') + '</loc>\n' +
-    '    <lastmod>' + lastmod + '</lastmod>\n' +
-    '    <changefreq>' + p.freq + '</changefreq>\n' +
-    '    <priority>' + p.priority + '</priority>\n' +
-    '  </url>'
-  ).join('\n');
+  const urls = SITEMAP_PAGES.map(p => {
+    const images = sitemapImagesFor(p.slug, base, content).map(img =>
+      '    <image:image>\n' +
+      '      <image:loc>' + sitemapXmlEsc(img.loc) + '</image:loc>\n' +
+      '      <image:title>' + sitemapXmlEsc(img.title) + '</image:title>\n' +
+      '    </image:image>'
+    ).join('\n');
+    return '  <url>\n' +
+      '    <loc>' + base + (p.slug ? '/' + p.slug : '/') + '</loc>\n' +
+      '    <lastmod>' + lastmod + '</lastmod>\n' +
+      '    <changefreq>' + p.freq + '</changefreq>\n' +
+      '    <priority>' + p.priority + '</priority>\n' +
+      (images ? images + '\n' : '') +
+      '  </url>';
+  }).join('\n');
   return '<?xml version="1.0" encoding="UTF-8"?>\n' +
-         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n' +
+         '        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n' +
          urls + '\n</urlset>\n';
 }
 app.get('/sitemap.xml', (req,res) => {
