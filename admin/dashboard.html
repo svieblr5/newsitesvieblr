@@ -1367,6 +1367,12 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
         </div>
 
         <div class="card">
+          <div class="card-title">Two-Factor Authentication</div>
+          <div class="card-sub">Require a one-time code from an authenticator app (Google Authenticator, Authy, Microsoft Authenticator…) at every sign-in.</div>
+          <div id="tfa-body"><div style="color:#8a7e72;font-size:.82rem">Loading…</div></div>
+        </div>
+
+        <div class="card">
           <div class="card-title">Backup &amp; Restore</div>
           <div class="card-sub">Download or restore your website content</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
@@ -1804,6 +1810,7 @@ function show(id, btn) {
   curPanel = id;
   closeSidebar();   // collapse the drawer after picking a section on mobile
   document.getElementById('topTitle').textContent = titles[id]||id;
+  if (id==='settings')     load2FA();
   if (id==='gallery')      loadGallery();
   if (id==='beforeafter')  loadBeforeAfter();
   if (id==='testimonials') loadTestimonials();
@@ -2771,6 +2778,74 @@ async function changePassword() {
   document.getElementById('pw-current').value='';
   document.getElementById('pw-new').value='';
   document.getElementById('pw-confirm').value='';
+}
+
+// ── Two-Factor Authentication ─────────────────
+async function load2FA() {
+  const box = document.getElementById('tfa-body'); if (!box) return;
+  const s = await api('GET','/api/auth/2fa/status').catch(()=>({enabled:false}));
+  if (s.enabled) {
+    box.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+        <span style="background:rgba(33,88,64,.12);color:#215840;font-size:.66rem;font-weight:700;letter-spacing:.06em;padding:4px 12px;border-radius:20px">● ENABLED</span>
+        <span style="font-size:.78rem;color:#8a7e72">${s.recoveryRemaining} recovery code${s.recoveryRemaining===1?'':'s'} remaining</span>
+      </div>
+      <p style="font-size:.82rem;color:#6a6460;margin-bottom:12px">Your account is protected. To turn 2FA off, confirm your password and a current authenticator (or recovery) code.</p>
+      <div class="frow">
+        <div class="fg"><label>Password</label><input id="tfa-off-pw" type="password" placeholder="Current password" autocomplete="off"></div>
+        <div class="fg"><label>Authenticator / recovery code</label><input id="tfa-off-code" type="text" placeholder="6-digit or recovery code" autocomplete="off"></div>
+      </div>
+      <button class="btn btn-outline" onclick="disable2FA()" style="margin-top:2px">Disable 2FA</button>`;
+  } else {
+    box.innerHTML = `
+      <p style="font-size:.82rem;color:#6a6460;margin-bottom:12px">Not enabled. Turn it on to require a one-time code from your phone at every sign-in.</p>
+      <button class="btn btn-primary" onclick="setup2FA()">Set Up 2FA</button>
+      <div id="tfa-setup"></div>`;
+  }
+}
+
+async function setup2FA() {
+  const r = await api('POST','/api/auth/2fa/setup',{}).catch(e=>({error:e.message}));
+  if (r.error) return toast(r.error,'err');
+  const wrap = document.getElementById('tfa-setup');
+  const key  = (r.secret||'').replace(/(.{4})/g,'$1 ').trim();
+  wrap.innerHTML = `
+    <div style="margin-top:16px;padding:18px;background:#faf9f7;border:1px solid #e8e4de;border-radius:12px;max-width:420px">
+      <p style="font-size:.82rem;color:#4a5568;margin-bottom:12px"><strong>1.</strong> Scan this in your authenticator app — or type the key in manually.</p>
+      ${r.qr ? `<img src="${r.qr}" alt="2FA QR code" style="width:200px;height:200px;display:block;margin:0 auto 14px;border-radius:8px;background:#fff">` : '<p style="font-size:.78rem;color:#b0392c;margin-bottom:10px">QR generator unavailable — use the manual key below.</p>'}
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:.6rem;color:#8a7e72;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Manual key</div>
+        <code style="font-size:.9rem;letter-spacing:.06em;color:#215840;font-weight:600;word-break:break-all">${esc(key)}</code>
+      </div>
+      <p style="font-size:.82rem;color:#4a5568;margin-bottom:8px"><strong>2.</strong> Enter the 6-digit code it shows to confirm.</p>
+      <div class="frow full"><div class="fg"><input id="tfa-enable-code" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="off" style="letter-spacing:.3em;text-align:center;font-size:1.1rem"></div></div>
+      <button class="btn btn-primary" onclick="enable2FA()">Verify &amp; Enable</button>
+    </div>`;
+  const inp = document.getElementById('tfa-enable-code'); if (inp) inp.focus();
+}
+
+async function enable2FA() {
+  const token = gv('tfa-enable-code');
+  if (!/^\d{6}$/.test(token)) return toast('Enter the 6-digit code from your app','err');
+  const r = await api('POST','/api/auth/2fa/enable',{token}).catch(e=>({error:e.message}));
+  if (r.error) return toast(r.error,'err');
+  const codesText = (r.recoveryCodes||[]).join('\n');
+  openModal('Save Your Recovery Codes', `
+    <p style="font-size:.85rem;color:#4a5568;margin-bottom:12px">2FA is on. Save these one-time recovery codes somewhere safe — each lets you sign in once if you lose your phone. <strong>They won't be shown again.</strong></p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92rem;background:#faf9f7;border:1px solid #e8e4de;border-radius:10px;padding:16px;margin-bottom:10px">
+      ${(r.recoveryCodes||[]).map(c=>`<div style="letter-spacing:.04em;color:#215840;font-weight:600">${esc(c)}</div>`).join('')}
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="navigator.clipboard.writeText(${JSON.stringify(codesText)}).then(()=>toast('Copied to clipboard'))">Copy codes</button>`,
+    async()=>{ load2FA(); toast('Two-factor authentication enabled'); }, "I've Saved Them", 'btn-ok-gold');
+}
+
+async function disable2FA() {
+  const password = gv('tfa-off-pw'), token = gv('tfa-off-code');
+  if (!password || !token) return toast('Enter your password and a code','err');
+  const r = await api('POST','/api/auth/2fa/disable',{password,token}).catch(e=>({error:e.message}));
+  if (r.error) return toast(r.error,'err');
+  toast('Two-factor authentication disabled');
+  load2FA();
 }
 
 async function restoreBackup() {

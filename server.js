@@ -87,6 +87,81 @@ async function hashAndSavePassword(newPlain) {
   saveConfig(cfg);
 }
 
+// ── Two-factor auth: TOTP (RFC 6238) implemented with built-in crypto, no deps ──
+//   Secret + enabled flag + hashed recovery codes live in config.json under `totp`.
+//   `totpPending` holds an un-confirmed secret between "setup" and "enable".
+const B32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+function base32Encode(buf) {
+  let bits = 0, value = 0, out = '';
+  for (let i = 0; i < buf.length; i++) {
+    value = (value << 8) | buf[i]; bits += 8;
+    while (bits >= 5) { out += B32_ALPHABET[(value >>> (bits - 5)) & 31]; bits -= 5; }
+  }
+  if (bits > 0) out += B32_ALPHABET[(value << (5 - bits)) & 31];
+  return out;
+}
+function base32Decode(str) {
+  const clean = String(str||'').toUpperCase().replace(/[^A-Z2-7]/g, '');
+  let bits = 0, value = 0; const out = [];
+  for (const ch of clean) {
+    value = (value << 5) | B32_ALPHABET.indexOf(ch); bits += 5;
+    if (bits >= 8) { out.push((value >>> (bits - 8)) & 0xff); bits -= 8; }
+  }
+  return Buffer.from(out);
+}
+function hotp(secretBuf, counter) {
+  const buf = Buffer.alloc(8);
+  buf.writeUInt32BE(Math.floor(counter / 0x100000000), 0);
+  buf.writeUInt32BE(counter >>> 0, 4);
+  const hmac   = crypto.createHmac('sha1', secretBuf).update(buf).digest();
+  const offset = hmac[hmac.length - 1] & 0xf;
+  const code   = ((hmac[offset] & 0x7f) << 24) | (hmac[offset+1] << 16) | (hmac[offset+2] << 8) | hmac[offset+3];
+  return (code % 1000000).toString().padStart(6, '0');
+}
+// Accept the current 30s step ± `window` steps to tolerate clock drift.
+function verifyTotp(token, secretB32, window = 1) {
+  const t = String(token||'').replace(/\D/g, '');
+  if (t.length !== 6 || !secretB32) return false;
+  const secret  = base32Decode(secretB32);
+  const counter = Math.floor(Date.now() / 30000);
+  for (let w = -window; w <= window; w++) {
+    const cand = hotp(secret, counter + w);
+    if (crypto.timingSafeEqual(Buffer.from(cand), Buffer.from(t))) return true;
+  }
+  return false;
+}
+const generateTotpSecret = () => base32Encode(crypto.randomBytes(20));
+function totpUri(secretB32) {
+  const label  = encodeURIComponent('SVIE CMS:' + ADMIN_USER);
+  const issuer = encodeURIComponent('SVIE CMS');
+  return `otpauth://totp/${label}?secret=${secretB32}&issuer=${issuer}&algorithm=SHA1&digits=6&period=30`;
+}
+async function generateRecoveryCodes(n = 8) {
+  const codes = [], hashes = [];
+  for (let i = 0; i < n; i++) {
+    const raw = crypto.randomBytes(5).toString('hex');           // 10 hex chars
+    codes.push(raw.replace(/(.{5})(.{5})/, '$1-$2'));            // shown as xxxxx-xxxxx
+    hashes.push(await bcrypt.hash(raw, SALT_ROUNDS));
+  }
+  return { codes, hashes };
+}
+// Check a recovery code; if it matches, consume (remove) it so it can't be reused.
+async function consumeRecoveryCode(input) {
+  const norm = String(input||'').replace(/[^0-9a-fA-F]/g, '').toLowerCase();
+  if (norm.length !== 10) return false;
+  const cfg = getConfig();
+  if (!cfg.totp || !Array.isArray(cfg.totp.recovery)) return false;
+  for (let i = 0; i < cfg.totp.recovery.length; i++) {
+    if (await bcrypt.compare(norm, cfg.totp.recovery[i])) {
+      cfg.totp.recovery.splice(i, 1);
+      saveConfig(cfg);
+      return true;
+    }
+  }
+  return false;
+}
+const twoFactorEnabled = () => { const c = getConfig(); return !!(c.totp && c.totp.enabled); };
+
 // ═══════════════════════════════════════════
 //  SECURITY HEADERS — Helmet
 // ═══════════════════════════════════════════
@@ -682,6 +757,16 @@ app.post('/api/auth/login', loginLimiter, async (req,res) => {
     if (!username || !password) return res.status(400).json({ error:'Missing credentials' });
 
     if (username === ADMIN_USER && await verifyPassword(password)) {
+      // Password OK. If 2FA is on, hold a short-lived pending flag and require a
+      // second step before granting the logged-in session.
+      if (twoFactorEnabled()) {
+        req.session.pending2fa   = username;
+        req.session.pending2faTs = Date.now();
+        return req.session.save(err => {
+          if (err) return res.status(500).json({ error:'Session error' });
+          res.json({ twoFactorRequired:true });
+        });
+      }
       // Regenerate session to prevent session fixation
       req.session.regenerate(err => {
         if (err) return res.status(500).json({ error:'Session error' });
@@ -724,6 +809,86 @@ app.post('/api/auth/change-password', requireAuth, csrfProtect, async (req,res) 
     logActivity('Changed admin password', req.session.user);
     res.json({ success:true });
   } catch { res.status(500).json({ error:'Server error' }); }
+});
+
+// ── Two-factor auth (TOTP) ──────────────────────────────────────────────────
+const PENDING_2FA_TTL = 5 * 60 * 1000; // a login's 2FA step must complete within 5 min
+
+// Login step 2: verify the TOTP (or a recovery code) for a password-verified session.
+// No auth/CSRF here — the session isn't logged in yet; it's gated by the pending flag + rate limiter.
+app.post('/api/auth/2fa/verify', loginLimiter, async (req,res) => {
+  try {
+    const user = req.session.pending2fa;
+    const ts   = req.session.pending2faTs || 0;
+    if (!user || Date.now() - ts > PENDING_2FA_TTL) {
+      return res.status(401).json({ error:'Your sign-in expired. Please enter your password again.' });
+    }
+    const { token, recovery } = req.body;
+    const cfg = getConfig();
+    const ok  = recovery ? await consumeRecoveryCode(recovery)
+                         : verifyTotp(token, cfg.totp && cfg.totp.secret);
+    if (!ok) return res.status(401).json({ error:'Invalid authentication code' });
+    req.session.regenerate(err => {
+      if (err) return res.status(500).json({ error:'Session error' });
+      req.session.loggedIn  = true;
+      req.session.user      = user;
+      req.session.csrfToken = crypto.randomBytes(32).toString('hex');
+      logActivity('Signed in (2FA)', user);
+      res.json({ success:true, csrfToken: req.session.csrfToken });
+    });
+  } catch { res.status(500).json({ error:'Server error' }); }
+});
+
+app.get('/api/auth/2fa/status', requireAuth, (req,res) => {
+  const cfg = getConfig();
+  res.json({
+    enabled:           !!(cfg.totp && cfg.totp.enabled),
+    recoveryRemaining: (cfg.totp && Array.isArray(cfg.totp.recovery)) ? cfg.totp.recovery.length : 0,
+  });
+});
+
+// Begin setup: mint a pending secret, return it + an otpauth URI + a QR data-URL.
+app.post('/api/auth/2fa/setup', requireAuth, csrfProtect, async (req,res) => {
+  try {
+    if (twoFactorEnabled()) return res.status(400).json({ error:'2FA is already enabled. Disable it first to reconfigure.' });
+    const secret = generateTotpSecret();
+    const cfg = getConfig(); cfg.totpPending = secret; saveConfig(cfg);
+    const uri = totpUri(secret);
+    let qr = null;
+    try { qr = await require('qrcode').toDataURL(uri, { margin:1, width:220 }); }
+    catch(e) { console.warn('[2fa] qrcode unavailable — manual entry only:', e.message); }
+    res.json({ secret, uri, qr });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// Confirm setup: verify a code against the pending secret, then enable + issue recovery codes.
+app.post('/api/auth/2fa/enable', requireAuth, csrfProtect, async (req,res) => {
+  try {
+    const cfg = getConfig();
+    if (!cfg.totpPending) return res.status(400).json({ error:'No pending 2FA setup. Start setup first.' });
+    if (!verifyTotp(req.body.token, cfg.totpPending))
+      return res.status(401).json({ error:'That code is incorrect. Check your authenticator app and try again.' });
+    const { codes, hashes } = await generateRecoveryCodes(8);
+    cfg.totp = { secret: cfg.totpPending, enabled:true, recovery: hashes };
+    delete cfg.totpPending;
+    saveConfig(cfg);
+    logActivity('Enabled two-factor authentication', req.session.user);
+    res.json({ success:true, recoveryCodes: codes });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// Turn off 2FA — requires the current password AND a valid code (or recovery code).
+app.post('/api/auth/2fa/disable', requireAuth, csrfProtect, async (req,res) => {
+  try {
+    const { password, token } = req.body;
+    if (!await verifyPassword(password || '')) return res.status(401).json({ error:'Password is incorrect' });
+    const cfg = getConfig();
+    if (!(verifyTotp(token, cfg.totp && cfg.totp.secret) || await consumeRecoveryCode(token)))
+      return res.status(401).json({ error:'Invalid authentication code' });
+    const fresh = getConfig(); delete fresh.totp; delete fresh.totpPending; saveConfig(fresh);
+    logActivity('Disabled two-factor authentication', req.session.user);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
 });
 
 // ═══════════════════════════════════════════
