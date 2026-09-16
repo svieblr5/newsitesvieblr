@@ -857,15 +857,24 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
           </div>
         </div>
         <div style="background:#faf9f7;border:1px solid #e8e4de;border-radius:12px;padding:16px 18px;margin-bottom:18px">
-          <div style="font-size:.7rem;font-weight:700;color:#215840;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px">Add a new pair</div>
+          <div style="font-size:.7rem;font-weight:700;color:#215840;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px">Add a new entry</div>
           <div class="frow"><div class="fg"><label>Title</label><input type="text" id="ba-title" placeholder="e.g. Malleshwaram Living Room Makeover"></div></div>
-          <div class="frow">
+          <div class="frow"><div class="fg"><label>Type</label>
+            <select id="ba-type" onchange="baToggleType()">
+              <option value="image">Image pair (drag slider)</option>
+              <option value="video">Video</option>
+            </select></div></div>
+          <div class="frow" id="ba-image-fields">
             <div class="fg"><label>Before image</label><input type="file" id="ba-before" accept="image/*"></div>
             <div class="fg"><label>After image</label><input type="file" id="ba-after" accept="image/*"></div>
           </div>
+          <div class="frow" id="ba-video-fields" style="display:none">
+            <div class="fg"><label>Video <span style="color:#8a7e72;font-weight:400">(MP4/WebM, max 60 MB)</span></label><input type="file" id="ba-video" accept="video/mp4,video/webm,video/quicktime"></div>
+            <div class="fg"><label>Poster image <span style="color:#8a7e72;font-weight:400">(optional)</span></label><input type="file" id="ba-poster" accept="image/*"></div>
+          </div>
           <button class="btn btn-gold" id="ba-add-btn" onclick="handleBAUpload()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Pair
+            Add Entry
           </button>
         </div>
         <div class="gal-toolbar">
@@ -2995,39 +3004,73 @@ function delGallery(id,title) {
 }
 
 // ── BEFORE / AFTER ────────────────────────────
+function baToggleType() {
+  const v = (document.getElementById('ba-type')||{}).value || 'image';
+  const img = document.getElementById('ba-image-fields');
+  const vid = document.getElementById('ba-video-fields');
+  if (img) img.style.display = v==='video' ? 'none' : '';
+  if (vid) vid.style.display = v==='video' ? '' : 'none';
+}
+
 async function loadBeforeAfter() {
   const items = await api('GET','/api/beforeafter').catch(()=>[]);
   const grid = document.getElementById('baGrid');
-  document.getElementById('baCount').textContent = items.length+(items.length===1?' pair':' pairs');
-  if (!items.length) { grid.innerHTML='<p style="color:#8a7e72;font-size:.82rem;grid-column:1/-1">No before/after pairs yet. Add one above!</p>'; return; }
-  grid.innerHTML = items.map(item=>`
-    <div class="gal-item" id="ba-${item.id}">
+  document.getElementById('baCount').textContent = items.length+(items.length===1?' entry':' entries');
+  if (!items.length) { grid.innerHTML='<p style="color:#8a7e72;font-size:.82rem;grid-column:1/-1">No before/after entries yet. Add one above!</p>'; return; }
+  grid.innerHTML = items.map(item=>{
+    const actions = `<div class="gal-actions">
+        <button class="gal-btn gal-btn-e" onclick="editBA('${item.id}')" title="Rename">✏️</button>
+        <button class="gal-btn gal-btn-d" onclick="delBA('${item.id}','${esc(item.title)}')" title="Delete">🗑</button>
+      </div>`;
+    if (item.type==='video') {
+      const poster = item.poster ? `poster="../${esc(item.poster)}"` : '';
+      return `<div class="gal-item" id="ba-${item.id}">
+        <div style="position:relative">
+          <video src="../${esc(item.video)}" ${poster} controls muted playsinline preload="metadata" style="width:100%;display:block;background:#000"></video>
+          <span style="position:absolute;top:6px;left:6px;background:rgba(201,160,90,.92);color:#1A4530;font-size:.58rem;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:4px">VIDEO</span>
+        </div>
+        <div class="gal-info"><div class="gal-info-title">${esc(item.title)}</div></div>
+        ${actions}
+      </div>`;
+    }
+    return `<div class="gal-item" id="ba-${item.id}">
       <div style="display:flex;gap:2px">
         <div style="position:relative;flex:1"><img src="../${esc(item.before)}" alt="Before" onerror="this.style.opacity='.3'" style="width:100%;display:block"><span style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);color:#fff;font-size:.58rem;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:4px">BEFORE</span></div>
         <div style="position:relative;flex:1"><img src="../${esc(item.after)}" alt="After" onerror="this.style.opacity='.3'" style="width:100%;display:block"><span style="position:absolute;top:6px;right:6px;background:rgba(33,88,64,.85);color:#fff;font-size:.58rem;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:4px">AFTER</span></div>
       </div>
       <div class="gal-info"><div class="gal-info-title">${esc(item.title)}</div></div>
-      <div class="gal-actions">
-        <button class="gal-btn gal-btn-e" onclick="editBA('${item.id}')" title="Rename">✏️</button>
-        <button class="gal-btn gal-btn-d" onclick="delBA('${item.id}','${esc(item.title)}')" title="Delete">🗑</button>
-      </div>
-    </div>`).join('');
+      ${actions}
+    </div>`;
+  }).join('');
 }
 
 async function handleBAUpload() {
-  const bf = document.getElementById('ba-before').files[0];
-  const af = document.getElementById('ba-after').files[0];
-  if (!bf || !af) { toast('Pick both a before and an after image','err'); return; }
-  const btn = document.getElementById('ba-add-btn');
+  const type = (document.getElementById('ba-type')||{}).value || 'image';
+  const btn  = document.getElementById('ba-add-btn');
+  const fd   = new FormData();
+  let url;
+  if (type==='video') {
+    const vf = document.getElementById('ba-video').files[0];
+    if (!vf) { toast('Pick a video file','err'); return; }
+    const pf = document.getElementById('ba-poster').files[0];
+    fd.append('video',vf);
+    if (pf) fd.append('poster',pf);
+    fd.append('title', gv('ba-title') || vf.name.replace(/\.[^/.]+$/,'').replace(/[-_]/g,' '));
+    url = '/api/beforeafter/upload-video';
+  } else {
+    const bf = document.getElementById('ba-before').files[0];
+    const af = document.getElementById('ba-after').files[0];
+    if (!bf || !af) { toast('Pick both a before and an after image','err'); return; }
+    fd.append('before',bf); fd.append('after',af);
+    fd.append('title', gv('ba-title') || bf.name.replace(/\.[^/.]+$/,'').replace(/[-_]/g,' '));
+    url = '/api/beforeafter/upload';
+  }
   btn.disabled = true; const label = btn.innerHTML; btn.textContent = 'Uploading…';
-  const fd = new FormData();
-  fd.append('before',bf); fd.append('after',af);
-  fd.append('title', gv('ba-title') || bf.name.replace(/\.[^/.]+$/,'').replace(/[-_]/g,' '));
-  const r = await fetch('/api/beforeafter/upload',{method:'POST',body:fd,headers:{'X-CSRF-Token':_csrfToken}}).then(x=>x.json()).catch(e=>({error:e.message}));
+  const r = await fetch(url,{method:'POST',body:fd,headers:{'X-CSRF-Token':_csrfToken}}).then(x=>x.json()).catch(e=>({error:e.message}));
   btn.disabled = false; btn.innerHTML = label;
   if (r.success) {
-    toast('Pair added');
-    document.getElementById('ba-title').value=''; document.getElementById('ba-before').value=''; document.getElementById('ba-after').value='';
+    toast(type==='video' ? 'Video added' : 'Pair added');
+    ['ba-title','ba-before','ba-after','ba-video','ba-poster'].forEach(id=>{ const el=document.getElementById(id); if (el) el.value=''; });
     C=await api('GET','/api/content'); loadBeforeAfter(); schedulePubRefresh();
   } else toast('Upload failed: '+(r.error||''),'err');
 }
@@ -3045,7 +3088,7 @@ function editBA(id) {
 }
 
 function delBA(id,title) {
-  openModal('Delete Pair',`<p style="color:#4a5568;font-size:.85rem">Delete <strong>"${esc(title)}"</strong>? Both images will be removed. This cannot be undone.</p>`,
+  openModal('Delete Entry',`<p style="color:#4a5568;font-size:.85rem">Delete <strong>"${esc(title)}"</strong>? Its files will be removed. This cannot be undone.</p>`,
     async()=>{ await api('DELETE','/api/beforeafter/'+id); C=await api('GET','/api/content'); loadBeforeAfter(); toast('Deleted: '+title); },'Delete','btn-ok' );
 }
 

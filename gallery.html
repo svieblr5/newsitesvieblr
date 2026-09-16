@@ -115,6 +115,9 @@
   display:flex; align-items:center; justify-content:center; color:#1A4530; }
 .ba-caption { margin-top:12px; text-align:center; font-family:'Cormorant',serif; font-size:1.15rem;
   font-weight:600; color:#1A4530; }
+.ba-video-wrap { position:relative; width:100%; aspect-ratio:4/3; overflow:hidden; border-radius:14px;
+  box-shadow:0 14px 40px rgba(26,69,48,.16); background:#000; }
+.ba-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
 
 /* ── Card ── */
 .gal-card {
@@ -764,6 +767,15 @@
     var track = document.getElementById('ba-track');
     track.innerHTML = items.map(function(it){
       var t = esc(it.title||'');
+      if(it.type==='video'){
+        var poster = it.poster ? ' poster="'+esc(it.poster)+'"' : '';
+        return '<div class="ba-item reveal">'+
+          '<div class="ba-video-wrap">'+
+            '<video class="ba-video" src="'+esc(it.video)+'"'+poster+' controls playsinline preload="metadata"></video>'+
+          '</div>'+
+          (t ? '<div class="ba-caption">'+t+'</div>' : '')+
+        '</div>';
+      }
       return '<div class="ba-item reveal">'+
         '<div class="ba-slider" style="--pos:50%">'+
           '<img class="ba-after" src="'+esc(it.after)+'" alt="After — '+t+'" loading="lazy">'+

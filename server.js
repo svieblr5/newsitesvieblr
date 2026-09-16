@@ -393,7 +393,7 @@ function sitemapImagesFor(slug, base, content) {
     if (loc) out.push({ loc, title: g.title || 'SVIE project — Bengaluru' });
   });
   (content.beforeafter || []).forEach(b => {
-    ['before', 'after'].forEach(k => {
+    ['before', 'after', 'poster'].forEach(k => {
       const loc = absImg(base, b[k]);
       if (loc) out.push({ loc, title: ((b.title ? b.title + ' — ' : '') + k) });
     });
@@ -713,6 +713,34 @@ const uploadBA = multer({
   fileFilter: (req,file,cb) => {
     const ok = ALLOWED_IMG_MIME.has(file.mimetype);
     cb(ok ? null : new Error('Images only (JPEG, PNG, WebP, GIF)'), ok);
+  },
+});
+
+// ── Multer: before/after VIDEO uploads (one video + optional poster image) ──
+// The video goes to /videos/beforeafter, an optional poster to /images/beforeafter.
+const ALLOWED_VIDEO_MIME = new Set(['video/mp4','video/webm','video/quicktime']);
+const baVideoStorage = multer.diskStorage({
+  destination: (req,file,cb) => {
+    const sub = file.fieldname === 'video' ? path.join('videos','beforeafter')
+                                           : path.join('images','beforeafter');
+    const d = path.join(ROOT, sub);
+    if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
+    cb(null, d);
+  },
+  filename: (req,file,cb) => {
+    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const base = crypto.randomBytes(8).toString('hex');
+    cb(null, Date.now() + '-' + file.fieldname + '-' + base + ext);
+  }
+});
+const uploadBAVideo = multer({
+  storage: baVideoStorage,
+  limits:  { fileSize: 60*1024*1024 },   // videos are large — allow up to 60 MB
+  fileFilter: (req,file,cb) => {
+    const ok = file.fieldname === 'video' ? ALLOWED_VIDEO_MIME.has(file.mimetype)
+                                          : ALLOWED_IMG_MIME.has(file.mimetype);
+    cb(ok ? null : new Error(file.fieldname==='video'
+      ? 'Video must be MP4, WebM, or MOV' : 'Poster must be an image'), ok);
   },
 });
 
@@ -1246,6 +1274,37 @@ app.post('/api/beforeafter/upload', requireAuth, csrfProtect,
   } catch(e) { res.status(500).json({ error:e.message }); }
 });
 
+// Upload a new before/after VIDEO entry. Video required; poster image optional.
+app.post('/api/beforeafter/upload-video', requireAuth, csrfProtect,
+  uploadBAVideo.fields([{ name:'video', maxCount:1 }, { name:'poster', maxCount:1 }]),
+  async (req,res) => {
+  try {
+    const vf = req.files && req.files.video  && req.files.video[0];
+    const pf = req.files && req.files.poster && req.files.poster[0];
+    if (!vf) {
+      if (pf) try { fs.unlinkSync(pf.path); } catch {}
+      return res.status(400).json({ error:'A video file is required.' });
+    }
+    let poster = null;
+    if (pf) {
+      const pName = await optimizeImage(pf.path, { maxW:1600, quality:80 }) || pf.filename;
+      poster = 'images/beforeafter/'+pName;
+    }
+    const c    = readContent();
+    const item = {
+      id:'ba'+Date.now(),
+      type:'video',
+      title:  (req.body.title||'Project Transformation').toString().slice(0,120),
+      video:  'videos/beforeafter/'+vf.filename,
+      poster,
+    };
+    (c.beforeafter = c.beforeafter||[]).push(item);
+    writeContent(c);
+    logActivity('Added before/after video: '+item.title, req.session.user);
+    res.json({ success:true, item });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
 app.put('/api/beforeafter/:id', requireAuth, csrfProtect, (req,res) => {
   try {
     const c = readContent();
@@ -1263,9 +1322,10 @@ app.delete('/api/beforeafter/:id', requireAuth, csrfProtect, (req,res) => {
     const c    = readContent();
     const item = (c.beforeafter||[]).find(b=>b.id===req.params.id);
     if (!item) return res.status(404).json({ error:'Not found' });
-    ['before','after'].forEach(k => {
-      if (item[k] && item[k].startsWith('images/beforeafter/')) {
-        const fp = path.join(ROOT, item[k]);
+    ['before','after','poster','video'].forEach(k => {
+      const rel = item[k];
+      if (rel && (rel.startsWith('images/beforeafter/') || rel.startsWith('videos/beforeafter/'))) {
+        const fp = path.join(ROOT, rel);
         if (fs.existsSync(fp)) try { fs.unlinkSync(fp); } catch {}
       }
     });
