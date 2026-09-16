@@ -4308,6 +4308,16 @@ function vSyncSettings(stats) {
   if (g('vEmailEnabled'))   g('vEmailEnabled').checked   = !!stats.emailEnabled;
   if (g('vEmailTo')   && stats.emailTo)    g('vEmailTo').value    = stats.emailTo;
   if (g('vEmailFrom') && stats.emailFrom)  g('vEmailFrom').value  = stats.emailFrom;
+  const ep = g('vEmailPass');
+  if (ep) {
+    if (stats.emailPassManagedByEnv) {
+      // Secret comes from the SMTP_PASS environment variable — lock the field.
+      ep.disabled = true; ep.value = ''; ep.placeholder = 'Managed via SMTP_PASS env var';
+    } else {
+      ep.disabled = false;
+      ep.placeholder = stats.emailPassSet ? '•••••••• saved — leave blank to keep' : '16-char app password';
+    }
+  }
 }
 async function vSaveSettings() {
   try {

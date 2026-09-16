@@ -61,6 +61,12 @@ const ADMIN_USER = 'admin';
 const getConfig  = () => storage.readJSONSafe(CONFIG_FILE, {});
 const saveConfig = d  => storage.writeJSON(CONFIG_FILE, d);
 
+// ── Secrets: prefer environment variables over on-disk config ──
+// Keeps credentials out of plaintext in data/config.json. Env always wins;
+// the config value is only a fallback for installs that haven't migrated.
+const envSMTPPass = () => (process.env.SMTP_PASS || '').trim();
+const smtpPass    = (cfg) => envSMTPPass() || (cfg && cfg.emailPass) || '';
+
 // ── Password: bcrypt-based with auto-migration from plaintext ──
 async function verifyPassword(input) {
   const cfg = getConfig();
@@ -2117,7 +2123,7 @@ function makeTransporter(cfg) {
     host: cfg.emailHost || 'smtp.gmail.com',
     port: Number(cfg.emailPort) || 587,
     secure: false,
-    auth: { user: cfg.emailFrom, pass: cfg.emailPass },
+    auth: { user: cfg.emailFrom, pass: smtpPass(cfg) },
   });
 }
 
@@ -2142,7 +2148,7 @@ async function sendNotification(visitor) {
   if (cfg.signalEnabled && cfg.signalApiUrl && cfg.signalNumber && cfg.signalRecipients) {
     sendSignalAlert(visitor, cfg).catch(e => console.error('[Visitor Signal]', e.message));
   }
-  if (cfg.emailEnabled && cfg.emailFrom && cfg.emailPass && cfg.emailTo) {
+  if (cfg.emailEnabled && cfg.emailFrom && smtpPass(cfg) && cfg.emailTo) {
     sendEmailAlert(visitor, cfg).catch(e => console.error('[Visitor Email]', e.message));
   }
 }
@@ -2168,7 +2174,7 @@ function fillTemplate(tpl, e) {
 // Best-effort: never throws, never blocks the HTTP response.
 async function sendEnquiryEmails(enquiry) {
   const cfg = getConfig();
-  if (!cfg.emailFrom || !cfg.emailPass) return; // SMTP not configured — skip silently
+  if (!cfg.emailFrom || !smtpPass(cfg)) return; // SMTP not configured — skip silently
   const fc = getFormConfig();
   let transporter;
   try { transporter = makeTransporter(cfg); }
@@ -2429,6 +2435,8 @@ app.get('/api/visitor-stats', requireAuth, (req, res) => {
     emailFrom:       cfg.emailFrom || '',
     emailHost:       cfg.emailHost || 'smtp.gmail.com',
     emailPort:       cfg.emailPort || 587,
+    emailPassSet:          !!smtpPass(cfg),   // is a password configured at all?
+    emailPassManagedByEnv: !!envSMTPPass(),   // set via SMTP_PASS env → UI locks the field
   });
 });
 
@@ -2446,9 +2454,10 @@ app.patch('/api/visitor-settings', requireAuth, csrfProtect, (req, res) => {
     if (str('emailTo',   200) !== undefined) cfg.emailTo   = str('emailTo',   200);
     if (str('emailFrom', 200) !== undefined) cfg.emailFrom = str('emailFrom', 200);
     // Password is write-only (never sent back to the form), so a blank submission
-    // means "keep the existing password" rather than wiping it.
+    // means "keep the existing password" rather than wiping it. When SMTP_PASS is
+    // supplied via the environment, never persist the secret to config.json.
     const newEmailPass = str('emailPass', 200);
-    if (newEmailPass) cfg.emailPass = newEmailPass;
+    if (newEmailPass && !envSMTPPass()) cfg.emailPass = newEmailPass;
     if (str('emailHost', 100) !== undefined) cfg.emailHost = str('emailHost', 100);
     if (b.emailPort !== undefined) cfg.emailPort = parseInt(b.emailPort) || 587;
     saveConfig(cfg);
