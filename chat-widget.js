@@ -122,6 +122,9 @@
   // Not an interactive control itself (it contains a dismiss button; a role=button
   // wrapper around a button is a nested-interactive a11y violation). Clicking the
   // bubble still opens chat via the listener below; keyboard users use the FAB.
+  // Marked complementary so this floating bubble sits inside a landmark region.
+  invite.setAttribute('role', 'complementary');
+  invite.setAttribute('aria-label', 'SVIE Assistant');
 
   var panel = document.createElement('div');
   panel.className = 'svie-chat-panel';
