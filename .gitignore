@@ -1,6 +1,7 @@
 .env
 node_modules/
 data/
+media/
 .claude/settings.local.json
 
 # Google service-account keys (never commit — contain private keys)
