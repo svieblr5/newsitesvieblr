@@ -126,6 +126,16 @@ body::before{
     <button type="submit" class="btn-login" id="loginBtn">Sign In to CMS</button>
   </form>
 
+  <form id="tfaForm" style="display:none">
+    <p class="login-sub" id="tfaHint" style="margin-bottom:24px">Enter the 6-digit code from your authenticator app.</p>
+    <div class="form-group">
+      <label class="form-label" for="tfaCode">Authentication Code</label>
+      <input type="text" id="tfaCode" class="form-input" inputmode="numeric" autocomplete="one-time-code" placeholder="000000" style="letter-spacing:.35em;text-align:center;font-size:1.15rem">
+    </div>
+    <button type="submit" class="btn-login" id="tfaBtn">Verify</button>
+    <p class="back-link" style="margin-top:18px"><a href="#" id="toggleRecovery">Use a recovery code instead</a></p>
+  </form>
+
   <p class="back-link">← <a href="../index.html">Back to website</a></p>
 </div>
 
@@ -150,6 +160,11 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
     const data = await r.json();
     if (data.success) {
       window.location.href = '/admin/dashboard';
+    } else if (data.twoFactorRequired) {
+      // Password accepted — swap to the second-factor step.
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('tfaForm').style.display = 'block';
+      document.getElementById('tfaCode').focus();
     } else {
       err.textContent = 'Invalid username or password.';
       err.style.display = 'block';
@@ -161,6 +176,50 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
     err.style.display = 'block';
     btn.textContent = 'Sign In to CMS';
     btn.classList.remove('loading');
+  }
+});
+
+// ── Second factor (TOTP / recovery code) ──
+let recoveryMode = false;
+document.getElementById('toggleRecovery').addEventListener('click', e => {
+  e.preventDefault();
+  recoveryMode = !recoveryMode;
+  const code = document.getElementById('tfaCode');
+  document.getElementById('tfaHint').textContent = recoveryMode
+    ? 'Enter one of your saved recovery codes.'
+    : 'Enter the 6-digit code from your authenticator app.';
+  code.placeholder = recoveryMode ? 'xxxxx-xxxxx' : '000000';
+  code.value = '';
+  code.style.letterSpacing = recoveryMode ? '.1em' : '.35em';
+  e.target.textContent = recoveryMode ? 'Use an authenticator code instead' : 'Use a recovery code instead';
+  code.focus();
+});
+
+document.getElementById('tfaForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('tfaBtn');
+  const err = document.getElementById('error');
+  const val = document.getElementById('tfaCode').value.trim();
+  btn.textContent = 'Verifying…'; btn.classList.add('loading'); err.style.display = 'none';
+  try {
+    const body = recoveryMode ? { recovery: val } : { token: val };
+    const r = await fetch('/api/auth/2fa/verify', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    const data = await r.json();
+    if (data.success) {
+      window.location.href = '/admin/dashboard';
+    } else {
+      err.textContent = data.error || 'Invalid authentication code.';
+      err.style.display = 'block';
+      btn.textContent = 'Verify'; btn.classList.remove('loading');
+    }
+  } catch {
+    err.textContent = 'Connection error. Is the server running?';
+    err.style.display = 'block';
+    btn.textContent = 'Verify'; btn.classList.remove('loading');
   }
 });
 </script>

@@ -39,6 +39,14 @@ const DATA_DIR = process.env.DATA_DIR
   || (hbuildsMatch ? path.join(hbuildsMatch[1], 'svie-data') : path.join(ROOT, 'data'));
 try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch { /* exists */ }
 
+// ── Media directory (persists across deploys, kept OUT of git) ──
+// Large media (e.g. before/after transformation videos) lives outside the build so it
+// isn't bloating the git repo/history. Resolved like DATA_DIR (home derived from the
+// build path, NOT os.homedir()). Locally it falls back to ./media. Served at /media.
+const MEDIA_DIR = process.env.MEDIA_DIR
+  || (hbuildsMatch ? path.join(hbuildsMatch[1], 'svie-media') : path.join(ROOT, 'media'));
+try { fs.mkdirSync(MEDIA_DIR, { recursive: true }); } catch { /* exists */ }
+
 // ── File paths ──
 const CONTENT_FILE  = path.join(DATA_DIR, 'content.json');        // LIVE / published — public site reads this
 const DRAFT_FILE    = path.join(DATA_DIR, 'content-draft.json');  // DRAFT working copy — dashboard edits this
@@ -48,7 +56,9 @@ const ENQUIRY_FILE  = path.join(DATA_DIR, 'enquiries.json');
 const ACTIVITY_FILE = path.join(DATA_DIR, 'activity.json');
 const CONFIG_FILE   = path.join(DATA_DIR, 'config.json');
 const VISITORS_FILE = path.join(DATA_DIR, 'visitors.json');
+const CHATLOG_FILE  = path.join(DATA_DIR, 'chatlogs.json');       // AI chat transcripts
 const MAX_VERSIONS  = 50; // keep the 50 most recent restore points
+const MAX_CHATLOGS  = 500; // keep the newest 500 chat conversations
 
 // ── Geo-IP in-memory cache (ip → {data, ts}) ──
 const GEO_CACHE = new Map();
@@ -58,6 +68,12 @@ const GEO_TTL   = 3600000; // 1 hour
 const ADMIN_USER = 'admin';
 const getConfig  = () => storage.readJSONSafe(CONFIG_FILE, {});
 const saveConfig = d  => storage.writeJSON(CONFIG_FILE, d);
+
+// ── Secrets: prefer environment variables over on-disk config ──
+// Keeps credentials out of plaintext in data/config.json. Env always wins;
+// the config value is only a fallback for installs that haven't migrated.
+const envSMTPPass = () => (process.env.SMTP_PASS || '').trim();
+const smtpPass    = (cfg) => envSMTPPass() || (cfg && cfg.emailPass) || '';
 
 // ── Password: bcrypt-based with auto-migration from plaintext ──
 async function verifyPassword(input) {
@@ -84,6 +100,81 @@ async function hashAndSavePassword(newPlain) {
   delete cfg.password;
   saveConfig(cfg);
 }
+
+// ── Two-factor auth: TOTP (RFC 6238) implemented with built-in crypto, no deps ──
+//   Secret + enabled flag + hashed recovery codes live in config.json under `totp`.
+//   `totpPending` holds an un-confirmed secret between "setup" and "enable".
+const B32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+function base32Encode(buf) {
+  let bits = 0, value = 0, out = '';
+  for (let i = 0; i < buf.length; i++) {
+    value = (value << 8) | buf[i]; bits += 8;
+    while (bits >= 5) { out += B32_ALPHABET[(value >>> (bits - 5)) & 31]; bits -= 5; }
+  }
+  if (bits > 0) out += B32_ALPHABET[(value << (5 - bits)) & 31];
+  return out;
+}
+function base32Decode(str) {
+  const clean = String(str||'').toUpperCase().replace(/[^A-Z2-7]/g, '');
+  let bits = 0, value = 0; const out = [];
+  for (const ch of clean) {
+    value = (value << 5) | B32_ALPHABET.indexOf(ch); bits += 5;
+    if (bits >= 8) { out.push((value >>> (bits - 8)) & 0xff); bits -= 8; }
+  }
+  return Buffer.from(out);
+}
+function hotp(secretBuf, counter) {
+  const buf = Buffer.alloc(8);
+  buf.writeUInt32BE(Math.floor(counter / 0x100000000), 0);
+  buf.writeUInt32BE(counter >>> 0, 4);
+  const hmac   = crypto.createHmac('sha1', secretBuf).update(buf).digest();
+  const offset = hmac[hmac.length - 1] & 0xf;
+  const code   = ((hmac[offset] & 0x7f) << 24) | (hmac[offset+1] << 16) | (hmac[offset+2] << 8) | hmac[offset+3];
+  return (code % 1000000).toString().padStart(6, '0');
+}
+// Accept the current 30s step ± `window` steps to tolerate clock drift.
+function verifyTotp(token, secretB32, window = 1) {
+  const t = String(token||'').replace(/\D/g, '');
+  if (t.length !== 6 || !secretB32) return false;
+  const secret  = base32Decode(secretB32);
+  const counter = Math.floor(Date.now() / 30000);
+  for (let w = -window; w <= window; w++) {
+    const cand = hotp(secret, counter + w);
+    if (crypto.timingSafeEqual(Buffer.from(cand), Buffer.from(t))) return true;
+  }
+  return false;
+}
+const generateTotpSecret = () => base32Encode(crypto.randomBytes(20));
+function totpUri(secretB32) {
+  const label  = encodeURIComponent('SVIE CMS:' + ADMIN_USER);
+  const issuer = encodeURIComponent('SVIE CMS');
+  return `otpauth://totp/${label}?secret=${secretB32}&issuer=${issuer}&algorithm=SHA1&digits=6&period=30`;
+}
+async function generateRecoveryCodes(n = 8) {
+  const codes = [], hashes = [];
+  for (let i = 0; i < n; i++) {
+    const raw = crypto.randomBytes(5).toString('hex');           // 10 hex chars
+    codes.push(raw.replace(/(.{5})(.{5})/, '$1-$2'));            // shown as xxxxx-xxxxx
+    hashes.push(await bcrypt.hash(raw, SALT_ROUNDS));
+  }
+  return { codes, hashes };
+}
+// Check a recovery code; if it matches, consume (remove) it so it can't be reused.
+async function consumeRecoveryCode(input) {
+  const norm = String(input||'').replace(/[^0-9a-fA-F]/g, '').toLowerCase();
+  if (norm.length !== 10) return false;
+  const cfg = getConfig();
+  if (!cfg.totp || !Array.isArray(cfg.totp.recovery)) return false;
+  for (let i = 0; i < cfg.totp.recovery.length; i++) {
+    if (await bcrypt.compare(norm, cfg.totp.recovery[i])) {
+      cfg.totp.recovery.splice(i, 1);
+      saveConfig(cfg);
+      return true;
+    }
+  }
+  return false;
+}
+const twoFactorEnabled = () => { const c = getConfig(); return !!(c.totp && c.totp.enabled); };
 
 // ═══════════════════════════════════════════
 //  SECURITY HEADERS — Helmet
@@ -144,6 +235,57 @@ const FONT_CATALOG = {
 const VALID_FONTS = new Set(Object.keys(FONT_CATALOG));
 
 // ── GET /fonts.css — dynamic font stylesheet for all public pages ──
+// ── Colour theme: 3 brand anchors → a derived :root palette (injected via /fonts.css) ──
+//   The public palette in styles.css has ~14 shades; rather than ask the admin for all
+//   of them, they set the 3 anchor colours (primary/accent/background) and the tints &
+//   shades are re-derived by holding hue+saturation and re-lighting to fixed per-role
+//   lightness targets (measured from the original defaults, so leaving them = ~no change).
+const THEME_DEFAULTS = { primary:'#1A4530', accent:'#C9A05A', bg:'#F5EFE6' };
+const isHex = v => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v.trim());
+function hexToHsl(hex) {
+  const r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+  const mx = Math.max(r,g,b), mn = Math.min(r,g,b); let h = 0, s = 0; const l = (mx+mn)/2;
+  if (mx !== mn) {
+    const d = mx - mn;
+    s = l > 0.5 ? d/(2-mx-mn) : d/(mx+mn);
+    h = mx === r ? (g-b)/d + (g<b?6:0) : mx === g ? (b-r)/d + 2 : (r-g)/d + 4;
+    h /= 6;
+  }
+  return { h: h*360, s: s*100, l: l*100 };
+}
+function hslToHex(h, s, l) {
+  h /= 360; s /= 100; l /= 100;
+  const hue2rgb = (p,q,t) => { if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; };
+  let r, g, b;
+  if (s === 0) { r = g = b = l; }
+  else { const q = l < 0.5 ? l*(1+s) : l+s-l*s; const p = 2*l-q; r = hue2rgb(p,q,h+1/3); g = hue2rgb(p,q,h); b = hue2rgb(p,q,h-1/3); }
+  const to = x => Math.round(x*255).toString(16).padStart(2,'0');
+  return '#' + to(r) + to(g) + to(b);
+}
+// Re-light a colour to a target lightness (0–100), keeping its hue + saturation.
+const relight = (hex, targetL) => { const { h, s } = hexToHsl(hex); return hslToHex(h, s, targetL); };
+function buildThemeVars(theme) {
+  const primary = isHex(theme.primary) ? theme.primary : THEME_DEFAULTS.primary;
+  const accent  = isHex(theme.accent)  ? theme.accent  : THEME_DEFAULTS.accent;
+  const bg      = isHex(theme.bg)      ? theme.bg      : THEME_DEFAULTS.bg;
+  return [
+    `  --forest:${primary};`,
+    `  --charcoal:${primary};`,
+    `  --forest-ink:${relight(primary,11)};`,
+    `  --forest-deep:${relight(primary,14)};`,
+    `  --forest-mid:${relight(primary,24)};`,
+    `  --forest-light:${relight(primary,30)};`,
+    `  --mid-gray:${relight(primary,22)};`,
+    `  --gold:${accent};`,
+    `  --gold-light:${relight(accent,69)};`,
+    `  --gold-pale:${relight(accent,82)};`,
+    `  --gold-dark:${relight(accent,41)};`,
+    `  --cream:${bg};`,
+    `  --cream-2:${relight(bg,89)};`,
+    `  --sand:${relight(bg,81)};`,
+  ];
+}
+
 app.get('/fonts.css', (req, res) => {
   const cfg   = getConfig();
   const clampN = (v, mn, mx, def) => Math.min(Math.max(parseFloat(v) || def, mn), mx);
@@ -189,6 +331,8 @@ app.get('/fonts.css', (req, res) => {
     `  --fm-fw-sans:${fwSans};`,
     `  --fm-lh-body:${lhBody};`,
     `  --fm-ls-heading:${lsHeading}em;`,
+    // Colour theme overrides (only when the admin has set a custom palette).
+    ...(cfg.theme ? buildThemeVars(cfg.theme) : []),
     `}`,
     `html{font-size:${fSize}px}`,
   ].join('\n');
@@ -237,22 +381,59 @@ function siteBaseUrl() {
   const base = (seo.global && seo.global.base_url) || 'https://svie5.com';
   return String(base).replace(/\/+$/, '');
 }
+const sitemapXmlEsc = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+
+// Absolutize a stored image path ("images/gallery/g01.jpg") against the site base.
+function absImg(base, src) {
+  if (!src) return null;
+  if (/^https?:\/\//i.test(src)) return src;
+  return base + '/' + String(src).replace(/^\/+/, '');
+}
+
+// Image sitemap entries for a given page slug, drawn from the LIVE published content
+// so the sitemap mirrors what actually renders. Only the gallery page carries images.
+function sitemapImagesFor(slug, base, content) {
+  if (slug !== 'gallery.html') return [];
+  const out = [];
+  (content.gallery || []).forEach(g => {
+    const loc = absImg(base, g.src);
+    if (loc) out.push({ loc, title: g.title || 'SVIE project — Bengaluru' });
+  });
+  (content.beforeafter || []).forEach(b => {
+    ['before', 'after', 'poster'].forEach(k => {
+      const loc = absImg(base, b[k]);
+      if (loc) out.push({ loc, title: ((b.title ? b.title + ' — ' : '') + k) });
+    });
+  });
+  return out;
+}
+
 function generateSitemapXml() {
-  const base = siteBaseUrl();
+  const base    = siteBaseUrl();
+  const content = readLive();
   // lastmod tracks the published-content file's modification time.
   let lastmod;
   try { lastmod = fs.statSync(CONTENT_FILE).mtime.toISOString().slice(0,10); }
   catch { lastmod = new Date().toISOString().slice(0,10); }
-  const urls = SITEMAP_PAGES.map(p =>
-    '  <url>\n' +
-    '    <loc>' + base + (p.slug ? '/' + p.slug : '/') + '</loc>\n' +
-    '    <lastmod>' + lastmod + '</lastmod>\n' +
-    '    <changefreq>' + p.freq + '</changefreq>\n' +
-    '    <priority>' + p.priority + '</priority>\n' +
-    '  </url>'
-  ).join('\n');
+  const urls = SITEMAP_PAGES.map(p => {
+    const images = sitemapImagesFor(p.slug, base, content).map(img =>
+      '    <image:image>\n' +
+      '      <image:loc>' + sitemapXmlEsc(img.loc) + '</image:loc>\n' +
+      '      <image:title>' + sitemapXmlEsc(img.title) + '</image:title>\n' +
+      '    </image:image>'
+    ).join('\n');
+    return '  <url>\n' +
+      '    <loc>' + base + (p.slug ? '/' + p.slug : '/') + '</loc>\n' +
+      '    <lastmod>' + lastmod + '</lastmod>\n' +
+      '    <changefreq>' + p.freq + '</changefreq>\n' +
+      '    <priority>' + p.priority + '</priority>\n' +
+      (images ? images + '\n' : '') +
+      '  </url>';
+  }).join('\n');
   return '<?xml version="1.0" encoding="UTF-8"?>\n' +
-         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n' +
+         '        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n' +
          urls + '\n</urlset>\n';
 }
 app.get('/sitemap.xml', (req,res) => {
@@ -363,6 +544,7 @@ function staticCacheHeaders(res, filePath) {
   }
 }
 app.use(express.static(ROOT, { setHeaders: staticCacheHeaders }));
+app.use('/media', express.static(MEDIA_DIR, { setHeaders: staticCacheHeaders }));
 app.use('/admin', express.static(path.join(ROOT,'admin')));
 
 if (!process.env.SESSION_SECRET) {
@@ -426,6 +608,17 @@ const enquiryLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders:   false,
   message: { error: 'Too many enquiries submitted. Please try again later.' },
+});
+
+// Public AI chat widget — the API key lives server-side, so this endpoint is the
+// only thing between the open internet and the Gemini quota. Cap it per-IP so a
+// single visitor (or a bot) can't drain the free-tier allowance.
+const chatLimiter = rateLimit({
+  windowMs: 60 * 1000,         // 1 minute
+  max:      20,                 // 20 chat messages per IP per minute
+  standardHeaders: true,
+  legacyHeaders:   false,
+  message: { error: 'You are sending messages too quickly. Please wait a moment.' },
 });
 
 // API responses are per-session and must never be cached. Without this the
@@ -507,6 +700,56 @@ const upload = multer({
   fileFilter: (req,file,cb) => {
     const ok = ALLOWED_IMG_MIME.has(file.mimetype);
     cb(ok ? null : new Error('Images only (JPEG, PNG, WebP, GIF)'), ok);
+  },
+});
+
+// ── Multer: before/after slider uploads (two images per pair) ──
+const beforeafterStorage = multer.diskStorage({
+  destination: (req,file,cb) => {
+    const d = path.join(ROOT,'images','beforeafter');
+    if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
+    cb(null, d);
+  },
+  filename: (req,file,cb) => {
+    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const base = crypto.randomBytes(8).toString('hex');
+    cb(null, Date.now() + '-' + file.fieldname + '-' + base + ext);
+  }
+});
+const uploadBA = multer({
+  storage: beforeafterStorage,
+  limits:  { fileSize: 10*1024*1024 },
+  fileFilter: (req,file,cb) => {
+    const ok = ALLOWED_IMG_MIME.has(file.mimetype);
+    cb(ok ? null : new Error('Images only (JPEG, PNG, WebP, GIF)'), ok);
+  },
+});
+
+// ── Multer: before/after VIDEO uploads (one video + optional poster image) ──
+// The video goes to /videos/beforeafter, an optional poster to /images/beforeafter.
+const ALLOWED_VIDEO_MIME = new Set(['video/mp4','video/webm','video/quicktime']);
+const baVideoStorage = multer.diskStorage({
+  destination: (req,file,cb) => {
+    const sub = file.fieldname === 'video' ? path.join('videos','beforeafter')
+                                           : path.join('images','beforeafter');
+    const d = path.join(ROOT, sub);
+    if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
+    cb(null, d);
+  },
+  filename: (req,file,cb) => {
+    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const base = crypto.randomBytes(8).toString('hex');
+    cb(null, Date.now() + '-' + file.fieldname + '-' + base + ext);
+  }
+});
+const uploadBAVideo = multer({
+  storage: baVideoStorage,
+  limits:  { fileSize: 60*1024*1024 },   // videos are large — allow up to 60 MB
+  fileFilter: (req,file,cb) => {
+    const ok = file.fieldname === 'video' ? ALLOWED_VIDEO_MIME.has(file.mimetype)
+                                          : ALLOWED_IMG_MIME.has(file.mimetype);
+    cb(ok ? null : new Error(file.fieldname==='video'
+      ? 'Video must be MP4, WebM, or MOV' : 'Poster must be an image'), ok);
   },
 });
 
@@ -647,6 +890,16 @@ app.post('/api/auth/login', loginLimiter, async (req,res) => {
     if (!username || !password) return res.status(400).json({ error:'Missing credentials' });
 
     if (username === ADMIN_USER && await verifyPassword(password)) {
+      // Password OK. If 2FA is on, hold a short-lived pending flag and require a
+      // second step before granting the logged-in session.
+      if (twoFactorEnabled()) {
+        req.session.pending2fa   = username;
+        req.session.pending2faTs = Date.now();
+        return req.session.save(err => {
+          if (err) return res.status(500).json({ error:'Session error' });
+          res.json({ twoFactorRequired:true });
+        });
+      }
       // Regenerate session to prevent session fixation
       req.session.regenerate(err => {
         if (err) return res.status(500).json({ error:'Session error' });
@@ -689,6 +942,86 @@ app.post('/api/auth/change-password', requireAuth, csrfProtect, async (req,res) 
     logActivity('Changed admin password', req.session.user);
     res.json({ success:true });
   } catch { res.status(500).json({ error:'Server error' }); }
+});
+
+// ── Two-factor auth (TOTP) ──────────────────────────────────────────────────
+const PENDING_2FA_TTL = 5 * 60 * 1000; // a login's 2FA step must complete within 5 min
+
+// Login step 2: verify the TOTP (or a recovery code) for a password-verified session.
+// No auth/CSRF here — the session isn't logged in yet; it's gated by the pending flag + rate limiter.
+app.post('/api/auth/2fa/verify', loginLimiter, async (req,res) => {
+  try {
+    const user = req.session.pending2fa;
+    const ts   = req.session.pending2faTs || 0;
+    if (!user || Date.now() - ts > PENDING_2FA_TTL) {
+      return res.status(401).json({ error:'Your sign-in expired. Please enter your password again.' });
+    }
+    const { token, recovery } = req.body;
+    const cfg = getConfig();
+    const ok  = recovery ? await consumeRecoveryCode(recovery)
+                         : verifyTotp(token, cfg.totp && cfg.totp.secret);
+    if (!ok) return res.status(401).json({ error:'Invalid authentication code' });
+    req.session.regenerate(err => {
+      if (err) return res.status(500).json({ error:'Session error' });
+      req.session.loggedIn  = true;
+      req.session.user      = user;
+      req.session.csrfToken = crypto.randomBytes(32).toString('hex');
+      logActivity('Signed in (2FA)', user);
+      res.json({ success:true, csrfToken: req.session.csrfToken });
+    });
+  } catch { res.status(500).json({ error:'Server error' }); }
+});
+
+app.get('/api/auth/2fa/status', requireAuth, (req,res) => {
+  const cfg = getConfig();
+  res.json({
+    enabled:           !!(cfg.totp && cfg.totp.enabled),
+    recoveryRemaining: (cfg.totp && Array.isArray(cfg.totp.recovery)) ? cfg.totp.recovery.length : 0,
+  });
+});
+
+// Begin setup: mint a pending secret, return it + an otpauth URI + a QR data-URL.
+app.post('/api/auth/2fa/setup', requireAuth, csrfProtect, async (req,res) => {
+  try {
+    if (twoFactorEnabled()) return res.status(400).json({ error:'2FA is already enabled. Disable it first to reconfigure.' });
+    const secret = generateTotpSecret();
+    const cfg = getConfig(); cfg.totpPending = secret; saveConfig(cfg);
+    const uri = totpUri(secret);
+    let qr = null;
+    try { qr = await require('qrcode').toDataURL(uri, { margin:1, width:220 }); }
+    catch(e) { console.warn('[2fa] qrcode unavailable — manual entry only:', e.message); }
+    res.json({ secret, uri, qr });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// Confirm setup: verify a code against the pending secret, then enable + issue recovery codes.
+app.post('/api/auth/2fa/enable', requireAuth, csrfProtect, async (req,res) => {
+  try {
+    const cfg = getConfig();
+    if (!cfg.totpPending) return res.status(400).json({ error:'No pending 2FA setup. Start setup first.' });
+    if (!verifyTotp(req.body.token, cfg.totpPending))
+      return res.status(401).json({ error:'That code is incorrect. Check your authenticator app and try again.' });
+    const { codes, hashes } = await generateRecoveryCodes(8);
+    cfg.totp = { secret: cfg.totpPending, enabled:true, recovery: hashes };
+    delete cfg.totpPending;
+    saveConfig(cfg);
+    logActivity('Enabled two-factor authentication', req.session.user);
+    res.json({ success:true, recoveryCodes: codes });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// Turn off 2FA — requires the current password AND a valid code (or recovery code).
+app.post('/api/auth/2fa/disable', requireAuth, csrfProtect, async (req,res) => {
+  try {
+    const { password, token } = req.body;
+    if (!await verifyPassword(password || '')) return res.status(401).json({ error:'Password is incorrect' });
+    const cfg = getConfig();
+    if (!(verifyTotp(token, cfg.totp && cfg.totp.secret) || await consumeRecoveryCode(token)))
+      return res.status(401).json({ error:'Invalid authentication code' });
+    const fresh = getConfig(); delete fresh.totp; delete fresh.totpPending; saveConfig(fresh);
+    logActivity('Disabled two-factor authentication', req.session.user);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
 });
 
 // ═══════════════════════════════════════════
@@ -918,6 +1251,109 @@ app.post('/api/gallery/reorder', requireAuth, csrfProtect, (req,res) => {
 });
 
 // ═══════════════════════════════════════════
+//  BEFORE / AFTER SLIDER
+// ═══════════════════════════════════════════
+app.get('/api/beforeafter', requireAuth, (req,res) => res.json(readContent().beforeafter||[]));
+
+// Upload a new before/after pair. Both images are required and each is optimized to WebP.
+app.post('/api/beforeafter/upload', requireAuth, csrfProtect,
+  uploadBA.fields([{ name:'before', maxCount:1 }, { name:'after', maxCount:1 }]),
+  async (req,res) => {
+  try {
+    const bf = req.files && req.files.before && req.files.before[0];
+    const af = req.files && req.files.after  && req.files.after[0];
+    if (!bf || !af) {
+      // clean up whichever single file did arrive so we don't orphan it
+      [bf,af].forEach(f => { if (f) try { fs.unlinkSync(f.path); } catch {} });
+      return res.status(400).json({ error:'Both a "before" and an "after" image are required.' });
+    }
+    const bName = await optimizeImage(bf.path, { maxW:1600, quality:80 }) || bf.filename;
+    const aName = await optimizeImage(af.path, { maxW:1600, quality:80 }) || af.filename;
+    const c    = readContent();
+    const item = {
+      id:'ba'+Date.now(),
+      title:  (req.body.title||'Project Transformation').toString().slice(0,120),
+      before: 'images/beforeafter/'+bName,
+      after:  'images/beforeafter/'+aName,
+    };
+    (c.beforeafter = c.beforeafter||[]).push(item);
+    writeContent(c);
+    logActivity('Added before/after pair: '+item.title, req.session.user);
+    res.json({ success:true, item });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// Upload a new before/after VIDEO entry. Video required; poster image optional.
+app.post('/api/beforeafter/upload-video', requireAuth, csrfProtect,
+  uploadBAVideo.fields([{ name:'video', maxCount:1 }, { name:'poster', maxCount:1 }]),
+  async (req,res) => {
+  try {
+    const vf = req.files && req.files.video  && req.files.video[0];
+    const pf = req.files && req.files.poster && req.files.poster[0];
+    if (!vf) {
+      if (pf) try { fs.unlinkSync(pf.path); } catch {}
+      return res.status(400).json({ error:'A video file is required.' });
+    }
+    let poster = null;
+    if (pf) {
+      const pName = await optimizeImage(pf.path, { maxW:1600, quality:80 }) || pf.filename;
+      poster = 'images/beforeafter/'+pName;
+    }
+    const c    = readContent();
+    const item = {
+      id:'ba'+Date.now(),
+      type:'video',
+      title:  (req.body.title||'Project Transformation').toString().slice(0,120),
+      video:  'videos/beforeafter/'+vf.filename,
+      poster,
+    };
+    (c.beforeafter = c.beforeafter||[]).push(item);
+    writeContent(c);
+    logActivity('Added before/after video: '+item.title, req.session.user);
+    res.json({ success:true, item });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+app.put('/api/beforeafter/:id', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const c = readContent();
+    const i = (c.beforeafter||[]).findIndex(b=>b.id===req.params.id);
+    if (i===-1) return res.status(404).json({ error:'Not found' });
+    // Only the title is editable here; images are replaced by re-uploading.
+    if (typeof req.body.title === 'string') c.beforeafter[i].title = req.body.title.slice(0,120);
+    writeContent(c);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+app.delete('/api/beforeafter/:id', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const c    = readContent();
+    const item = (c.beforeafter||[]).find(b=>b.id===req.params.id);
+    if (!item) return res.status(404).json({ error:'Not found' });
+    ['before','after','poster','video'].forEach(k => {
+      const rel = item[k];
+      if (rel && (rel.startsWith('images/beforeafter/') || rel.startsWith('videos/beforeafter/'))) {
+        const fp = path.join(ROOT, rel);
+        if (fs.existsSync(fp)) try { fs.unlinkSync(fp); } catch {}
+      }
+    });
+    c.beforeafter = c.beforeafter.filter(b=>b.id!==req.params.id);
+    writeContent(c);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+app.post('/api/beforeafter/reorder', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const c       = readContent();
+    c.beforeafter = req.body.order.map(id=>(c.beforeafter||[]).find(b=>b.id===id)).filter(Boolean);
+    writeContent(c);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// ═══════════════════════════════════════════
 //  TESTIMONIALS
 // ═══════════════════════════════════════════
 app.get('/api/testimonials',     requireAuth, (req,res) => res.json(readContent().testimonials||[]));
@@ -1041,6 +1477,17 @@ app.get('/api/enquiries/export.csv', requireAuth, (req,res) => {
   logActivity('Exported enquiries CSV (' + list.length + ' leads)', req.session.user);
 });
 
+// Normalise an Indian mobile to 10 digits, or return '' if invalid. Accepts
+// spaces/dashes/+, strips a 91 country code or leading 0, and requires a
+// 10-digit number starting 6-9 (same rule as the chat lead-capture parser),
+// so "+91 95139 61740" and "09513961740" both pass while "123" is rejected.
+function normalizeIndianMobile(raw) {
+  let d = (raw || '').toString().replace(/\D/g, '');
+  if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
+  else if (d.length === 11 && d.startsWith('0')) d = d.slice(1);
+  return (d.length === 10 && /^[6-9]/.test(d)) ? d : '';
+}
+
 app.post('/api/enquiries', enquiryLimiter, (req,res) => {
   try {
     const { name, email, phone, service, budget, message } = req.body;
@@ -1049,15 +1496,16 @@ app.post('/api/enquiries', enquiryLimiter, (req,res) => {
       return res.status(400).json({ error: 'Valid name is required (2–100 characters).' });
     if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
       return res.status(400).json({ error: 'Valid email address is required.' });
-    if (phone && (typeof phone !== 'string' || phone.trim().length > 20))
-      return res.status(400).json({ error: 'Phone number too long.' });
+    const mobile = normalizeIndianMobile(phone);
+    if (!mobile)
+      return res.status(400).json({ error: 'A valid 10-digit mobile number is required.' });
     if (message && typeof message === 'string' && message.trim().length > 2000)
       return res.status(400).json({ error: 'Message must be under 2000 characters.' });
 
     const safe = {
       name:    name.trim().slice(0,100),
       email:   email.trim().toLowerCase().slice(0,200),
-      phone:   (phone||'').toString().trim().slice(0,20),
+      phone:   mobile,
       service: (service||'').toString().trim().slice(0,100),
       budget:  (budget||'').toString().trim().slice(0,50),
       message: (message||'').toString().trim().slice(0,2000),
@@ -1078,8 +1526,8 @@ app.post('/api/brochure-request', enquiryLimiter, (req,res) => {
     const { name, phone, location, requirement } = req.body;
     if (!name || typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 100)
       return res.status(400).json({ error: 'Valid full name is required (2–100 characters).' });
-    const phoneDigits = (phone || '').toString().replace(/\D/g, '');
-    if (phoneDigits.length !== 10)
+    const phoneDigits = normalizeIndianMobile(phone);
+    if (!phoneDigits)
       return res.status(400).json({ error: 'A valid 10-digit mobile number is required.' });
 
     const loc = (location || '').toString().trim().slice(0,120);
@@ -1119,6 +1567,358 @@ app.delete('/api/enquiries/:id', requireAuth, csrfProtect, (req,res) => {
   try {
     const list = readJSON(ENQUIRY_FILE,[]).filter(e=>e.id!==req.params.id);
     writeJSON(ENQUIRY_FILE, list);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// ═══════════════════════════════════════════
+//  AI CHAT ASSISTANT  (Google Gemini — free tier)
+// ═══════════════════════════════════════════
+// A server-side proxy so the Gemini API key is NEVER exposed to the browser.
+// The key comes from the GEMINI_API_KEY env var (set in hPanel, like
+// SESSION_SECRET) or, as a fallback, config.geminiApiKey in data/config.json.
+// If neither is set the widget degrades gracefully to a "call us" message.
+
+// Default knowledge the assistant answers from. Editable at runtime via
+// config.chatSystemPrompt without a code change/redeploy.
+const CHAT_SYSTEM_PROMPT = `You are "SVIE Assistant", the friendly virtual assistant for Sri Vasavi Interiors and Exteriors (SVIE), an interior design, construction and modular furniture company in Bengaluru, India, established in 2017.
+
+BUSINESS FACTS (only state these as facts — never invent others):
+- Services: Interior Design & Decor; Design & Quality Management; Construction Management; Modular Furniture (brand "Green Nest").
+- Serves: Bengaluru and across Karnataka.
+- Phone/WhatsApp: +91 95139 61740 (also +91 98455 81156).
+- Email: svie.blr5@gmail.com
+- Address: 172 A, B & E, Link Road, 5th Cross Road, Malleshwaram, Bengaluru, Karnataka 560003.
+- Hours: 10:00 AM to 9:00 PM, all days.
+- Website: https://svie5.com
+
+HOW TO BEHAVE:
+- Be warm, concise and helpful. Keep replies short (2–4 sentences) unless asked for detail.
+- Help visitors understand SVIE's services and guide them toward getting a quote or consultation.
+- You do NOT know exact prices, timelines, or project availability. For those, invite the visitor to call/WhatsApp +91 95139 61740 or use the contact form on the website. Never make up numbers.
+- If a question is unrelated to SVIE or interiors/construction, politely steer back.
+- Reply in the same language the visitor uses (English, Hindi, Kannada, etc.).
+- LEAD CAPTURE: when a visitor is interested (wants a quote, callback, consultation, or a site visit), warmly offer to have the SVIE team follow up and collect four things: their name, phone/WhatsApp number, email, and what they need help with (interior design, construction, or modular furniture). Ask for one detail at a time, confirm the number back, and reassure them the team will contact them soon. Do not be pushy — only collect details if they show interest.`;
+
+const CHAT_DEFAULT_GREETING = 'Hi! 👋 I’m the SVIE Assistant. Ask me about our interior design, construction or modular furniture services — or how to get a free quote.';
+// Proactive invite bubble text — the teaser that pops up a few seconds after a
+// visitor lands, nudging them to open the chat. Editable in the admin panel.
+const CHAT_DEFAULT_INVITE = 'Hi there! 👋 Looking for interior design, construction or modular furniture? Chat with us — we’re here to help.';
+
+// Persist a conversation so it shows in the admin "Chat Logs" panel. Conversations
+// are grouped by the client-supplied sessionId (upsert): each turn overwrites the
+// stored transcript with the latest full message list + the assistant's reply.
+// `meta` optionally flags a turn that failed upstream ({ error, status }) so the
+// admin can see the bad experiences too; on a later successful turn the flag clears.
+function recordChat(sessionId, page, messages, reply, meta) {
+  try {
+    const id = String(sessionId || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40) || ('s' + Date.now());
+    const transcript = messages.concat([{ role: 'model', text: reply }])
+      .map(m => ({ role: m.role, text: String(m.text || '').slice(0, 2000) }));
+    const now     = new Date().toISOString();
+    const failed  = !!(meta && meta.error);
+    const list = readJSON(CHATLOG_FILE, []);
+    const i    = list.findIndex(c => c.id === id);
+    let row;
+    if (i !== -1) {
+      row = list[i];
+      row.messages  = transcript;
+      row.updatedAt = now;
+      list.splice(i, 1);         // will re-unshift below to move it to the top
+    } else {
+      row = { id, createdAt: now, updatedAt: now, page: String(page || '').slice(0, 200), messages: transcript };
+    }
+    // Record or clear the failure marker for this (latest) turn.
+    if (failed) { row.error = String(meta.error).slice(0, 400); row.status = meta.status || 0; }
+    else        { delete row.error; delete row.status; }
+    list.unshift(row);           // move the just-updated conversation to the top
+    writeJSON(CHATLOG_FILE, list.slice(0, MAX_CHATLOGS));
+  } catch (e) { console.warn('[chat] failed to record transcript:', e.message); }
+}
+
+// Scan a conversation's visitor messages for a phone/email and, if found, drop a
+// lead into the same Enquiries inbox as the contact form. Deduped per session:
+// the first capture creates the enquiry and emails a notification; later messages
+// enrich the same record in place without re-notifying.
+// Infer which SVIE service the visitor's query is about, from keywords in their
+// messages, for the Enquiries "service" column. Returns '' when nothing matches.
+function detectChatServiceType(userText) {
+  const t = (userText || '').toLowerCase();
+  const hits = [];
+  if (/interior|design|d[eé]cor|false ceiling|paint|renovat|living room|bedroom/.test(t)) hits.push('Interior Design');
+  if (/construct|building|civil|villa|home build|slab|foundation|floor plan/.test(t))     hits.push('Construction');
+  if (/modular|kitchen|wardrobe|furniture|cupboard|green nest/.test(t))                    hits.push('Modular Furniture');
+  return hits.join(' / ');
+}
+
+function captureLeadFromChat(sessionId, page, messages) {
+  try {
+    const id = String(sessionId || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+    if (!id || id === 'admin-test') return;
+
+    const userText = messages.filter(m => m.role === 'user').map(m => m.text).join('\n');
+    const email = (userText.match(/[^\s@]+@[^\s@]+\.[^\s@]{2,}/) || [])[0] || '';
+    // Phone: scan digit runs (allowing spaces/dashes/+), then normalise to a valid
+    // 10-digit Indian mobile (strip a 91 country code or leading 0).
+    let phone = '';
+    for (const run of (userText.match(/[+\d][\d\s-]{7,}\d/g) || [])) {
+      let d = run.replace(/\D/g, '');
+      if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
+      else if (d.length === 11 && d.startsWith('0')) d = d.slice(1);
+      else if (d.length > 10) d = d.slice(-10);
+      if (d.length === 10 && /^[6-9]/.test(d)) { phone = d; break; }
+    }
+    if (!email && !phone) return;   // no usable contact yet — nothing to capture
+
+    // Best-effort name from natural phrasing ("my name is X", "I'm X", …).
+    let name = '';
+    const nm = userText.match(/(?:my name is|i am|i'm|this is|name[:\-]) *([A-Za-z][A-Za-z .]{1,40})/i);
+    if (nm) name = nm[1].trim().replace(/\s+/g, ' ');
+
+    const list       = readJSON(ENQUIRY_FILE, []);
+    const existing   = list.find(e => e.source === 'chat' && e.chatSessionId === id);
+    const firstQ     = (messages.find(m => m.role === 'user') || {}).text || '';
+    const transcript = messages.map(m => (m.role === 'user' ? 'Visitor: ' : 'Assistant: ') + m.text).join('\n');
+    // "Type of query": detected service category, else keep any previously detected
+    // one, else a trimmed first-question snippet, else the generic chat-lead label.
+    const detected = detectChatServiceType(userText);
+    const prevSvc  = existing && existing.service && existing.service !== 'AI Chat Lead' ? existing.service : '';
+    const service  = detected || prevSvc ||
+      (firstQ ? ('Chat: ' + firstQ.trim().replace(/\s+/g, ' ').slice(0, 60)) : 'AI Chat Lead');
+    const safe = {
+      name:    (name || (existing && existing.name) || 'Website Visitor (chat)').slice(0, 100),
+      email:   (email || (existing && existing.email) || '').slice(0, 200),
+      phone:   (phone || (existing && existing.phone) || '').slice(0, 20),
+      service: service.slice(0, 120),
+      budget:  '',
+      message: ('💬 Captured from the AI chat assistant' + (page ? ' on ' + page : '') +
+                '\nType of query: ' + service +
+                '\nFirst question: ' + firstQ + '\n\n--- Transcript ---\n' + transcript).slice(0, 2000),
+      source:  'chat',
+      chatSessionId: id,
+    };
+
+    if (existing) {                          // enrich the existing lead, no re-notify
+      Object.assign(existing, { name: safe.name, email: safe.email, phone: safe.phone, service: safe.service, message: safe.message });
+      writeJSON(ENQUIRY_FILE, list);
+      return;
+    }
+    list.unshift({ id: 'e' + Date.now(), ...safe, status: 'new', date: new Date().toISOString() });
+    writeJSON(ENQUIRY_FILE, list);
+    logActivity('Captured a lead from the AI chat assistant', 'system');
+    sendEnquiryEmails(safe).catch(() => {});
+  } catch (e) { console.warn('[chat] lead capture failed:', e.message); }
+}
+
+// Public — the front-end widget calls this on load to decide whether to render
+// the launcher and which greeting to show. Never exposes the API key or prompt.
+app.get('/api/chat/config', (req,res) => {
+  const cfg    = getConfig();
+  const hasKey = !!(process.env.GEMINI_API_KEY || cfg.geminiApiKey);
+  res.json({
+    enabled:  hasKey && cfg.chatEnabled !== false,
+    greeting: (typeof cfg.chatGreeting === 'string' && cfg.chatGreeting.trim())
+      ? cfg.chatGreeting : CHAT_DEFAULT_GREETING,
+    inviteText: (typeof cfg.chatInviteText === 'string' && cfg.chatInviteText.trim())
+      ? cfg.chatInviteText : CHAT_DEFAULT_INVITE,
+  });
+});
+
+app.post('/api/chat', chatLimiter, async (req,res) => {
+  try {
+    const cfg    = getConfig();
+    if (cfg.chatEnabled === false)
+      return res.status(503).json({ error: 'The chat assistant is currently unavailable. Please call us at +91 95139 61740.' });
+    const apiKey = process.env.GEMINI_API_KEY || cfg.geminiApiKey;
+    if (!apiKey) {
+      return res.status(503).json({
+        error: 'The chat assistant is not set up yet. Please call us at +91 95139 61740 or use the contact form.'
+      });
+    }
+    const model  = process.env.GEMINI_MODEL || cfg.geminiModel || 'gemini-3.6-flash';
+
+    // Sanitize the incoming conversation: keep only well-formed user/model turns,
+    // cap each message length and the number of turns to control token cost.
+    let { messages, sessionId, page } = req.body;
+    if (!Array.isArray(messages)) messages = [];
+    messages = messages
+      .filter(m => m && typeof m.text === 'string' && (m.role === 'user' || m.role === 'model'))
+      .slice(-12)
+      .map(m => ({ role: m.role, text: m.text.trim().slice(0, 2000) }))
+      .filter(m => m.text);
+    if (!messages.length || messages[messages.length - 1].role !== 'user')
+      return res.status(400).json({ error: 'No message provided.' });
+
+    const systemInstruction = (typeof cfg.chatSystemPrompt === 'string' && cfg.chatSystemPrompt.trim())
+      ? cfg.chatSystemPrompt : CHAT_SYSTEM_PROMPT;
+    const contents = messages.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
+
+    // One upstream call to a given model, with a 30s timeout.
+    const callGemini = async (modelName) => {
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/'
+        + encodeURIComponent(modelName) + ':generateContent?key=' + encodeURIComponent(apiKey);
+      const ctrl  = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 30000);
+      try {
+        return await fetch(url, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal:  ctrl.signal,
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemInstruction }] },
+            contents,
+            generationConfig: { temperature: 0.6, maxOutputTokens: 600 },
+          }),
+        });
+      } finally { clearTimeout(timer); }
+    };
+
+    // Try the configured model; if it's rate-limited / overloaded / missing
+    // (429/500/503/404), fall back once to the reliable free-tier model so a bad,
+    // overloaded or deprecated saved model can't take the whole assistant down.
+    const FALLBACK_MODEL = 'gemini-3.6-flash';
+    let r = await callGemini(model);
+    if (!r.ok && model !== FALLBACK_MODEL && [429, 500, 503, 404].includes(r.status)) {
+      console.warn(`[chat] model ${model} failed ${r.status} — falling back to ${FALLBACK_MODEL}`);
+      r = await callGemini(FALLBACK_MODEL);
+    }
+
+    if (!r.ok) {
+      const raw = await r.text().catch(() => '');
+      let reason = '';
+      try { const j = JSON.parse(raw); reason = (j.error && j.error.message) || ''; } catch { reason = raw; }
+      console.warn('[chat] Gemini API error', r.status, reason.slice(0, 400));
+      // When the assistant can't answer (rate limit / overload / any upstream
+      // error), retrying rarely helps — so instead invite the visitor to leave
+      // their contact details and turn the failed chat into a callback lead.
+      // The real Google reason + status are still attached for the admin
+      // "Send test message" to diagnose setup issues.
+      const friendly = 'Sorry, I can’t reply right now 🙏 — but we’ll get back to you shortly on email/WhatsApp. Please share your name, phone number, email ID, and what you need help with (interior design / construction / modular furniture).';
+      // Log the failed turn too, so the admin has visibility into bad experiences.
+      if (cfg.chatLogging !== false)
+        recordChat(sessionId, page, messages, friendly, { error: reason || `HTTP ${r.status}`, status: r.status });
+      // Capture a lead from anything the visitor already shared (e.g. after they
+      // answer the prompt above) so a broken assistant still collects the enquiry.
+      if (cfg.chatLeadCapture !== false) captureLeadFromChat(sessionId, page, messages);
+      return res.status(502).json({
+        error:  friendly,
+        status: r.status,
+        detail: (reason || 'Unknown error from Google').slice(0, 400),
+      });
+    }
+
+    const data  = await r.json();
+    const reply = (data?.candidates?.[0]?.content?.parts || [])
+      .map(p => p.text || '').join('').trim();
+    if (!reply) {
+      const fallback = 'Sorry, I could not answer that. Please call us at +91 95139 61740 and our team will help.';
+      if (cfg.chatLogging !== false)
+        recordChat(sessionId, page, messages, fallback, { error: 'Empty reply from model', status: 0 });
+      return res.json({ reply: fallback });
+    }
+
+    // Log the transcript for the admin Chat Logs panel (unless logging is off).
+    if (cfg.chatLogging !== false) recordChat(sessionId, page, messages, reply);
+    // Auto-capture a lead into the Enquiries inbox if the visitor shared contact info.
+    if (cfg.chatLeadCapture !== false) captureLeadFromChat(sessionId, page, messages);
+
+    res.json({ reply });
+  } catch (e) {
+    console.warn('[chat]', e.message);
+    // Network error / 30s timeout (AbortError): same callback-lead fallback — invite
+    // the visitor to leave contact details, and still record/capture what they sent.
+    const friendly = 'Sorry, I can’t reply right now 🙏 — but we’ll get back to you shortly on email/WhatsApp. Please share your name, phone number, email ID, and what you need help with (interior design / construction / modular furniture).';
+    try {
+      const cfg = getConfig();
+      if (req.body && Array.isArray(req.body.messages)) {
+        const msgs = req.body.messages
+          .filter(m => m && typeof m.text === 'string' && (m.role === 'user' || m.role === 'model'))
+          .map(m => ({ role: m.role, text: m.text.trim().slice(0, 2000) }))
+          .filter(m => m.text);
+        if (msgs.length) {
+          if (cfg.chatLogging !== false)
+            recordChat(req.body.sessionId, req.body.page, msgs, friendly,
+              { error: e.name === 'AbortError' ? 'Upstream timeout (30s)' : e.message, status: 0 });
+          if (cfg.chatLeadCapture !== false)
+            captureLeadFromChat(req.body.sessionId, req.body.page, msgs);
+        }
+      }
+    } catch { /* best effort */ }
+    res.status(500).json({ error: friendly });
+  }
+});
+
+// Admin — read current chat-assistant settings. The API key itself is never
+// returned; we only report whether one is set and where it comes from.
+app.get('/api/chat-config', requireAuth, (req,res) => {
+  const cfg    = getConfig();
+  const envKey = !!process.env.GEMINI_API_KEY;
+  res.json({
+    enabled:       cfg.chatEnabled !== false,
+    hasKey:        envKey || !!cfg.geminiApiKey,
+    keySource:     envKey ? 'env' : (cfg.geminiApiKey ? 'config' : 'none'),
+    model:         process.env.GEMINI_MODEL || cfg.geminiModel || 'gemini-3.6-flash',
+    modelLocked:   !!process.env.GEMINI_MODEL,
+    greeting:      cfg.chatGreeting || CHAT_DEFAULT_GREETING,
+    inviteText:    cfg.chatInviteText || CHAT_DEFAULT_INVITE,
+    systemPrompt:  cfg.chatSystemPrompt || CHAT_SYSTEM_PROMPT,
+    usingDefaultPrompt: !(typeof cfg.chatSystemPrompt === 'string' && cfg.chatSystemPrompt.trim()),
+    defaultGreeting:    CHAT_DEFAULT_GREETING,
+    defaultInvite:      CHAT_DEFAULT_INVITE,
+    defaultSystemPrompt: CHAT_SYSTEM_PROMPT,
+    logging:       cfg.chatLogging !== false,
+    leadCapture:   cfg.chatLeadCapture !== false,
+  });
+});
+
+// Admin — save chat-assistant settings. Only overwrites the stored key when a
+// non-empty value is provided; clearKey removes the config-stored key (an env
+// key, if any, still wins and cannot be removed from here).
+app.post('/api/chat-config', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const cfg = getConfig();
+    const b   = req.body || {};
+    if (typeof b.enabled === 'boolean') cfg.chatEnabled = b.enabled;
+    if (typeof b.logging === 'boolean') cfg.chatLogging = b.logging;
+    if (typeof b.leadCapture === 'boolean') cfg.chatLeadCapture = b.leadCapture;
+    if (typeof b.model === 'string' && b.model.trim()) cfg.geminiModel = b.model.trim().slice(0,60);
+    if (typeof b.greeting === 'string') {
+      const g = b.greeting.trim();
+      if (g) cfg.chatGreeting = g.slice(0,500); else delete cfg.chatGreeting;
+    }
+    if (typeof b.inviteText === 'string') {
+      const iv = b.inviteText.trim();
+      if (iv) cfg.chatInviteText = iv.slice(0,300); else delete cfg.chatInviteText;
+    }
+    if (typeof b.systemPrompt === 'string') {
+      const sp = b.systemPrompt.trim();
+      if (sp) cfg.chatSystemPrompt = sp.slice(0,8000); else delete cfg.chatSystemPrompt;
+    }
+    if (b.clearKey) delete cfg.geminiApiKey;
+    else if (typeof b.apiKey === 'string' && b.apiKey.trim()) cfg.geminiApiKey = b.apiKey.trim().slice(0,200);
+    saveConfig(cfg);
+    logActivity('Updated AI chat assistant settings', req.session.user);
+    res.json({ ok:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// Admin — list saved chat conversations (newest first).
+app.get('/api/chat-logs', requireAuth, (req,res) => {
+  res.json(readJSON(CHATLOG_FILE, []).slice(0, 200));
+});
+// Admin — delete a single conversation.
+app.delete('/api/chat-logs/:id', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const list = readJSON(CHATLOG_FILE, []).filter(c => c.id !== req.params.id);
+    writeJSON(CHATLOG_FILE, list);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+// Admin — clear all conversations.
+app.delete('/api/chat-logs', requireAuth, csrfProtect, (req,res) => {
+  try {
+    writeJSON(CHATLOG_FILE, []);
+    logActivity('Cleared all AI chat logs', req.session.user);
     res.json({ success:true });
   } catch(e) { res.status(500).json({ error:e.message }); }
 });
@@ -1192,6 +1992,37 @@ app.patch('/api/font-settings', requireAuth, csrfProtect, (req, res) => {
     if (b.lsHeading   !== undefined) cfg.lsHeading   = clampN(b.lsHeading,   -0.05,0.1,  -0.02);
     saveConfig(cfg);
     logActivity('Updated typography settings', req.session.user);
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Colour theme (applies immediately via /fonts.css, not draft-gated) ──
+app.get('/api/theme', requireAuth, (req, res) => {
+  const cfg = getConfig();
+  const t   = cfg.theme || {};
+  res.json({
+    primary:    isHex(t.primary) ? t.primary : THEME_DEFAULTS.primary,
+    accent:     isHex(t.accent)  ? t.accent  : THEME_DEFAULTS.accent,
+    bg:         isHex(t.bg)      ? t.bg      : THEME_DEFAULTS.bg,
+    customized: !!cfg.theme,
+    defaults:   THEME_DEFAULTS,
+  });
+});
+
+app.post('/api/theme', requireAuth, csrfProtect, (req, res) => {
+  try {
+    const cfg = getConfig();
+    if (req.body && req.body.reset) {
+      delete cfg.theme; saveConfig(cfg);
+      logActivity('Reset colour theme to default', req.session.user);
+      return res.json({ success: true, reset: true });
+    }
+    const { primary, accent, bg } = req.body || {};
+    if (![primary, accent, bg].every(isHex))
+      return res.status(400).json({ error: 'All three colours must be valid 6-digit hex values (e.g. #1A4530).' });
+    cfg.theme = { primary, accent, bg };
+    saveConfig(cfg);
+    logActivity('Updated colour theme', req.session.user);
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -1361,7 +2192,7 @@ function makeTransporter(cfg) {
     host: cfg.emailHost || 'smtp.gmail.com',
     port: Number(cfg.emailPort) || 587,
     secure: false,
-    auth: { user: cfg.emailFrom, pass: cfg.emailPass },
+    auth: { user: cfg.emailFrom, pass: smtpPass(cfg) },
   });
 }
 
@@ -1386,7 +2217,7 @@ async function sendNotification(visitor) {
   if (cfg.signalEnabled && cfg.signalApiUrl && cfg.signalNumber && cfg.signalRecipients) {
     sendSignalAlert(visitor, cfg).catch(e => console.error('[Visitor Signal]', e.message));
   }
-  if (cfg.emailEnabled && cfg.emailFrom && cfg.emailPass && cfg.emailTo) {
+  if (cfg.emailEnabled && cfg.emailFrom && smtpPass(cfg) && cfg.emailTo) {
     sendEmailAlert(visitor, cfg).catch(e => console.error('[Visitor Email]', e.message));
   }
 }
@@ -1412,7 +2243,7 @@ function fillTemplate(tpl, e) {
 // Best-effort: never throws, never blocks the HTTP response.
 async function sendEnquiryEmails(enquiry) {
   const cfg = getConfig();
-  if (!cfg.emailFrom || !cfg.emailPass) return; // SMTP not configured — skip silently
+  if (!cfg.emailFrom || !smtpPass(cfg)) return; // SMTP not configured — skip silently
   const fc = getFormConfig();
   let transporter;
   try { transporter = makeTransporter(cfg); }
@@ -1673,6 +2504,8 @@ app.get('/api/visitor-stats', requireAuth, (req, res) => {
     emailFrom:       cfg.emailFrom || '',
     emailHost:       cfg.emailHost || 'smtp.gmail.com',
     emailPort:       cfg.emailPort || 587,
+    emailPassSet:          !!smtpPass(cfg),   // is a password configured at all?
+    emailPassManagedByEnv: !!envSMTPPass(),   // set via SMTP_PASS env → UI locks the field
   });
 });
 
@@ -1690,9 +2523,10 @@ app.patch('/api/visitor-settings', requireAuth, csrfProtect, (req, res) => {
     if (str('emailTo',   200) !== undefined) cfg.emailTo   = str('emailTo',   200);
     if (str('emailFrom', 200) !== undefined) cfg.emailFrom = str('emailFrom', 200);
     // Password is write-only (never sent back to the form), so a blank submission
-    // means "keep the existing password" rather than wiping it.
+    // means "keep the existing password" rather than wiping it. When SMTP_PASS is
+    // supplied via the environment, never persist the secret to config.json.
     const newEmailPass = str('emailPass', 200);
-    if (newEmailPass) cfg.emailPass = newEmailPass;
+    if (newEmailPass && !envSMTPPass()) cfg.emailPass = newEmailPass;
     if (str('emailHost', 100) !== undefined) cfg.emailHost = str('emailHost', 100);
     if (b.emailPort !== undefined) cfg.emailPort = parseInt(b.emailPort) || 587;
     saveConfig(cfg);

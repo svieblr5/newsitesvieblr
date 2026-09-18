@@ -90,6 +90,35 @@
 @media(max-width:900px){ .gal-masonry { columns: 2; } }
 @media(max-width:500px){ .gal-masonry { columns: 1; } }
 
+/* ── Before / After slider ── */
+.ba-sec { background:#f6f3ee; }
+.ba-head { text-align:center; margin-bottom:34px; }
+.ba-heading { font-family:'Cormorant',serif; font-size:clamp(2rem,4vw,2.8rem); font-weight:600; color:#1A4530; line-height:1.1; margin:6px 0 8px; }
+.ba-heading em { font-style:italic; color:#C9A05A; }
+.ba-sub { color:#6b6459; font-size:.95rem; max-width:520px; margin:0 auto; }
+.ba-track { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; max-width:880px; margin:0 auto; }
+@media(max-width:820px){ .ba-track { grid-template-columns:1fr; max-width:460px; } }
+.ba-item { }
+.ba-slider { position:relative; width:100%; aspect-ratio:3/2; overflow:hidden; border-radius:14px;
+  box-shadow:0 14px 40px rgba(26,69,48,.16); cursor:ew-resize; user-select:none; touch-action:none;
+  background:#e8e2d8; }
+.ba-slider img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
+.ba-before { clip-path: inset(0 calc(100% - var(--pos,50%)) 0 0); }
+.ba-tag { position:absolute; top:12px; font-size:.62rem; font-weight:700; letter-spacing:.08em;
+  color:#fff; padding:4px 10px; border-radius:20px; backdrop-filter:blur(4px); pointer-events:none; z-index:2; }
+.ba-tag-b { left:12px; background:rgba(0,0,0,.5); }
+.ba-tag-a { right:12px; background:rgba(33,88,64,.72); }
+.ba-divider { position:absolute; top:0; bottom:0; left:var(--pos,50%); width:3px;
+  background:#fff; transform:translateX(-50%); box-shadow:0 0 8px rgba(0,0,0,.35); z-index:2; }
+.ba-handle { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:42px; height:42px; border-radius:50%; background:#fff; box-shadow:0 3px 12px rgba(0,0,0,.3);
+  display:flex; align-items:center; justify-content:center; color:#1A4530; }
+.ba-caption { margin-top:12px; text-align:center; font-family:'Cormorant',serif; font-size:1.15rem;
+  font-weight:600; color:#1A4530; }
+.ba-video-wrap { position:relative; width:100%; aspect-ratio:3/2; overflow:hidden; border-radius:14px;
+  box-shadow:0 14px 40px rgba(26,69,48,.16); background:#000; }
+.ba-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+
 /* ── Card ── */
 .gal-card {
   break-inside: avoid; margin-bottom: 16px;
@@ -259,7 +288,7 @@
 <div class="cursor-ring"></div>
 
 <!-- Lightbox -->
-<div class="lightbox" id="lightbox">
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Gallery image viewer">
   <div class="lb-bar">
     <span class="lb-index" id="lb-index">1 / 18</span>
     <button class="lb-close" id="lb-close" aria-label="Close">✕</button>
@@ -268,7 +297,7 @@
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
   </button>
   <div class="lb-wrap">
-    <img decoding="async" loading="lazy" class="lb-img" id="lb-img" src="" alt="">
+    <img decoding="async" loading="lazy" class="lb-img" id="lb-img" alt="">
   </div>
   <button class="lb-nav" id="lb-next" aria-label="Next">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
@@ -280,9 +309,11 @@
 </div>
 
 <!-- WhatsApp -->
+<aside aria-label="Quick contact">
 <a href="https://wa.me/919513961740" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp">
   <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 </a>
+</aside>
 
 <!-- NAV -->
 <nav class="nav" id="nav">
@@ -336,6 +367,7 @@
 </div>
 
 <!-- PAGE HERO -->
+<main id="main-content">
 <div class="gal-hero">
   <div class="wrap">
     <div class="gal-hero-content">
@@ -628,6 +660,18 @@
   </div>
 </section>
 
+<!-- BEFORE / AFTER -->
+<section class="sec ba-sec" id="ba-section" style="display:none">
+  <div class="wrap">
+    <div class="ba-head">
+      <div class="eyebrow reveal" style="justify-content:center">The Transformation</div>
+      <h2 class="ba-heading reveal d1">Before <em>&amp;</em> After</h2>
+      <p class="ba-sub reveal d2">Drag the slider to reveal how we transformed these Bengaluru spaces.</p>
+    </div>
+    <div class="ba-track" id="ba-track"></div>
+  </div>
+</section>
+
 <!-- CTA -->
 <section class="cta-sec">
   <div class="wrap"><div class="cta-inner">
@@ -650,6 +694,7 @@
 </section>
 
 <!-- FOOTER -->
+</main>
 <footer class="footer"><div class="footer-topline"></div><div class="wrap">
   <div class="footer-grid">
     <div class="footer-brand-col">
@@ -718,6 +763,60 @@
     '</div>';
   }
 
+  /* ── Before / After: render CMS pairs + wire up drag sliders ── */
+  function baRender(items){
+    var sec = document.getElementById('ba-section');
+    if(!sec) return;
+    if(!items || !items.length){ sec.style.display='none'; return; }
+    var track = document.getElementById('ba-track');
+    track.innerHTML = items.map(function(it){
+      var t = esc(it.title||'');
+      if(it.type==='video'){
+        var poster = it.poster ? ' poster="'+esc(it.poster)+'"' : '';
+        return '<div class="ba-item reveal">'+
+          '<div class="ba-video-wrap">'+
+            '<video class="ba-video" src="'+esc(it.video)+'"'+poster+' controls playsinline preload="none"></video>'+
+          '</div>'+
+          (t ? '<div class="ba-caption">'+t+'</div>' : '')+
+        '</div>';
+      }
+      return '<div class="ba-item reveal">'+
+        '<div class="ba-slider" style="--pos:50%">'+
+          '<img class="ba-after" src="'+esc(it.after)+'" alt="After — '+t+'" loading="lazy">'+
+          '<img class="ba-before" src="'+esc(it.before)+'" alt="Before — '+t+'" loading="lazy">'+
+          '<span class="ba-tag ba-tag-b">Before</span>'+
+          '<span class="ba-tag ba-tag-a">After</span>'+
+          '<div class="ba-divider"><div class="ba-handle">'+
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="14 6 8 12 14 18"/><polyline points="10 6 16 12 10 18"/></svg>'+
+          '</div></div>'+
+        '</div>'+
+        (t ? '<div class="ba-caption">'+t+'</div>' : '')+
+      '</div>';
+    }).join('');
+    sec.style.display='';
+    track.querySelectorAll('.ba-slider').forEach(baBindSlider);
+    track.querySelectorAll('.reveal').forEach(function(el){
+      if(window.revealObserver) window.revealObserver.observe(el);
+      else el.classList.add('in');   // fallback: never leave items hidden
+    });
+  }
+
+  function baBindSlider(sl){
+    var dragging=false;
+    function setPos(clientX){
+      var r=sl.getBoundingClientRect();
+      var p=Math.max(0,Math.min(100,(clientX-r.left)/r.width*100));
+      sl.style.setProperty('--pos', p+'%');
+    }
+    function pt(e){ return e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX; }
+    sl.addEventListener('mousedown', function(e){ dragging=true; setPos(pt(e)); e.preventDefault(); });
+    sl.addEventListener('touchstart',function(e){ dragging=true; setPos(pt(e)); }, {passive:true});
+    window.addEventListener('mousemove', function(e){ if(dragging) setPos(pt(e)); });
+    window.addEventListener('touchmove', function(e){ if(dragging){ setPos(pt(e)); e.preventDefault(); } }, {passive:false});
+    window.addEventListener('mouseup',  function(){ dragging=false; });
+    window.addEventListener('touchend', function(){ dragging=false; });
+  }
+
   /* ── Init filter + lightbox (called after any render) ── */
   function initGallery(){
     var chips = document.querySelectorAll('.gal-chip');
@@ -757,7 +856,7 @@
     function closeLb(){
       lb.classList.remove('open');
       document.body.style.overflow='';
-      setTimeout(function(){lbImg.src='';},300);
+      setTimeout(function(){lbImg.removeAttribute('src');},300);
     }
     function step(d){ cur=(cur+d+vis.length)%vis.length; openLb(cur); }
 
@@ -781,6 +880,7 @@
   fetch('/api/site-content')
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(data){
+      if(data) baRender(data.beforeafter);
       var items = data && data.gallery;
       if(!items || !items.length){ initGallery(); return; }
 
@@ -788,11 +888,10 @@
       masonry.innerHTML = items.map(cardHtml).join('');
 
       /* Re-run script.js reveal observer on new cards */
-      if(window.revealObserver){
-        document.querySelectorAll('.gal-card.reveal').forEach(function(el){
-          window.revealObserver.observe(el);
-        });
-      }
+      document.querySelectorAll('.gal-card.reveal').forEach(function(el){
+        if(window.revealObserver) window.revealObserver.observe(el);
+        else el.classList.add('in');   // fallback: never leave cards hidden
+      });
 
       initGallery();
     })
@@ -838,5 +937,6 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <script src="visitor-tracker.js" defer></script>
+<script src="chat-widget.js" defer></script>
 </body>
 </html>
