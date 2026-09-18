@@ -144,7 +144,7 @@ body::before{
   font-family:var(--font-sans);
   font-size:.65rem;font-weight:700;
   letter-spacing:.22em;text-transform:uppercase;
-  color:var(--gold);
+  color:#806326;
   margin-bottom:18px;
 }
 .eyebrow::before{

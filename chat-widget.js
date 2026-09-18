@@ -33,7 +33,7 @@
     'align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(201,160,90,.5);transition:transform .25s,box-shadow .25s}' +
   '.svie-chat-launch:hover{transform:scale(1.1);box-shadow:0 8px 32px rgba(201,160,90,.6)}' +
   '.svie-chat-launch svg{width:26px;height:26px}' +
-  '.svie-chat-launch .svie-chat-badge{position:absolute;top:-3px;right:-3px;background:#e53935;color:#fff;font:700 10px/1 system-ui,sans-serif;' +
+  '.svie-chat-launch .svie-chat-badge{position:absolute;top:-3px;right:-3px;background:#c62828;color:#fff;font:700 10px/1 system-ui,sans-serif;' +
     'padding:3px 5px;border-radius:10px;border:2px solid #fff}' +
   /* ── Proactive invite bubble (teaser that nudges the visitor to chat) ── */
   '.svie-chat-invite{position:fixed;bottom:100px;right:94px;max-width:250px;background:#fff;color:#2b2b2b;border:1px solid #eae4dc;' +
@@ -41,7 +41,7 @@
     'font:400 .84rem/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer;opacity:0;transform:translateY(10px) scale(.96);' +
     'transition:opacity .3s,transform .3s;pointer-events:none}' +
   '.svie-chat-invite.show{opacity:1;transform:none;pointer-events:auto}' +
-  '.svie-chat-invite b{display:block;color:#b3894a;font-size:.8rem;margin-bottom:2px}' +
+  '.svie-chat-invite b{display:block;color:#7a5c26;font-size:.8rem;margin-bottom:2px}' +
   '.svie-chat-invite .svie-invite-x{position:absolute;top:5px;right:6px;width:20px;height:20px;border:none;background:none;color:#b0a89b;' +
     'cursor:pointer;font-size:15px;line-height:1;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0}' +
   '.svie-chat-invite .svie-invite-x:hover{background:#f0ece5;color:#6b6155}' +
@@ -119,9 +119,9 @@
   var INVITE_TEXT  = 'Hi there! 👋 Looking for interior design, construction or modular furniture? Chat with us — we’re here to help.';
   var invite = document.createElement('div');
   invite.className = 'svie-chat-invite';
-  invite.setAttribute('role', 'button');
-  invite.setAttribute('tabindex', '0');
-  invite.setAttribute('aria-label', 'Open chat with SVIE Assistant');
+  // Not an interactive control itself (it contains a dismiss button; a role=button
+  // wrapper around a button is a nested-interactive a11y violation). Clicking the
+  // bubble still opens chat via the listener below; keyboard users use the FAB.
 
   var panel = document.createElement('div');
   panel.className = 'svie-chat-panel';
