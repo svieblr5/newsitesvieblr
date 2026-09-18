@@ -327,7 +327,10 @@ em.italic-gold{font-style:italic;color:var(--gold)}
   font-size:.44rem;font-weight:700;
   letter-spacing:.22em;text-transform:uppercase;
   color:var(--gold);white-space:nowrap;
-  opacity:.85;
+  /* dark chip keeps the gold tagline legible over any hero (contrast AA),
+     transparent or scrolled-dark nav alike */
+  background:rgba(10,36,22,.9);padding:2px 8px;border-radius:5px;
+  opacity:1;
   transition:opacity .3s;
 }
 .nav-logo:hover .nav-logo-sub{ opacity:1; }
