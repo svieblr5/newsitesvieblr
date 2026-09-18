@@ -297,7 +297,7 @@
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
   </button>
   <div class="lb-wrap">
-    <img decoding="async" loading="lazy" class="lb-img" id="lb-img" src="" alt="">
+    <img decoding="async" loading="lazy" class="lb-img" id="lb-img" alt="">
   </div>
   <button class="lb-nav" id="lb-next" aria-label="Next">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
@@ -771,7 +771,7 @@
         var poster = it.poster ? ' poster="'+esc(it.poster)+'"' : '';
         return '<div class="ba-item reveal">'+
           '<div class="ba-video-wrap">'+
-            '<video class="ba-video" src="'+esc(it.video)+'"'+poster+' controls playsinline preload="metadata"></video>'+
+            '<video class="ba-video" src="'+esc(it.video)+'"'+poster+' controls playsinline preload="none"></video>'+
           '</div>'+
           (t ? '<div class="ba-caption">'+t+'</div>' : '')+
         '</div>';
@@ -851,7 +851,7 @@
     function closeLb(){
       lb.classList.remove('open');
       document.body.style.overflow='';
-      setTimeout(function(){lbImg.src='';},300);
+      setTimeout(function(){lbImg.removeAttribute('src');},300);
     }
     function step(d){ cur=(cur+d+vis.length)%vis.length; openLb(cur); }
 
