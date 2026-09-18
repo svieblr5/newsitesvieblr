@@ -39,6 +39,14 @@ const DATA_DIR = process.env.DATA_DIR
   || (hbuildsMatch ? path.join(hbuildsMatch[1], 'svie-data') : path.join(ROOT, 'data'));
 try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch { /* exists */ }
 
+// ── Media directory (persists across deploys, kept OUT of git) ──
+// Large media (e.g. before/after transformation videos) lives outside the build so it
+// isn't bloating the git repo/history. Resolved like DATA_DIR (home derived from the
+// build path, NOT os.homedir()). Locally it falls back to ./media. Served at /media.
+const MEDIA_DIR = process.env.MEDIA_DIR
+  || (hbuildsMatch ? path.join(hbuildsMatch[1], 'svie-media') : path.join(ROOT, 'media'));
+try { fs.mkdirSync(MEDIA_DIR, { recursive: true }); } catch { /* exists */ }
+
 // ── File paths ──
 const CONTENT_FILE  = path.join(DATA_DIR, 'content.json');        // LIVE / published — public site reads this
 const DRAFT_FILE    = path.join(DATA_DIR, 'content-draft.json');  // DRAFT working copy — dashboard edits this
@@ -536,6 +544,7 @@ function staticCacheHeaders(res, filePath) {
   }
 }
 app.use(express.static(ROOT, { setHeaders: staticCacheHeaders }));
+app.use('/media', express.static(MEDIA_DIR, { setHeaders: staticCacheHeaders }));
 app.use('/admin', express.static(path.join(ROOT,'admin')));
 
 if (!process.env.SESSION_SECRET) {
