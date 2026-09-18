@@ -46,13 +46,13 @@
   }
 
   /* ── Scroll Reveal ── */
-  const els = document.querySelectorAll('.reveal');
-  if(els.length){
-    const io = new IntersectionObserver(entries=>{
-      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-    },{threshold:.1,rootMargin:'0px 0px -36px 0px'});
-    els.forEach(el=> io.observe(el));
-  }
+  // Exposed as window.revealObserver so JS-rendered content (e.g. the gallery
+  // before/after items, added after fetch) can register itself for reveal too.
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.1,rootMargin:'0px 0px -36px 0px'});
+  window.revealObserver = io;
+  document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
 
   /* ── Number Counters ── */
   document.querySelectorAll('[data-count]').forEach(el=>{

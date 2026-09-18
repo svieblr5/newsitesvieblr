@@ -791,9 +791,10 @@
     }).join('');
     sec.style.display='';
     track.querySelectorAll('.ba-slider').forEach(baBindSlider);
-    if(window.revealObserver){
-      track.querySelectorAll('.reveal').forEach(function(el){ window.revealObserver.observe(el); });
-    }
+    track.querySelectorAll('.reveal').forEach(function(el){
+      if(window.revealObserver) window.revealObserver.observe(el);
+      else el.classList.add('in');   // fallback: never leave items hidden
+    });
   }
 
   function baBindSlider(sl){
@@ -883,11 +884,10 @@
       masonry.innerHTML = items.map(cardHtml).join('');
 
       /* Re-run script.js reveal observer on new cards */
-      if(window.revealObserver){
-        document.querySelectorAll('.gal-card.reveal').forEach(function(el){
-          window.revealObserver.observe(el);
-        });
-      }
+      document.querySelectorAll('.gal-card.reveal').forEach(function(el){
+        if(window.revealObserver) window.revealObserver.observe(el);
+        else el.classList.add('in');   // fallback: never leave cards hidden
+      });
 
       initGallery();
     })
