@@ -1675,6 +1675,8 @@ body:has(.nav-drawer.open) #svie-consent{transform:translateY(100%)!important}
   .nav-links,.nav-cta{display:none}
   .nav-burger{display:flex}
   .hero-img-panel{opacity:.25}
+  /* Smaller hero for phones (faint backdrop here) — 19KB vs 44KB */
+  .hero-img-panel::before{background-image:url('images/gallery/hero-mobile.webp')}
   .hero-stats{flex-wrap:wrap;gap:20px 0}
   .h-stat{border:none;padding:0 24px 0 0;margin:0}
   .stats-row{grid-template-columns:repeat(2,1fr);gap:28px}
