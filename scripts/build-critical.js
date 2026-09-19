@@ -115,17 +115,18 @@ function extractInPage() {
 }
 
 function injectCritical(html, criticalCss, stylesHref) {
-  // strip a previously injected block so this is idempotent
-  html = html.replace(/\n?[ \t]*<style id="critical-css">[\s\S]*?<\/style>/, '');
-  html = html.replace(/\n?[ \t]*<link rel="preload" href="styles\.css[^>]*as="style"[^>]*>/, '');
-  html = html.replace(/\n?[ \t]*<noscript><link rel="stylesheet" href="styles\.css[^>]*><\/noscript>/, '');
-  // drop the separate fonts.css link (its @font-face is folded into critical)
-  html = html.replace(/\n?[ \t]*<link rel="stylesheet" href="fonts\.css[^>]*>/, '');
   const block =
     `<style id="critical-css">${criticalCss}</style>\n` +
     `<link rel="preload" href="${stylesHref}" as="style" onload="this.onload=null;this.rel='stylesheet'">\n` +
     `<noscript><link rel="stylesheet" href="${stylesHref}"></noscript>`;
-  // replace the render-blocking styles.css link with the block
+  // drop the separate fonts.css link (its @font-face is folded into critical)
+  html = html.replace(/\n?[ \t]*<link rel="stylesheet" href="fonts\.css[^>]*>/, '');
+  // Idempotent: if already processed, replace the WHOLE injected region
+  // (style + preload + noscript) in one shot. Otherwise (first run) replace the
+  // render-blocking styles.css <link>. Doing the strip separately was the bug:
+  // it removed the async link so the plain-link replace found nothing → CSS lost.
+  const region = /<style id="critical-css">[\s\S]*?<\/noscript>/;
+  if (region.test(html)) return html.replace(region, block);
   return html.replace(/<link rel="stylesheet" href="styles\.css[^>]*>/, block);
 }
 

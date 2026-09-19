@@ -475,14 +475,16 @@ body:has(.nav-drawer.open) #svie-consent{transform:translateY(100%)!important}
   position:absolute;right:0;top:0;bottom:0;width:52%;
   overflow:hidden;
 }
-.hero-img-panel::before{
-  content:'';position:absolute;inset:0;
-  background:url('images/gallery/hero.jpg') center/cover no-repeat;
+/* Real <img> (not a CSS background) so it's the LCP element the preload scanner
+   finds immediately and paints on decode — avoids background-image render delay. */
+.hero-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;
   opacity:.32;
   transform:scale(1.04);
   transition:transform 8s var(--ease-out);
 }
-.hero:hover .hero-img-panel::before{transform:scale(1.0)}
+.hero:hover .hero-img{transform:scale(1.0)}
 .hero-img-panel::after{
   content:'';position:absolute;inset:0;
   background:linear-gradient(to right,
@@ -1675,8 +1677,6 @@ body:has(.nav-drawer.open) #svie-consent{transform:translateY(100%)!important}
   .nav-links,.nav-cta{display:none}
   .nav-burger{display:flex}
   .hero-img-panel{opacity:.25}
-  /* Smaller hero for phones (faint backdrop here) — 19KB vs 44KB */
-  .hero-img-panel::before{background-image:url('images/gallery/hero-mobile.webp')}
   .hero-stats{flex-wrap:wrap;gap:20px 0}
   .h-stat{border:none;padding:0 24px 0 0;margin:0}
   .stats-row{grid-template-columns:repeat(2,1fr);gap:28px}
