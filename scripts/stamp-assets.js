@@ -41,6 +41,9 @@ for (const f of htmlFiles) {
     src = src.replace(re, a + '?v=' + hash[a]);
   }
   if (src !== before) {
+    const crlf = /\r\n/.test(before);                 // preserve the file's original EOL
+    src = src.replace(/\r\n/g, '\n');
+    if (crlf) src = src.replace(/\n/g, '\r\n');
     fs.writeFileSync(fp, src);
     changed++;
     console.log('stamped', f);

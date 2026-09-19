@@ -16,7 +16,15 @@ const storage      = require('./storage');
 let sharp = null;
 try { sharp = require('sharp'); } catch (e) { console.warn('[img] sharp unavailable — uploads will not be optimized:', e.message); }
 
+// gzip responses at the origin. Optional dep (like sharp) so a missing binary
+// never crashes boot. On Hostinger the CDN also compresses; this just ensures
+// compression when the origin is hit directly (and makes local perf testing
+// representative of production).
+let compression = null;
+try { compression = require('compression'); } catch (e) { console.warn('[perf] compression unavailable:', e.message); }
+
 const app  = express();
+if (compression) app.use(compression());
 // Hostinger runs this behind a LiteSpeed reverse proxy that terminates TLS and
 // forwards over plain HTTP with X-Forwarded-Proto: https. Without trusting the
 // proxy, Express sees req.secure === false and refuses to set the `secure`
