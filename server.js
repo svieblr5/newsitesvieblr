@@ -551,6 +551,21 @@ function staticCacheHeaders(res, filePath) {
     res.setHeader('Cache-Control', 'public, max-age=' + (STATIC_CODE_MAX_AGE / 1000) + ', immutable');
   }
 }
+// Serve a .webp twin when the browser accepts webp and one exists next to the
+// requested .jpg/.jpeg/.png. Mirrors the .htaccess rule so the origin also
+// negotiates webp when hit directly (belt-and-suspenders behind the CDN).
+app.use((req, res, next) => {
+  if (/image\/webp/.test(req.headers.accept || '') && /\.(jpe?g|png)$/i.test(req.path)) {
+    const twin = req.path.replace(/\.(jpe?g|png)$/i, '.webp');
+    try {
+      if (fs.existsSync(path.join(ROOT, decodeURIComponent(twin).replace(/^\/+/, '')))) {
+        res.set('Vary', 'Accept');
+        req.url = twin + req.url.slice(req.path.length);
+      }
+    } catch (e) { /* bad path → serve original */ }
+  }
+  next();
+});
 app.use(express.static(ROOT, { setHeaders: staticCacheHeaders }));
 app.use('/media', express.static(MEDIA_DIR, { setHeaders: staticCacheHeaders }));
 app.use('/admin', express.static(path.join(ROOT,'admin')));

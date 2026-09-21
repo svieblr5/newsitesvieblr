@@ -1314,7 +1314,7 @@ body:has(.nav-drawer.open) #svie-consent{transform:translateY(100%)!important}
 .s-card:hover .s-card-thumb img{transform:scale(1.05)}
 .pg-hero-img{
   position:absolute;inset:0;
-  background:center/cover no-repeat;
+  width:100%;height:100%;object-fit:cover;
   opacity:.13;
   mix-blend-mode:luminosity;
 }
@@ -1545,6 +1545,10 @@ body:has(.nav-drawer.open) #svie-consent{transform:translateY(100%)!important}
 /* ── ══════════ ANIMATIONS ══════════ ── */
 .reveal{opacity:0;transform:translateY(28px);transition:opacity .65s var(--ease-out), transform .65s var(--ease-out)}
 .reveal.in{opacity:1;transform:translateY(0)}
+/* Above-the-fold LCP: the first content section right after a page header paints
+   immediately (no entrance fade) so its heading/text isn't a delayed LCP on mobile.
+   Below-the-fold sections keep the scroll-reveal animation. */
+.pg-hero+.sec .reveal{opacity:1;transform:none;transition:none}
 .reveal-l{transform:translateX(-28px)}
 .reveal-r{transform:translateX(28px)}
 .reveal-l.in,.reveal-r.in{transform:translateX(0)}
