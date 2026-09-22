@@ -475,14 +475,16 @@ body:has(.nav-drawer.open) #svie-consent{transform:translateY(100%)!important}
   position:absolute;right:0;top:0;bottom:0;width:52%;
   overflow:hidden;
 }
-.hero-img-panel::before{
-  content:'';position:absolute;inset:0;
-  background:url('images/gallery/hero.jpg') center/cover no-repeat;
+/* Real <img> (not a CSS background) so it's the LCP element the preload scanner
+   finds immediately and paints on decode — avoids background-image render delay. */
+.hero-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;
   opacity:.32;
   transform:scale(1.04);
   transition:transform 8s var(--ease-out);
 }
-.hero:hover .hero-img-panel::before{transform:scale(1.0)}
+.hero:hover .hero-img{transform:scale(1.0)}
 .hero-img-panel::after{
   content:'';position:absolute;inset:0;
   background:linear-gradient(to right,
@@ -1312,7 +1314,7 @@ body:has(.nav-drawer.open) #svie-consent{transform:translateY(100%)!important}
 .s-card:hover .s-card-thumb img{transform:scale(1.05)}
 .pg-hero-img{
   position:absolute;inset:0;
-  background:center/cover no-repeat;
+  width:100%;height:100%;object-fit:cover;
   opacity:.13;
   mix-blend-mode:luminosity;
 }
@@ -1543,6 +1545,10 @@ body:has(.nav-drawer.open) #svie-consent{transform:translateY(100%)!important}
 /* ── ══════════ ANIMATIONS ══════════ ── */
 .reveal{opacity:0;transform:translateY(28px);transition:opacity .65s var(--ease-out), transform .65s var(--ease-out)}
 .reveal.in{opacity:1;transform:translateY(0)}
+/* Above-the-fold LCP: the first content section right after a page header paints
+   immediately (no entrance fade) so its heading/text isn't a delayed LCP on mobile.
+   Below-the-fold sections keep the scroll-reveal animation. */
+.pg-hero+.sec .reveal{opacity:1;transform:none;transition:none}
 .reveal-l{transform:translateX(-28px)}
 .reveal-r{transform:translateX(28px)}
 .reveal-l.in,.reveal-r.in{transform:translateX(0)}

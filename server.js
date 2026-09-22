@@ -16,7 +16,15 @@ const storage      = require('./storage');
 let sharp = null;
 try { sharp = require('sharp'); } catch (e) { console.warn('[img] sharp unavailable — uploads will not be optimized:', e.message); }
 
+// gzip responses at the origin. Optional dep (like sharp) so a missing binary
+// never crashes boot. On Hostinger the CDN also compresses; this just ensures
+// compression when the origin is hit directly (and makes local perf testing
+// representative of production).
+let compression = null;
+try { compression = require('compression'); } catch (e) { console.warn('[perf] compression unavailable:', e.message); }
+
 const app  = express();
+if (compression) app.use(compression());
 // Hostinger runs this behind a LiteSpeed reverse proxy that terminates TLS and
 // forwards over plain HTTP with X-Forwarded-Proto: https. Without trusting the
 // proxy, Express sees req.secure === false and refuses to set the `secure`
@@ -533,16 +541,31 @@ app.get(Object.keys(SEO_PAGE_KEY), (req, res, next) => {
 // Long cache lifetimes for true static assets (images/fonts/css/js) speed up
 // repeat visits; HTML is left at the express.static default (revalidate every
 // time) since pages are CMS-editable and must reflect the latest content.
-const STATIC_ASSET_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days — images, fonts
-const STATIC_CODE_MAX_AGE  = 24 * 60 * 60 * 1000;       // 1 day — css/js (no cache-busting filenames)
+const STATIC_ASSET_MAX_AGE = 30 * 24 * 60 * 60 * 1000;   // 30 days — images, fonts
+const STATIC_CODE_MAX_AGE  = 365 * 24 * 60 * 60 * 1000;  // 1 year — css/js (safe: cache-busted via ?v=<hash>, stamped by scripts/stamp-assets.js)
 function staticCacheHeaders(res, filePath) {
   const ext = path.extname(filePath).toLowerCase();
   if (['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.ico', '.woff', '.woff2', '.pdf'].includes(ext)) {
     res.setHeader('Cache-Control', 'public, max-age=' + (STATIC_ASSET_MAX_AGE / 1000));
   } else if (['.css', '.js'].includes(ext)) {
-    res.setHeader('Cache-Control', 'public, max-age=' + (STATIC_CODE_MAX_AGE / 1000));
+    res.setHeader('Cache-Control', 'public, max-age=' + (STATIC_CODE_MAX_AGE / 1000) + ', immutable');
   }
 }
+// Serve a .webp twin when the browser accepts webp and one exists next to the
+// requested .jpg/.jpeg/.png. Mirrors the .htaccess rule so the origin also
+// negotiates webp when hit directly (belt-and-suspenders behind the CDN).
+app.use((req, res, next) => {
+  if (/image\/webp/.test(req.headers.accept || '') && /\.(jpe?g|png)$/i.test(req.path)) {
+    const twin = req.path.replace(/\.(jpe?g|png)$/i, '.webp');
+    try {
+      if (fs.existsSync(path.join(ROOT, decodeURIComponent(twin).replace(/^\/+/, '')))) {
+        res.set('Vary', 'Accept');
+        req.url = twin + req.url.slice(req.path.length);
+      }
+    } catch (e) { /* bad path → serve original */ }
+  }
+  next();
+});
 app.use(express.static(ROOT, { setHeaders: staticCacheHeaders }));
 app.use('/media', express.static(MEDIA_DIR, { setHeaders: staticCacheHeaders }));
 app.use('/admin', express.static(path.join(ROOT,'admin')));
