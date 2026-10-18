@@ -307,7 +307,15 @@
     // Image src attributes  (data-cms-src="furniture_page.images.kitchen")
     document.querySelectorAll('[data-cms-src]').forEach(function (el) {
       var val = resolve(data, el.getAttribute('data-cms-src'));
-      if (val) el.src = val;
+      if (val && el.getAttribute('src') !== val) {
+        // If the dashboard URL is dead (e.g. a removed stock photo), fall back to the page's own image
+        var fallback = el.getAttribute('src');
+        el.addEventListener('error', function onErr() {
+          el.removeEventListener('error', onErr);
+          if (fallback) el.src = fallback;
+        });
+        el.src = val;
+      }
     });
 
     // CSS background-image  (data-cms-bg="furniture_page.images.hero_bg")
