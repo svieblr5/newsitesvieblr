@@ -6,3 +6,7 @@ media/
 
 # Google service-account keys (never commit — contain private keys)
 svie-new-*.json
+
+# Raw WhatsApp source photos (optimized copies live in images/bharat-home)
+images/Bharat Home After/
+images/Bharat Home before/

@@ -153,6 +153,25 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 .ba-video-wrap { position:relative; width:100%; aspect-ratio:3/2; overflow:hidden; border-radius:14px;
   box-shadow:0 14px 40px rgba(26,69,48,.16); background:#000; }
 .ba-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+.ba-slider.ba-tall { aspect-ratio:3/4; }
+
+/* ── Project spotlight: Bharat Home ── */
+.bh-sec { background:var(--white); }
+.bh-pairs { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin:0 auto 56px; }
+@media(max-width:980px){ .bh-pairs { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:600px){ .bh-pairs { grid-template-columns:1fr; max-width:460px; } }
+.bh-tabs { display:flex; justify-content:center; gap:8px; margin-bottom:26px; flex-wrap:wrap; }
+.bh-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px; }
+.bh-thumb { position:relative; aspect-ratio:1; border-radius:var(--r); overflow:hidden; cursor:pointer;
+  background:var(--cream-2); box-shadow:0 3px 14px rgba(12,44,27,.08); }
+.bh-thumb img { width:100%; height:100%; object-fit:cover; transition:transform .5s var(--ease); }
+.bh-thumb:hover img { transform:scale(1.07); }
+.bh-thumb.bh-hide { display:none; }
+.bh-more-wrap { text-align:center; margin-top:28px; }
+.bh-videos { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; max-width:880px; margin:56px auto 0; }
+@media(max-width:820px){ .bh-videos { grid-template-columns:1fr; max-width:460px; } }
+.bh-videos .ba-video-wrap { aspect-ratio:9/16; max-height:640px; }
+.bh-videos .ba-video { object-fit:contain; }
 
 /* ── Card ── */
 .gal-card {
@@ -695,6 +714,37 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
   </div>
 </section>
 
+<!-- PROJECT SPOTLIGHT: BHARAT HOME -->
+<section class="sec bh-sec" id="bharat-home">
+  <div class="wrap">
+    <div class="ba-head">
+      <div class="eyebrow reveal" style="justify-content:center">Project Spotlight</div>
+      <h2 class="ba-heading reveal d1">Bharat Home — <em>Before &amp; After</em></h2>
+      <p class="ba-sub reveal d2">A complete home renovation in Bengaluru: structural opening, marble flooring, modular kitchen, TV wall and wash area. Drag each slider to compare.</p>
+    </div>
+
+    <div class="bh-pairs" id="bh-pairs"></div>
+
+    <div class="bh-tabs" role="tablist">
+      <button class="gal-chip active" data-bh="after" role="tab" aria-selected="true">After · Finished</button>
+      <button class="gal-chip" data-bh="before" role="tab" aria-selected="false">Before · Work in Progress</button>
+    </div>
+    <div class="bh-grid" id="bh-grid"></div>
+    <div class="bh-more-wrap"><button class="gal-chip" id="bh-more" type="button">Show all photos</button></div>
+
+    <div class="bh-videos">
+      <div class="ba-item reveal">
+        <div class="ba-video-wrap"><video class="ba-video" src="videos/bharat-home/walkthrough-1.mp4#t=0.1" controls playsinline preload="metadata"></video></div>
+        <div class="ba-caption">Finished home walkthrough — part 1</div>
+      </div>
+      <div class="ba-item reveal">
+        <div class="ba-video-wrap"><video class="ba-video" src="videos/bharat-home/walkthrough-2.mp4#t=0.1" controls playsinline preload="metadata"></video></div>
+        <div class="ba-caption">Finished home walkthrough — part 2</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- BEFORE / AFTER -->
 <section class="sec ba-sec" id="ba-section" style="display:none">
   <div class="wrap">
@@ -852,6 +902,97 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
     window.addEventListener('touchend', function(){ dragging=false; });
   }
 
+  /* ── Lightbox (shared by gallery cards and Bharat Home photos) ── */
+  function showLb(){
+    var c=vis[cur], img=c.querySelector('img');
+    lbImg.src=img.dataset.full||img.src; lbImg.alt=img.alt;
+    lbTit.textContent=c.dataset.title;
+    lbCat.textContent=c.dataset.tag;
+    lbIdx.textContent=(cur+1)+' / '+vis.length;
+  }
+  function openLb(i){
+    cur=i; showLb();
+    lb.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeLb(){
+    lb.classList.remove('open');
+    document.body.style.overflow='';
+    setTimeout(function(){lbImg.removeAttribute('src');},300);
+  }
+  function step(d){ cur=(cur+d+vis.length)%vis.length; openLb(cur); }
+  document.getElementById('lb-close').onclick = closeLb;
+  document.getElementById('lb-prev').onclick = function(){step(-1);};
+  document.getElementById('lb-next').onclick = function(){step(1);};
+  lb.onclick = function(e){ if(e.target===lb) closeLb(); };
+
+  /* ── Project spotlight: Bharat Home (static files in images/bharat-home) ── */
+  (function(){
+    var base='images/bharat-home/';
+    var pairs=[
+      ['hall','Living hall — opened up & marble floored'],
+      ['kitchen','Modular kitchen'],
+      ['opening','Structural opening with wood-clad beam'],
+      ['tv-wall','Marble TV wall with lit display niches',1],
+      ['wash','Wash area vanity',1],
+      ['arch','Arch & column finish',1]
+    ];
+    var counts={after:18, before:69}, INITIAL=12;
+    var pairsEl=document.getElementById('bh-pairs');
+    var grid=document.getElementById('bh-grid');
+    var more=document.getElementById('bh-more');
+    if(!pairsEl||!grid) return;
+
+    pairsEl.innerHTML=pairs.map(function(p){
+      var t=esc(p[1]);
+      return '<div class="ba-item reveal">'+
+        '<div class="ba-slider'+(p[2]?' ba-tall':'')+'" style="--pos:50%">'+
+          '<img class="ba-after" src="'+base+'pairs/'+p[0]+'-after.webp" alt="After — '+t+'" loading="lazy">'+
+          '<img class="ba-before" src="'+base+'pairs/'+p[0]+'-before.webp" alt="Before — '+t+'" loading="lazy">'+
+          '<span class="ba-tag ba-tag-b">Before</span>'+
+          '<span class="ba-tag ba-tag-a">After</span>'+
+          '<div class="ba-divider"><div class="ba-handle">'+
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="14 6 8 12 14 18"/><polyline points="10 6 16 12 10 18"/></svg>'+
+          '</div></div>'+
+        '</div>'+
+        '<div class="ba-caption">'+t+'</div>'+
+      '</div>';
+    }).join('');
+    pairsEl.querySelectorAll('.ba-slider').forEach(baBindSlider);
+    pairsEl.querySelectorAll('.reveal').forEach(function(el){
+      if(window.revealObserver) window.revealObserver.observe(el);
+      else el.classList.add('in');
+    });
+
+    var kind='after', expanded=false;
+    function renderGrid(){
+      var n=counts[kind], label=kind==='after'?'After':'Before', html='';
+      for(var i=1;i<=n;i++){
+        var f=base+kind+'/'+kind+'-'+(i<10?'0':'')+i;
+        html+='<div class="bh-thumb'+(!expanded&&i>INITIAL?' bh-hide':'')+'" data-title="Bharat Home — '+label+' ('+i+' of '+n+')" data-tag="SVIE Project · Home Renovation">'+
+          '<img src="'+f+'-t.webp" data-full="'+f+'.webp" alt="Bharat Home renovation, '+label.toLowerCase()+' photo '+i+'" loading="lazy" decoding="async">'+
+        '</div>';
+      }
+      grid.innerHTML=html;
+      more.parentNode.style.display=(!expanded&&n>INITIAL)?'':'none';
+      more.textContent='Show all '+n+' photos';
+    }
+    grid.addEventListener('click',function(e){
+      var t=e.target.closest('.bh-thumb'); if(!t) return;
+      vis=[].slice.call(grid.querySelectorAll('.bh-thumb'));
+      openLb(vis.indexOf(t));
+    });
+    more.addEventListener('click',function(){ expanded=true; renderGrid(); });
+    document.querySelectorAll('[data-bh]').forEach(function(tab,_,all){
+      tab.addEventListener('click',function(){
+        all.forEach(function(x){ x.classList.remove('active'); x.setAttribute('aria-selected','false'); });
+        tab.classList.add('active'); tab.setAttribute('aria-selected','true');
+        kind=tab.dataset.bh; expanded=false; renderGrid();
+      });
+    });
+    renderGrid();
+  })();
+
   /* ── Init filter + lightbox (called after any render) ── */
   function initGallery(){
     var chips = document.querySelectorAll('.gal-chip');
@@ -877,35 +1018,12 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
       });
     });
 
-    /* Lightbox */
-    function openLb(i){
-      cur=i; var c=vis[i];
-      var img=c.querySelector('img');
-      lbImg.src=img.src; lbImg.alt=img.alt;
-      lbTit.textContent=c.dataset.title;
-      lbCat.textContent=c.dataset.tag;
-      lbIdx.textContent=(i+1)+' / '+vis.length;
-      lb.classList.add('open');
-      document.body.style.overflow='hidden';
-    }
-    function closeLb(){
-      lb.classList.remove('open');
-      document.body.style.overflow='';
-      setTimeout(function(){lbImg.removeAttribute('src');},300);
-    }
-    function step(d){ cur=(cur+d+vis.length)%vis.length; openLb(cur); }
-
     cards.forEach(function(c){
       c.addEventListener('click',function(){
         vis=[].filter.call(cards,function(x){return x.style.display!=='none';});
         openLb(vis.indexOf(c));
       });
     });
-
-    document.getElementById('lb-close').onclick = closeLb;
-    document.getElementById('lb-prev').onclick = function(){step(-1);};
-    document.getElementById('lb-next').onclick = function(){step(1);};
-    lb.onclick = function(e){ if(e.target===lb) closeLb(); };
 
     /* Count badge */
     recount('all');
@@ -938,13 +1056,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
     if(e.key==='Escape'){ lb.classList.remove('open'); document.body.style.overflow=''; }
     if(e.key==='ArrowLeft'){ cur=(cur-1+vis.length)%vis.length; }
     if(e.key==='ArrowRight'){ cur=(cur+1)%vis.length; }
-    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
-      var img=vis[cur].querySelector('img');
-      lbImg.src=img.src; lbImg.alt=img.alt;
-      lbTit.textContent=vis[cur].dataset.title;
-      lbCat.textContent=vis[cur].dataset.tag;
-      lbIdx.textContent=(cur+1)+' / '+vis.length;
-    }
+    if(e.key==='ArrowLeft'||e.key==='ArrowRight') showLb();
   });
 })();
 </script>
