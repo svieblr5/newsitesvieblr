@@ -286,6 +286,8 @@
   }
   function scheduleInvite() {
     if (inviteDismissed()) return;
+    // On phones the bubble covers page content; the chat button stays available instead
+    if (window.matchMedia && window.matchMedia('(max-width:768px)').matches) return;
     inviteTimer = setTimeout(function () {
       if (opened || panel.classList.contains('open') || inviteDismissed()) return;
       invite.innerHTML =
