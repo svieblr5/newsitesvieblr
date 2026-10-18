@@ -1828,3 +1828,26 @@ body:has(.nav-drawer.open) #svie-consent{transform:translateY(100%)!important}
   filter:drop-shadow(0 10px 44px rgba(201,160,90,.38)) drop-shadow(0 4px 14px rgba(0,0,0,.5));
   transform:scale(1.04);
 }
+
+/* ── Home: Bharat Home before/after spotlight ── */
+.hp-ba-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.hp-ba{margin:0}
+.hp-ba-slider{position:relative;aspect-ratio:3/2;overflow:hidden;border-radius:var(--r-lg);
+  box-shadow:0 14px 40px rgba(26,69,48,.16);cursor:ew-resize;user-select:none;touch-action:none;background:var(--cream-2)}
+.hp-ba-slider img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.hp-ba-before{clip-path:inset(0 calc(100% - var(--pos,50%)) 0 0)}
+.hp-ba-tag{position:absolute;top:12px;font-family:var(--font-sans);font-size:.6rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:#fff;padding:4px 10px;border-radius:20px;pointer-events:none;z-index:2}
+.hp-ba-tag-b{left:12px;background:rgba(0,0,0,.5)}
+.hp-ba-tag-a{right:12px;background:rgba(33,88,64,.8)}
+.hp-ba-divider{position:absolute;top:0;bottom:0;left:var(--pos,50%);width:3px;background:#fff;
+  transform:translateX(-50%);box-shadow:0 0 8px rgba(0,0,0,.35);z-index:2}
+.hp-ba-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;
+  background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;color:var(--forest)}
+.hp-ba figcaption{margin-top:12px;text-align:center;font-family:var(--font-display);font-size:1.12rem;font-weight:600;color:var(--forest)}
+.hp-bh-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:30px}
+.hp-bh-strip a{display:block;aspect-ratio:1;border-radius:var(--r);overflow:hidden;box-shadow:0 3px 14px rgba(12,44,27,.08)}
+.hp-bh-strip img{width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
+.hp-bh-strip a:hover img{transform:scale(1.07)}
+@media(max-width:900px){.hp-ba-grid{grid-template-columns:1fr 1fr}.hp-ba-grid .hp-ba:last-child{display:none}.hp-bh-strip{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.hp-ba-grid{grid-template-columns:1fr}.hp-ba-grid .hp-ba:last-child{display:block}}

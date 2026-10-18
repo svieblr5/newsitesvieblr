@@ -37,7 +37,7 @@
 {"@context":"https://schema.org","@graph":[{"@type":"ImageGallery","@id":"https://svie5.com/gallery.html#webpage","url":"https://svie5.com/gallery.html","name":"SVIE Portfolio Gallery","description":"Premium interior design, construction, and modular furniture projects across Bengaluru since 2017.","isPartOf":{"@id":"https://svie5.com/#website"},"about":{"@id":"https://svie5.com/#business"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://svie5.com/"},{"@type":"ListItem","position":2,"name":"Portfolio","item":"https://svie5.com/gallery.html"}]}]}
 </script>
 <style id="critical-css">/* Static fallback — served from file:// or when Node server is offline.
-   On localhost, the Express /fonts.css?v=0d861e74 route always takes priority over this file. */
+   On localhost, the Express /fonts.css?v=0c59d47d route always takes priority over this file. */
 :root{
   --font-display:'Cormorant', Georgia, serif;
   --font-sans:'Raleway', system-ui, sans-serif;
@@ -71,8 +71,8 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
   0%, 80%, 100% { opacity: 0.3; }
   40% { opacity: 1; }
 }.svie-chat-foot button:hover:not(:disabled) { background: rgb(179, 137, 74); }</style>
-<link rel="preload" href="styles.css?v=1d93e729" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="styles.css?v=1d93e729"></noscript>
+<link rel="preload" href="styles.css?v=0c090ca4" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="styles.css?v=0c090ca4"></noscript>
 <style>
 
 /* ── Page Hero ── */
@@ -806,7 +806,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
   </div>
 </div></footer>
 
-<script src="script.js?v=e57a2358"></script>
+<script src="script.js?v=5f2a7188"></script>
 <script src="cms-loader.js?v=040263e5"></script>
 <script>
 (function(){
@@ -1023,7 +1023,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
       var masonry = document.getElementById('gal-masonry');
       masonry.innerHTML = items.map(cardHtml).join('');
 
-      /* Re-run script.js?v=e57a2358 reveal observer on new cards */
+      /* Re-run script.js?v=5f2a7188 reveal observer on new cards */
       document.querySelectorAll('.gal-card.reveal').forEach(function(el){
         if(window.revealObserver) window.revealObserver.observe(el);
         else el.classList.add('in');   // fallback: never leave cards hidden
@@ -1067,6 +1067,6 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <script src="visitor-tracker.js" defer></script>
-<script>/* lazy-load chat widget after first paint: idle timeout or first interaction, whichever comes first */(function(){var d=0,l=function(){if(d)return;d=1;var s=document.createElement("script");s.src="chat-widget.js?v=09bc35bc";document.body.appendChild(s)};"requestIdleCallback"in window?requestIdleCallback(l,{timeout:5000}):addEventListener("load",function(){setTimeout(l,2000)});["pointerdown","keydown","touchstart","scroll"].forEach(function(e){addEventListener(e,l,{once:true,passive:true})})})();</script>
+<script>/* lazy-load chat widget after first paint: idle timeout or first interaction, whichever comes first */(function(){var d=0,l=function(){if(d)return;d=1;var s=document.createElement("script");s.src="chat-widget.js?v=9247bf69";document.body.appendChild(s)};"requestIdleCallback"in window?requestIdleCallback(l,{timeout:5000}):addEventListener("load",function(){setTimeout(l,2000)});["pointerdown","keydown","touchstart","scroll"].forEach(function(e){addEventListener(e,l,{once:true,passive:true})})})();</script>
 </body>
 </html>
