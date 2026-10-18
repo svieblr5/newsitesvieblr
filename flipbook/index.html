@@ -206,6 +206,7 @@ body{
       var page = document.createElement('div');
       page.className = 'page';
       var img = new Image();
+      img.fetchPriority = i < 3 ? 'high' : 'low'; // cover first, rest behind it
       img.src = src;
       img.alt = 'Brochure page ' + (i + 1);
       img.draggable = false;
