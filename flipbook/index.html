@@ -147,7 +147,7 @@ body{
   <!-- full-screen zoomable page reader -->
   <div class="reader" id="reader" aria-hidden="true">
     <div class="reader-top">
-      <span class="rc" id="readerCounter">Page 1 / 11</span>
+      <span class="rc" id="readerCounter">Page 1 / 19</span>
       <button class="reader-close" id="readerClose" aria-label="Close reader">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
@@ -164,8 +164,8 @@ body{
 
   <script src="lib/page-flip.browser.js"></script>
   <script>
-    var TOTAL = 11;
-    var PAGES_V = '20261018'; // bump when the page images are re-rendered (cache-bust)
+    var TOTAL = 19;
+    var PAGES_V = '20261018b'; // bump when the page images are re-rendered (cache-bust)
     var images = [];
     for (var i = 1; i <= TOTAL; i++) images.push('pages/p' + String(i).padStart(2, '0') + '.jpg?v=' + PAGES_V);
 
