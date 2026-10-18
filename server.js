@@ -551,6 +551,33 @@ function staticCacheHeaders(res, filePath) {
     res.setHeader('Cache-Control', 'public, max-age=' + (STATIC_CODE_MAX_AGE / 1000) + ', immutable');
   }
 }
+// express.static(ROOT) serves the whole project folder, and .htaccess is not
+// applied when Hostinger runs the Node app — so block server code, build
+// scripts and internal docs here. 404 (not 403) so probes learn nothing.
+const PUBLIC_ROOT_JS = new Set(['script.js', 'cms-loader.js', 'chat-widget.js', 'visitor-tracker.js', 'structured-data.js']);
+const BLOCKED_DIRS   = ['node_modules', 'scripts', 'data', 'brochure', 'for mailing', '.git', '.claude'];
+const BLOCKED_FILES  = new Set([
+  'package.json', 'package-lock.json', 'readme.md', 'security.md', '.env', '.env.example', '.gitignore', '.gitattributes', '.htaccess',
+  'svie cms.docx', 'hostinger-deployment-guide.html', 'hosting-comparison.html',
+  'svie-hostinger-deployment-guide.pdf', 'svie visitor dashboard — setup & feature guide.pdf',
+]);
+const BLOCKED_EXT    = ['.mjs', '.cjs', '.md', '.docx', '.env', '.log', '.map', '.ts'];
+app.use((req, res, next) => {
+  let p;
+  try { p = decodeURIComponent(req.path); } catch (e) { return res.status(400).end(); }
+  p = p.replace(/\\/g, '/').replace(/^\/+/, '').toLowerCase();
+  const first = p.split('/')[0];
+  const isRoot = !p.includes('/');
+  if (BLOCKED_DIRS.includes(first) ||
+      BLOCKED_FILES.has(p) ||
+      /(^|\/)svie-new-[^/]*\.json$/.test(p) ||                          // Google service-account keys
+      BLOCKED_EXT.includes(path.extname(p)) ||
+      (isRoot && path.extname(p) === '.js' && !PUBLIC_ROOT_JS.has(p))) {  // server.js, storage.js, render-flyer.js …
+    return res.status(404).sendFile(path.join(ROOT, '404.html'));
+  }
+  next();
+});
+
 // Serve a .webp twin when the browser accepts webp and one exists next to the
 // requested .jpg/.jpeg/.png. Mirrors the .htaccess rule so the origin also
 // negotiates webp when hit directly (belt-and-suspenders behind the CDN).
