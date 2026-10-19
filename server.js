@@ -1007,6 +1007,15 @@ app.post('/api/auth/logout', (req,res) => {
 
 app.get('/api/auth/check', (req,res) => res.json({ loggedIn:!!req.session.loggedIn, user:req.session.user||null }));
 
+// TEMPORARY diagnostic for the ADMIN_RESET_PASSWORD rollout — booleans only, never the value.
+// Remove once the reset is confirmed working.
+app.get('/api/auth/reset-status', async (req,res) => {
+  try { await applyEnvPasswordReset(); } catch { /* reported below */ }
+  const v = (process.env.ADMIN_RESET_PASSWORD || '').trim();
+  res.set('Cache-Control', 'no-store');
+  res.json({ variableSeen: v.length > 0, longEnough: v.length >= 8, resetApplied: !!getConfig().passwordResetHash });
+});
+
 // CSRF token endpoint — called by dashboard on load
 app.get('/api/csrf-token', requireAuth, (req,res) => {
   if (!req.session.csrfToken) {
