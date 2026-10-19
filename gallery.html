@@ -918,6 +918,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
   // Only site-relative media paths (CMS uploads live under images/, videos/ or media/).
   function baPath(p){ return (typeof p==='string' && /^\/?(images|videos|media)\/[\w\-.\/]+$/.test(p) && p.indexOf('..')<0) ? p.replace(/^\//,'') : ''; }
   var renderSpotlight=function(){};
+  var setProjectPhotos=function(){};
 
   /* ── Project spotlight: Bharat Home (static files in images/bharat-home) ── */
   (function(){
@@ -974,19 +975,40 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
       observeReveal(pairsEl); observeReveal(videosEl);
     };
 
-    var kind='after', expanded=false;
+    // Photo grid: managed in the CMS (Project Photos panel); staticPhotos() is the fallback.
+    var kind='after', expanded=false, photos=null;
+    var tabsEl=document.querySelector('.bh-tabs');
+    function staticPhotos(){
+      var out=[];
+      ['after','before'].forEach(function(k){
+        for(var i=1;i<=counts[k];i++){
+          var f=base+k+'/'+k+'-'+(i<10?'0':'')+i;
+          out.push({kind:k, src:f+'.webp', thumb:f+'-t.webp'});
+        }
+      });
+      return out;
+    }
     function renderGrid(){
-      var n=counts[kind], label=kind==='after'?'After':'Before', html='';
-      for(var i=1;i<=n;i++){
-        var f=base+kind+'/'+kind+'-'+(i<10?'0':'')+i;
-        html+='<div class="bh-thumb'+(!expanded&&i>INITIAL?' bh-hide':'')+'" data-title="Malleswaram renovation — '+label+' ('+i+' of '+n+')" data-tag="SVIE Project · Home Renovation">'+
-          '<img src="'+f+'-t.webp" data-full="'+f+'.webp" alt="Malleswaram home renovation, '+label.toLowerCase()+' photo '+i+'" loading="lazy" decoding="async">'+
-        '</div>';
+      var all=(photos||staticPhotos()).filter(function(p){ return baPath(p.src); }), has={};
+      all.forEach(function(p){ has[p.kind]=1; });
+      var tabs=document.querySelectorAll('[data-bh]');
+      tabs.forEach(function(t){ t.style.display=has[t.dataset.bh]?'':'none'; });
+      if(!has[kind] && all.length){
+        kind=has.after?'after':'before';
+        tabs.forEach(function(t){ var on=t.dataset.bh===kind; t.classList.toggle('active',on); t.setAttribute('aria-selected',on?'true':'false'); });
       }
-      grid.innerHTML=html;
+      if(tabsEl) tabsEl.style.display=all.length?'':'none';
+      var list=all.filter(function(p){ return p.kind===kind; }), n=list.length, label=kind==='after'?'After':'Before';
+      grid.innerHTML=list.map(function(p,j){
+        var i=j+1, full=baPath(p.src);
+        return '<div class="bh-thumb'+(!expanded&&i>INITIAL?' bh-hide':'')+'" data-title="Malleswaram renovation — '+label+' ('+i+' of '+n+')" data-tag="SVIE Project · Home Renovation">'+
+          '<img src="'+esc(baPath(p.thumb)||full)+'" data-full="'+esc(full)+'" alt="Malleswaram home renovation, '+label.toLowerCase()+' photo '+i+'" loading="lazy" decoding="async">'+
+        '</div>';
+      }).join('');
       more.parentNode.style.display=(!expanded&&n>INITIAL)?'':'none';
       more.textContent='Show all '+n+' photos';
     }
+    setProjectPhotos=function(list){ photos=list; expanded=false; renderGrid(); };
     grid.addEventListener('click',function(e){
       var t=e.target.closest('.bh-thumb'); if(!t) return;
       vis=[].slice.call(grid.querySelectorAll('.bh-thumb'));
@@ -1045,6 +1067,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(data){
       renderSpotlight(data && Array.isArray(data.beforeafter) ? data.beforeafter : BA_STATIC);
+      if(data && Array.isArray(data.project_photos)) setProjectPhotos(data.project_photos);
       var items = data && data.gallery;
       if(!items || !items.length){ initGallery(); return; }
 

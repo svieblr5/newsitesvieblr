@@ -454,6 +454,10 @@ function sitemapImagesFor(slug, base, content) {
       if (loc) out.push({ loc, title: ((b.title ? b.title + ' — ' : '') + k) });
     });
   });
+  (content.project_photos || []).forEach(p => {
+    const loc = absImg(base, p.src);
+    if (loc) out.push({ loc, title: 'Malleswaram home renovation — ' + p.kind });
+  });
   return out;
 }
 
@@ -1450,6 +1454,105 @@ app.post('/api/beforeafter/reorder', requireAuth, csrfProtect, (req,res) => {
     const c       = readContent();
     c.beforeafter = req.body.order.map(id=>(c.beforeafter||[]).find(b=>b.id===id)).filter(Boolean);
     writeContent(c);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// ═══════════════════════════════════════════
+//  PROJECT PHOTOS (gallery Before & After photo grid)
+// ═══════════════════════════════════════════
+// Each photo: { id, kind:'after'|'before', src, thumb }. Uploads go to MEDIA_DIR/project-photos.
+const PROJECT_PHOTO_KINDS = ['after', 'before'];
+const projectPhotoStorage = multer.diskStorage({
+  destination: (req,file,cb) => {
+    const d = path.join(MEDIA_DIR,'project-photos');
+    if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
+    cb(null, d);
+  },
+  filename: (req,file,cb) => {
+    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const base = crypto.randomBytes(8).toString('hex');
+    cb(null, Date.now() + '-' + base + ext);
+  }
+});
+const uploadProjectPhotos = multer({
+  storage: projectPhotoStorage,
+  limits:  { fileSize: 10*1024*1024, files: 30 },
+  fileFilter: (req,file,cb) => {
+    const ok = ALLOWED_IMG_MIME.has(file.mimetype);
+    cb(ok ? null : new Error('Images only (JPEG, PNG, WebP, GIF)'), ok);
+  },
+});
+
+// Small grid thumbnail next to the full image. Without sharp the grid uses the full image.
+async function makeThumb(absPath) {
+  if (!sharp) return null;
+  const name = path.basename(absPath, path.extname(absPath)) + '-t.webp';
+  try {
+    await sharp(absPath, { failOn: 'none' })
+      .rotate()
+      .resize({ width: 480, height: 480, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 72 })
+      .toFile(path.join(path.dirname(absPath), name));
+    return name;
+  } catch (e) { console.warn('[img] thumbnail failed:', e.message); return null; }
+}
+
+app.get('/api/projectphotos', requireAuth, (req,res) => res.json(readContent().project_photos||[]));
+
+app.post('/api/projectphotos/upload', requireAuth, csrfProtect, uploadProjectPhotos.array('photos', 30), async (req,res) => {
+  try {
+    const kind = PROJECT_PHOTO_KINDS.includes(req.body.kind) ? req.body.kind : 'after';
+    if (!req.files || !req.files.length) return res.status(400).json({ error:'Pick at least one image.' });
+    const added = [];
+    for (const f of req.files) {
+      const name  = await optimizeImage(f.path, { maxW:1600, quality:80 }) || f.filename;
+      const thumb = await makeThumb(path.join(path.dirname(f.path), name));
+      added.push({
+        id:    'pp' + Date.now() + '-' + crypto.randomBytes(3).toString('hex'),
+        kind,
+        src:   'media/project-photos/' + name,
+        thumb: 'media/project-photos/' + (thumb || name),
+      });
+    }
+    const c = readContent();
+    c.project_photos = (c.project_photos||[]).concat(added);
+    writeContent(c);
+    logActivity(`Added ${added.length} ${kind} project photo(s)`, req.session.user);
+    res.json({ success:true, items:added });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// Move a photo one place earlier/later among photos of the same kind.
+app.post('/api/projectphotos/:id/move', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const c    = readContent();
+    const list = c.project_photos || [];
+    const i    = list.findIndex(p=>p.id===req.params.id);
+    if (i===-1) return res.status(404).json({ error:'Not found' });
+    const dir = req.body.dir < 0 ? -1 : 1;
+    let j = i + dir;
+    while (j >= 0 && j < list.length && list[j].kind !== list[i].kind) j += dir;
+    if (j >= 0 && j < list.length) { [list[i], list[j]] = [list[j], list[i]]; c.project_photos = list; writeContent(c); }
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+app.delete('/api/projectphotos/:id', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const c    = readContent();
+    const item = (c.project_photos||[]).find(p=>p.id===req.params.id);
+    if (!item) return res.status(404).json({ error:'Not found' });
+    // only files the CMS uploaded — never the site's own images/bharat-home photos
+    [...new Set([item.src, item.thumb])].forEach(rel => {
+      if (rel && /^\/?media\/project-photos\//.test(rel)) {
+        const fp = mediaAbsPath(rel);
+        if (fp && fs.existsSync(fp)) try { fs.unlinkSync(fp); } catch {}
+      }
+    });
+    c.project_photos = c.project_photos.filter(p=>p.id!==req.params.id);
+    writeContent(c);
+    logActivity('Removed a project photo', req.session.user);
     res.json({ success:true });
   } catch(e) { res.status(500).json({ error:e.message }); }
 });
@@ -2723,6 +2826,26 @@ function seedBeforeAfterSpotlight() {
   } catch (e) { console.warn('[seed] before/after:', e.message); }
 }
 seedBeforeAfterSpotlight();
+
+// One-time: the gallery's photo grid now renders from the CMS too. Seed it with the photos the
+// page showed while hard-coded (images/bharat-home: 18 after, 69 before).
+function seedProjectPhotos() {
+  try {
+    if (getConfig().projectPhotosSeeded) return;
+    const make = (kind, n) => Array.from({ length: n }, (_, i) => {
+      const f = `images/bharat-home/${kind}/${kind}-${String(i + 1).padStart(2, '0')}`;
+      return { id: `pp-bh-${kind}-${i + 1}`, kind, src: f + '.webp', thumb: f + '-t.webp' };
+    });
+    const seed = () => [...make('after', 18), ...make('before', 69)];
+    const live = readLive();
+    if (!Array.isArray(live.project_photos)) { live.project_photos = seed(); writeLive(live); }
+    const draft = readJSON(DRAFT_FILE, null);
+    if (draft !== null && !Array.isArray(draft.project_photos)) { draft.project_photos = seed(); writeDraft(draft); }
+    const cfg = getConfig(); cfg.projectPhotosSeeded = true; saveConfig(cfg);
+    console.log('  ✓ Gallery photo grid loaded into the CMS (87 photos)');
+  } catch (e) { console.warn('[seed] project photos:', e.message); }
+}
+seedProjectPhotos();
 
 app.listen(PORT, async () => {
   // Auto-migrate plaintext password to bcrypt on first start
