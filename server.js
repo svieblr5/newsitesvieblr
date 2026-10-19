@@ -1498,6 +1498,35 @@ async function makeThumb(absPath) {
   } catch (e) { console.warn('[img] thumbnail failed:', e.message); return null; }
 }
 
+// Image fields in the Page Sections editor upload here (MEDIA_DIR/site-images, survives redeploys).
+const siteImageStorage = multer.diskStorage({
+  destination: (req,file,cb) => {
+    const d = path.join(MEDIA_DIR,'site-images');
+    if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
+    cb(null, d);
+  },
+  filename: (req,file,cb) => {
+    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    cb(null, Date.now() + '-' + crypto.randomBytes(8).toString('hex') + ext);
+  }
+});
+const uploadSiteImage = multer({
+  storage: siteImageStorage,
+  limits:  { fileSize: 10*1024*1024 },
+  fileFilter: (req,file,cb) => {
+    const ok = ALLOWED_IMG_MIME.has(file.mimetype);   // no SVG: it can carry script
+    cb(ok ? null : new Error('Images only (JPEG, PNG, WebP, GIF)'), ok);
+  },
+});
+app.post('/api/sections/upload-image', requireAuth, csrfProtect, uploadSiteImage.single('image'), async (req,res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error:'Pick an image.' });
+    const name = await optimizeImage(req.file.path, { maxW:1920, quality:82 }) || req.file.filename;
+    logActivity('Uploaded site image: '+name, req.session.user);
+    res.json({ success:true, path:'media/site-images/'+name });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
 app.get('/api/projectphotos', requireAuth, (req,res) => res.json(readContent().project_photos||[]));
 
 app.post('/api/projectphotos/upload', requireAuth, csrfProtect, uploadProjectPhotos.array('photos', 30), async (req,res) => {

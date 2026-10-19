@@ -861,7 +861,7 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
       <div id="p-sections" class="panel">
         <div class="card">
           <div class="card-title">Page Sections</div>
-          <div class="card-sub">Text for sections that have no page editor of their own. Each field starts with what the website shows today; clear a field to go back to that original text. Save, then Publish to go live.</div>
+          <div class="card-sub">Every text, image and link on the website that no other panel covers, grouped by page section. Each field starts with what the website shows today; clear a field to go back to it. Use the search box to find something quickly. Save, then Publish to go live.</div>
         </div>
         <div id="psEditor"><div style="color:#8a7e72;font-size:.82rem;padding:24px 0;text-align:center">Loading…</div></div>
       </div>
@@ -3890,49 +3890,119 @@ async function saveElectronics() {
 }
 
 // ── PAGE SECTIONS ─────────────────────────────
-// Generic editor for page text tagged data-cms="sections.<key>". The original text
-// is read from the live page itself, so defaults never drift from what visitors see.
-const PAGE_SECTIONS = [{"title":"Home — Construction Philosophy","page":"index.html","fields":[{"key":"sections.home_philosophy_1","label":"Text"},{"key":"sections.home_philosophy_2","label":"Heading"},{"key":"sections.home_philosophy_3","label":"Heading (italic part)"},{"key":"sections.home_philosophy_4","label":"Paragraph","multiline":1},{"key":"sections.home_philosophy_5","label":"Paragraph","multiline":1},{"key":"sections.home_philosophy_6","label":"Link / button text"}]},{"title":"Home — Sri Vasavi (Patron Deity)","page":"index.html","fields":[{"key":"sections.home_vasavi_1","label":"Text"},{"key":"sections.home_vasavi_2","label":"Heading"},{"key":"sections.home_vasavi_3","label":"Heading (italic part)"},{"key":"sections.home_vasavi_4","label":"Paragraph","multiline":1},{"key":"sections.home_vasavi_5","label":"Paragraph","multiline":1},{"key":"sections.home_vasavi_6","label":"Text"},{"key":"sections.home_vasavi_7","label":"Text"},{"key":"sections.home_vasavi_8","label":"Text"}]},{"title":"About — What Sets Us Apart","page":"about.html","fields":[{"key":"sections.about_apart_1","label":"Text"},{"key":"sections.about_apart_2","label":"Heading"},{"key":"sections.about_apart_3","label":"Heading (italic part)"},{"key":"sections.about_apart_4","label":"Text"},{"key":"sections.about_apart_5","label":"Text","multiline":1},{"key":"sections.about_apart_6","label":"Text"},{"key":"sections.about_apart_7","label":"Text","multiline":1},{"key":"sections.about_apart_8","label":"Text"},{"key":"sections.about_apart_9","label":"Text","multiline":1},{"key":"sections.about_apart_10","label":"Text"},{"key":"sections.about_apart_11","label":"Text","multiline":1},{"key":"sections.about_apart_12","label":"Text"},{"key":"sections.about_apart_13","label":"Text","multiline":1},{"key":"sections.about_apart_14","label":"Text"},{"key":"sections.about_apart_15","label":"Text","multiline":1}]},{"title":"About — Bottom call-to-action","page":"about.html","fields":[{"key":"sections.about_cta_1","label":"Text"},{"key":"sections.about_cta_2","label":"Heading"},{"key":"sections.about_cta_3","label":"Heading (italic part)"},{"key":"sections.about_cta_4","label":"Paragraph","multiline":1},{"key":"sections.about_cta_5","label":"Link / button text"},{"key":"sections.about_cta_6","label":"Link / button text"}]},{"title":"Services — Bottom call-to-action","page":"services.html","fields":[{"key":"sections.services_cta_1","label":"Text"},{"key":"sections.services_cta_2","label":"Heading"},{"key":"sections.services_cta_3","label":"Heading (italic part)"},{"key":"sections.services_cta_4","label":"Paragraph","multiline":1},{"key":"sections.services_cta_5","label":"Link / button text"},{"key":"sections.services_cta_6","label":"Link / button text"}]},{"title":"Products — Global Trusted Brands","page":"products.html","fields":[{"key":"sections.products_brands_1","label":"Text"},{"key":"sections.products_brands_2","label":"Heading"},{"key":"sections.products_brands_3","label":"Heading (italic part)"},{"key":"sections.products_brands_4","label":"Paragraph","multiline":1},{"key":"sections.products_brands_5","label":"Text"},{"key":"sections.products_brands_6","label":"Text"},{"key":"sections.products_brands_7","label":"Text"},{"key":"sections.products_brands_8","label":"Text"},{"key":"sections.products_brands_9","label":"Text"},{"key":"sections.products_brands_10","label":"Text"},{"key":"sections.products_brands_11","label":"Text"},{"key":"sections.products_brands_12","label":"Text"},{"key":"sections.products_brands_13","label":"Text"},{"key":"sections.products_brands_14","label":"Text"},{"key":"sections.products_brands_15","label":"Text"},{"key":"sections.products_brands_16","label":"Text"},{"key":"sections.products_brands_17","label":"Text"},{"key":"sections.products_brands_18","label":"Text"},{"key":"sections.products_brands_19","label":"Text"},{"key":"sections.products_brands_20","label":"Text"},{"key":"sections.products_brands_21","label":"Text"},{"key":"sections.products_brands_22","label":"Text"},{"key":"sections.products_brands_23","label":"Text"},{"key":"sections.products_brands_24","label":"Text"},{"key":"sections.products_brands_25","label":"Text"},{"key":"sections.products_brands_26","label":"Text"},{"key":"sections.products_brands_27","label":"Text"},{"key":"sections.products_brands_28","label":"Text"},{"key":"sections.products_brands_29","label":"Text"},{"key":"sections.products_brands_30","label":"Text"},{"key":"sections.products_brands_31","label":"Text"},{"key":"sections.products_brands_32","label":"Text"},{"key":"sections.products_brands_33","label":"Text"},{"key":"sections.products_brands_34","label":"Text"},{"key":"sections.products_brands_35","label":"Text"},{"key":"sections.products_brands_36","label":"Text"},{"key":"sections.products_brands_37","label":"Text"},{"key":"sections.products_brands_38","label":"Text"},{"key":"sections.products_brands_39","label":"Text"},{"key":"sections.products_brands_40","label":"Text"},{"key":"sections.products_brands_41","label":"Text"},{"key":"sections.products_brands_42","label":"Text"},{"key":"sections.products_brands_43","label":"Text"},{"key":"sections.products_brands_44","label":"Text"},{"key":"sections.products_brands_45","label":"Text"},{"key":"sections.products_brands_46","label":"Text"},{"key":"sections.products_brands_47","label":"Text"},{"key":"sections.products_brands_48","label":"Sub-heading"},{"key":"sections.products_brands_49","label":"Paragraph","multiline":1},{"key":"sections.products_brands_50","label":"Text"},{"key":"sections.products_brands_51","label":"Text"},{"key":"sections.products_brands_52","label":"Sub-heading"},{"key":"sections.products_brands_53","label":"Paragraph","multiline":1},{"key":"sections.products_brands_54","label":"Text"}]},{"title":"Products — Bottom call-to-action","page":"products.html","fields":[{"key":"sections.products_cta_1","label":"Text"},{"key":"sections.products_cta_2","label":"Heading"},{"key":"sections.products_cta_3","label":"Heading (italic part)"},{"key":"sections.products_cta_4","label":"Paragraph","multiline":1},{"key":"sections.products_cta_5","label":"Link / button text"},{"key":"sections.products_cta_6","label":"Link / button text"}]},{"title":"Electronics — Our Showrooms","page":"electronics.html","fields":[{"key":"sections.electronics_showrooms_1","label":"Text"},{"key":"sections.electronics_showrooms_2","label":"Heading"},{"key":"sections.electronics_showrooms_3","label":"Heading (italic part)"},{"key":"sections.electronics_showrooms_4","label":"Text"},{"key":"sections.electronics_showrooms_5","label":"Text"},{"key":"sections.electronics_showrooms_6","label":"Text"},{"key":"sections.electronics_showrooms_7","label":"Text","multiline":1},{"key":"sections.electronics_showrooms_8","label":"Link / button text"},{"key":"sections.electronics_showrooms_9","label":"Text"},{"key":"sections.electronics_showrooms_10","label":"Text"},{"key":"sections.electronics_showrooms_11","label":"Text"},{"key":"sections.electronics_showrooms_12","label":"Text"},{"key":"sections.electronics_showrooms_13","label":"Bold text"},{"key":"sections.electronics_showrooms_14","label":"Text"},{"key":"sections.electronics_showrooms_15","label":"Link / button text"}]},{"title":"Electronics — Brands We Trust & Carry","page":"electronics.html","fields":[{"key":"sections.electronics_brands_1","label":"Text"},{"key":"sections.electronics_brands_2","label":"Heading"},{"key":"sections.electronics_brands_3","label":"Heading (italic part)"},{"key":"sections.electronics_brands_4","label":"Text"},{"key":"sections.electronics_brands_5","label":"Text"},{"key":"sections.electronics_brands_6","label":"Text"},{"key":"sections.electronics_brands_7","label":"Text"},{"key":"sections.electronics_brands_8","label":"Text"},{"key":"sections.electronics_brands_9","label":"Text"},{"key":"sections.electronics_brands_10","label":"Text"},{"key":"sections.electronics_brands_11","label":"Text"},{"key":"sections.electronics_brands_12","label":"Text"},{"key":"sections.electronics_brands_13","label":"Text"},{"key":"sections.electronics_brands_14","label":"Text"},{"key":"sections.electronics_brands_15","label":"Text"},{"key":"sections.electronics_brands_16","label":"Text"},{"key":"sections.electronics_brands_17","label":"Text"},{"key":"sections.electronics_brands_18","label":"Text"},{"key":"sections.electronics_brands_19","label":"Text"},{"key":"sections.electronics_brands_20","label":"Text"},{"key":"sections.electronics_brands_21","label":"Text"},{"key":"sections.electronics_brands_22","label":"Text"},{"key":"sections.electronics_brands_23","label":"Text"},{"key":"sections.electronics_brands_24","label":"Text"},{"key":"sections.electronics_brands_25","label":"Text"},{"key":"sections.electronics_brands_26","label":"Text"},{"key":"sections.electronics_brands_27","label":"Text"}]},{"title":"Electronics — Bottom call-to-action","page":"electronics.html","fields":[{"key":"sections.electronics_cta_1","label":"Text"},{"key":"sections.electronics_cta_2","label":"Heading"},{"key":"sections.electronics_cta_3","label":"Heading (italic part)"},{"key":"sections.electronics_cta_4","label":"Paragraph","multiline":1},{"key":"sections.electronics_cta_5","label":"Link / button text"},{"key":"sections.electronics_cta_6","label":"Link / button text"}]},{"title":"Gallery — Before & After heading","page":"gallery.html","fields":[{"key":"sections.gallery_spotlight_1","label":"Text"},{"key":"sections.gallery_spotlight_2","label":"Heading"},{"key":"sections.gallery_spotlight_3","label":"Heading (italic part)"},{"key":"sections.gallery_spotlight_4","label":"Paragraph","multiline":1}]}];
-const _psDefaults = {};
-async function psPageDefaults(page) {
-  if (_psDefaults[page]) return _psDefaults[page];
-  const html = await fetch('../'+page, {cache:'no-store'}).then(r=>r.ok?r.text():'').catch(()=>'');
-  const doc  = new DOMParser().parseFromString(html, 'text/html');
-  const out  = {};
-  doc.querySelectorAll('[data-cms^="sections."]').forEach(el=>{
-    out[el.getAttribute('data-cms').slice(9)] = el.textContent.replace(/\s+/g,' ').trim();
-  });
-  return (_psDefaults[page] = out);
+// Generic editor for everything tagged data-cms / data-cms-src / data-cms-bg / data-cms-href with
+// a "sections.<key>" path. Fields, groups and original values are read from the pages themselves,
+// so anything tagged in the HTML shows up here automatically and defaults never drift.
+const PS_PAGES = [['index.html','Home'],['about.html','About'],['services.html','Services'],['products.html','Products'],
+  ['furniture.html','Furniture'],['electronics.html','Electronics'],['gallery.html','Gallery'],['contact.html','Contact'],
+  ['privacy-policy.html','Privacy Policy'],['terms-of-service.html','Terms of Service'],['404.html','404 page']];
+const PS_ATTRS = [['data-cms','text'],['data-cms-src','img'],['data-cms-bg','bg'],['data-cms-href','href']];
+let PS_FIELDS = [];   // [{key, kind, label, def, group, page}]
+
+function psLabel(el, kind) {
+  if (kind==='img')  return 'Image';
+  if (kind==='bg')   return 'Background image';
+  if (kind==='href') return 'Link target — "' + (el.textContent.replace(/\s+/g,' ').trim().slice(0,40) || 'icon') + '"';
+  const cls = String(el.className||'');
+  if (el.closest('h1,h2')) return el.closest('em') ? 'Heading (italic part)' : 'Heading';
+  if (el.closest('h3,h4,h5')) return 'Sub-heading';
+  if (el.closest('a,button')) return 'Button / link text';
+  if (el.closest('label')) return 'Form label';
+  if (el.closest('li')) return 'List item';
+  if (/eyebrow|tag|badge|label|kicker/i.test(cls)) return 'Small label';
+  if (el.closest('p')) return 'Paragraph';
+  if (el.closest('strong,b')) return 'Bold text';
+  return 'Text';
+}
+function psDefault(el, kind) {
+  if (kind==='text') return el.textContent.replace(/\s+/g,' ').trim();
+  if (kind==='img')  return el.getAttribute('src') || '';
+  if (kind==='bg')   return ((el.getAttribute('style')||'').match(/url\(\s*['"]?([^'")]+)/)||[])[1] || '';
+  return el.getAttribute('href') || '';
+}
+async function psScan() {
+  const perPage = await Promise.all(PS_PAGES.map(async ([page,label])=>{
+    const html = await fetch('../'+page, {cache:'no-store'}).then(r=>r.ok?r.text():'').catch(()=>'');
+    const doc  = new DOMParser().parseFromString(html, 'text/html');
+    const out  = [];
+    doc.querySelectorAll('[data-cms^="sections."],[data-cms-src^="sections."],[data-cms-bg^="sections."],[data-cms-href^="sections."]').forEach(el=>{
+      const g    = el.closest('[data-cms-group]');
+      const head = g && g.querySelector('h1,h2,h3');
+      if (head) head.querySelectorAll('br').forEach(br=>br.replaceWith(' '));   // parsed copy, not the live page
+      const group = g && g.tagName==='FOOTER' ? 'All pages — Footer'
+        : label + ' — ' + (head ? head.textContent.replace(/\s+/g,' ').trim().slice(0,50) : ((g&&g.getAttribute('data-cms-group'))||'').replace(/^.*? — /,'') || 'Page');
+      PS_ATTRS.forEach(([attr,kind])=>{
+        const v = el.getAttribute(attr);
+        if (!v || !v.startsWith('sections.')) return;
+        out.push({ key:v.slice(9), kind, label:psLabel(el,kind), def:psDefault(el,kind), group, page });
+      });
+    });
+    return out;
+  }));
+  const seen = new Set();
+  PS_FIELDS = perPage.flat().filter(f=>!seen.has(f.key) && seen.add(f.key));   // footer is shared across pages
+}
+function psUrl(v) { return /^https?:\/\//.test(v) ? v : '../' + String(v||'').replace(/^\/+/,''); }
+function psField(f, val) {
+  const id = 'ps-'+f.key, attrs = `id="${id}" data-def="${esc(f.def)}"`;
+  if (f.kind==='img' || f.kind==='bg') {
+    return `<div class="frow full"><div class="fg"><label>${esc(f.label)}</label>
+      <div style="display:flex;gap:10px;align-items:center">
+        <img id="psprev-${f.key}" src="${esc(psUrl(val))}" alt="" style="width:76px;height:56px;object-fit:cover;border-radius:6px;background:#eee;flex-shrink:0" onerror="this.style.opacity='.3'">
+        <input type="text" ${attrs} value="${esc(val)}" style="flex:1" oninput="document.getElementById('psprev-${f.key}').src=psUrl(this.value)">
+        <label class="btn btn-outline btn-sm" style="cursor:pointer;flex-shrink:0">Upload<input type="file" accept="image/*" style="display:none" onchange="psUpload('${f.key}',this)"></label>
+      </div></div></div>`;
+  }
+  const input = f.kind==='text' && f.def.length > 70
+    ? `<textarea ${attrs} style="min-height:72px">${esc(val)}</textarea>`
+    : `<input type="text" ${attrs} value="${esc(val)}">`;
+  return `<div class="frow full"><div class="fg"><label>${esc(f.label)}</label>${input}</div></div>`;
 }
 async function loadPageSections() {
   const box   = document.getElementById('psEditor');
   const saved = (C && C.sections) || {};
-  const defs  = {};
-  await Promise.all([...new Set(PAGE_SECTIONS.map(s=>s.page))].map(async p=>{ defs[p] = await psPageDefaults(p); }));
-  box.innerHTML = PAGE_SECTIONS.map(sec=>{
-    const d = defs[sec.page] || {};
-    const rows = sec.fields.map(f=>{
-      const k = f.key.slice(9), def = d[k] || '', val = saved[k] || def;
-      const input = f.multiline
-        ? `<textarea id="ps-${k}" data-def="${esc(def)}" style="min-height:72px">${esc(val)}</textarea>`
-        : `<input type="text" id="ps-${k}" data-def="${esc(def)}" value="${esc(val)}">`;
-      return `<div class="frow full"><div class="fg"><label>${esc(f.label)}</label>${input}</div></div>`;
-    }).join('');
-    return `<details class="card" style="padding:0">
-      <summary style="cursor:pointer;padding:16px 20px;font-weight:600;color:#1A4530">${esc(sec.title)}
-        <span style="color:#8a7e72;font-weight:400;font-size:.75rem">· ${sec.fields.length} fields · <a href="../${sec.page}" target="_blank" onclick="event.stopPropagation()">view page</a></span></summary>
-      <div style="padding:0 20px 16px">${rows}</div>
-    </details>`;
-  }).join('');
+  await psScan();
+  const groups = [];
+  PS_FIELDS.forEach(f=>{
+    let g = groups.find(x=>x.name===f.group);
+    if (!g) groups.push(g = { name:f.group, page:f.page, fields:[] });
+    g.fields.push(f);
+  });
+  box.innerHTML = `<div class="card" style="padding:12px 16px"><input type="search" id="psFind" placeholder="Find text on the website… (e.g. Showroom, Grohe, 2017)" oninput="psFilter(this.value)" style="width:100%"></div>` +
+    groups.map(g=>`<details class="card ps-group" style="padding:0">
+      <summary style="cursor:pointer;padding:16px 20px;font-weight:600;color:#1A4530">${esc(g.name)}
+        <span style="color:#8a7e72;font-weight:400;font-size:.75rem">· ${g.fields.length} fields · <a href="../${g.page}" target="_blank" onclick="event.stopPropagation()">view page</a></span></summary>
+      <div style="padding:0 20px 16px">${g.fields.map(f=>psField(f, saved[f.key] || f.def)).join('')}</div>
+    </details>`).join('');
+}
+function psFilter(q) {
+  q = q.trim().toLowerCase();
+  document.querySelectorAll('#psEditor .ps-group').forEach(d=>{
+    const hit = !q || d.querySelector('summary').textContent.toLowerCase().includes(q) ||
+      [...d.querySelectorAll('input[type=text],textarea')].some(el=>el.value.toLowerCase().includes(q));
+    d.style.display = hit ? '' : 'none';
+    d.open = !!q && hit;
+  });
+}
+async function psUpload(key, input) {
+  const file = input.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append('image', file);
+  toast('Uploading…');
+  const r = await fetch('/api/sections/upload-image',{method:'POST',body:fd,headers:{'X-CSRF-Token':_csrfToken}}).then(x=>x.json()).catch(e=>({error:e.message}));
+  input.value = '';
+  if (!r.success) { toast('Upload failed: '+(r.error||''),'err'); return; }
+  const el = document.getElementById('ps-'+key);
+  el.value = r.path; document.getElementById('psprev-'+key).src = psUrl(r.path);
+  toast('Image uploaded — click Save Changes, then Publish');
 }
 async function savePageSections() {
   const data = {};
-  PAGE_SECTIONS.forEach(sec=>sec.fields.forEach(f=>{
-    const k = f.key.slice(9), el = document.getElementById('ps-'+k);
+  PS_FIELDS.forEach(f=>{
+    const el = document.getElementById('ps-'+f.key);
     if (!el) return;
     const v = el.value.trim();
-    data[k] = (v && v !== el.dataset.def) ? v : '';   // '' = keep the page's original text
-  }));
+    data[f.key] = (v && v !== el.dataset.def) ? v : '';   // '' = keep the page's original
+  });
   await api('POST','/api/content/sections', data);
   C = await api('GET','/api/content');
 }

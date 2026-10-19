@@ -314,7 +314,21 @@
           el.removeEventListener('error', onErr);
           if (fallback) el.src = fallback;
         });
+        // A <picture>'s <source>s / srcset would keep showing the old image
+        if (el.parentElement && el.parentElement.tagName === 'PICTURE') {
+          el.parentElement.querySelectorAll('source').forEach(function (s) { s.remove(); });
+        }
+        el.removeAttribute('srcset');
         el.src = val;
+      }
+    });
+
+    // Link targets  (data-cms-href="sections.home_s1_link2") — site pages, anchors, http(s), tel:, mailto:
+    document.querySelectorAll('[data-cms-href]').forEach(function (el) {
+      var val = resolve(data, el.getAttribute('data-cms-href'));
+      if (typeof val === 'string' && !/^\/\//.test(val.trim()) &&
+          /^(https?:\/\/|mailto:|tel:|#|[\w\-./]+(\.html|\/)?(#[\w-]*)?$)/i.test(val.trim())) {
+        el.setAttribute('href', val.trim());
       }
     });
 
@@ -322,7 +336,7 @@
     document.querySelectorAll('[data-cms-bg]').forEach(function (el) {
       var val = resolve(data, el.getAttribute('data-cms-bg'));
       // Only allow relative paths and https URLs to prevent CSS injection
-      if (val && typeof val === 'string' && /^(images\/|https:\/\/)/.test(val) && !val.includes('"') && !val.includes("'") && !val.includes(')')) {
+      if (val && typeof val === 'string' && /^(images\/|media\/|https:\/\/)/.test(val) && !val.includes('"') && !val.includes("'") && !val.includes(')')) {
         el.style.backgroundImage = "url('" + val + "')";
       }
     });

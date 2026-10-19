@@ -14,7 +14,7 @@
 <link rel="canonical" href="https://svie5.com/about.html">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- Self-hosted Cormorant / Raleway / Jost (latin + latin-ext, variable woff2 in /fonts).
-     Non-default fonts picked in the CMS still load from Google via /fonts.css. -->
+     Non-default fonts picked in the CMS still load from Google via /fonts.css?v=0c59d47d. -->
 <style id="self-hosted-fonts">
 @font-face{font-family:'Cormorant';font-style:italic;font-weight:300 600;font-display:swap;src:url(/fonts/cormorant-italic-latin-ext-v24.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
 @font-face{font-family:'Cormorant';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/cormorant-normal-latin-ext-v24.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
@@ -160,7 +160,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </div>
 
 <!-- PAGE HERO -->
-<section class="pg-hero">
+<section data-cms-group="About — Our Story &" class="pg-hero">
   <div class="pg-hero-inner"></div><!-- atmospheric bg -->
   <div class="wrap">
     <div class="pg-hero-inner">
@@ -169,31 +169,31 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
         <span class="breadcrumb-sep">/</span>
         <span>About Us</span>
       </div>
-      <h1 class="pg-hero-title">Our Story &amp;<br><em style="font-style:italic;color:var(--gold)">Our Mission</em></h1>
+      <h1 class="pg-hero-title"><span data-cms="sections.about_s1_1">Our Story &amp;</span><br><em data-cms="sections.about_s1_2" style="font-style:italic;color:var(--gold)">Our Mission</em></h1>
       <p class="pg-hero-sub" data-cms="about.hero_sub">Building Bengaluru's most beautiful spaces since 2017, one project at a time.</p>
     </div>
   </div>
 </section>
 
 <!-- ABOUT SPLIT -->
-<section class="sec">
+<section data-cms-group="About — Integrity." class="sec">
   <div class="wrap">
     <div class="about-split">
       <div class="about-vis reveal reveal-l">
         <div class="about-vis-main"></div>
         <div class="about-vis-badge">
-          <div class="about-vis-badge-n">2017</div>
-          <div class="about-vis-badge-l">Founded in<br>Bengaluru</div>
+          <div data-cms="sections.about_s2_1" class="about-vis-badge-n">2017</div>
+          <div class="about-vis-badge-l"><span data-cms="sections.about_s2_2">Founded in</span><br><span data-cms="sections.about_s2_3">Bengaluru</span></div>
         </div>
       </div>
       <div>
-        <div class="eyebrow reveal">Who We Are</div>
-        <h2 class="d2 reveal d1">Integrity.<br><em class="italic-gold">Craftsmanship.</em><br>Quality.</h2>
+        <div data-cms="sections.about_s2_4" class="eyebrow reveal">Who We Are</div>
+        <h2 class="d2 reveal d1"><span data-cms="sections.about_s2_5">Integrity.</span><br><em data-cms="sections.about_s2_6" class="italic-gold">Craftsmanship.</em><br><span data-cms="sections.about_s2_7">Quality.</span></h2>
         <div class="pip reveal d2"></div>
-        <p class="body-lg reveal d3" style="margin-bottom:18px">
+        <p data-cms="sections.about_s2_8" class="body-lg reveal d3" style="margin-bottom:18px">
           Sri Vasavi Interiors and Exteriors (SVIE) was founded in 2017 with a simple but powerful mission: to create extraordinary spaces that combine aesthetic excellence with functional precision.
         </p>
-        <p class="body-md reveal d3" style="margin-bottom:28px">
+        <p data-cms="sections.about_s2_9" class="body-md reveal d3" style="margin-bottom:28px">
           Based in the heart of Malleshwaram, Bengaluru, we serve residential and commercial clients across Karnataka, delivering end-to-end solutions from concept to completion. We use cutting-edge CNC machinery, eco-friendly materials, and ISO-certified processes to guarantee results that exceed expectations.
         </p>
         <div class="about-values">
@@ -202,7 +202,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
             <div>
-              <div class="about-val-title">Our Mission</div>
+              <div data-cms="sections.about_s2_10" class="about-val-title">Our Mission</div>
               <div class="about-val-text" data-cms="about.mission">To prepare the best projects with integrity, craftsmanship, and quality, while contributing economically viable concepts to both commercial and residential projects.</div>
             </div>
           </div>
@@ -211,7 +211,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
             </div>
             <div>
-              <div class="about-val-title">Our Vision</div>
+              <div data-cms="sections.about_s2_11" class="about-val-title">Our Vision</div>
               <div class="about-val-text" data-cms="about.vision">To be among the best and most competitive interiors companies in India — recognized for our innovative design philosophy and commitment to sustainable practices.</div>
             </div>
           </div>
@@ -220,7 +220,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             </div>
             <div>
-              <div class="about-val-title">Quality Policy</div>
+              <div data-cms="sections.about_s2_12" class="about-val-title">Quality Policy</div>
               <div class="about-val-text" data-cms="about.quality_policy">We commit to delivering high-quality products and managing projects excellently, meeting all customer requirements with third-party quality assurance through organizations like QCI.</div>
             </div>
           </div>
@@ -231,7 +231,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </section>
 
 <!-- WHY US (dark) -->
-<section class="sec sec-dark">
+<section data-cms-group="About — Section 3" class="sec sec-dark">
   <div class="wrap">
     <div style="text-align:center;max-width:600px;margin:0 auto 64px">
       <div data-cms="sections.about_apart_1" class="eyebrow reveal" style="justify-content:center">Our Differentiators</div>
@@ -286,12 +286,12 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 
 
 <!-- TEAM -->
-<section class="sec sec-sand">
+<section data-cms-group="About — Meet the" class="sec sec-sand">
   <div class="wrap">
     <div style="text-align:center;max-width:560px;margin:0 auto">
-      <div class="eyebrow reveal" style="justify-content:center">Leadership</div>
-      <h2 class="d2 reveal d1">Meet the<br><em class="italic-gold">Founders</em></h2>
-      <p class="body-lg reveal d2" style="margin-top:14px">Two visionaries united by a passion for design and a commitment to excellence.</p>
+      <div data-cms="sections.about_s4_1" class="eyebrow reveal" style="justify-content:center">Leadership</div>
+      <h2 class="d2 reveal d1"><span data-cms="sections.about_s4_2">Meet the</span><br><em data-cms="sections.about_s4_3" class="italic-gold">Founders</em></h2>
+      <p data-cms="sections.about_s4_4" class="body-lg reveal d2" style="margin-top:14px">Two visionaries united by a passion for design and a commitment to excellence.</p>
     </div>
     <div class="team-grid" id="teamGrid">
       <!-- rendered dynamically by team-render.js -->
@@ -341,22 +341,22 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </section>
 
 <!-- CTA -->
-<section class="cta-sec">
+<section data-cms-group="About — Section 5" class="cta-sec">
   <div class="wrap">
     <div class="cta-inner">
       <div data-cms="sections.about_cta_1" class="eyebrow reveal" style="justify-content:center">Let's Create Together</div>
       <h2 class="cta-quote reveal d1"><span data-cms="sections.about_cta_2">Have a project in mind?</span><br><em data-cms="sections.about_cta_3">Let's make it exceptional.</em></h2>
       <p data-cms="sections.about_cta_4" class="cta-body reveal d2">Our team is ready to listen, design, and deliver. Start the conversation today.</p>
       <div class="cta-btns reveal d3">
-        <a href="contact.html" class="btn btn-gold"><span data-cms="sections.about_cta_5">Get in Touch</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-        <a data-cms="sections.about_cta_6" href="services.html" class="btn btn-ghost">Explore Services</a>
+        <a data-cms-href="sections.about_s5_link1" href="contact.html" class="btn btn-gold"><span data-cms="sections.about_cta_5">Get in Touch</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+        <a data-cms-href="sections.about_s5_link2" data-cms="sections.about_cta_6" href="services.html" class="btn btn-ghost">Explore Services</a>
       </div>
     </div>
   </div>
 </section>
 
 <!-- FOOTER -->
-<footer class="footer">
+<footer data-cms-group="All pages — Footer" class="footer">
   <div class="footer-topline"></div>
   <div class="wrap">
     <div class="footer-grid">
@@ -365,33 +365,33 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
         <div class="footer-brand-tag" data-cms="site.tagline">Innovative Ideas · Stylish Designs</div>
         <div class="footer-brand-pip"></div>
         <p class="footer-brand-desc" data-cms="site.description">Bengaluru's trusted interior design and construction company, delivering exceptional spaces since 2017 with ISO-certified quality and sustainable practices.</p>
-        <p class="footer-follow-label">Follow Us</p>
+        <p data-cms="sections.footer_1" class="footer-follow-label">Follow Us</p>
         <div class="footer-socials">
-          <a href="https://www.facebook.com/SVIEBLR/" class="footer-soc" target="_blank" rel="noopener" aria-label="Facebook"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
-          <a href="https://instagram.com/svie.blr" class="footer-soc" target="_blank" rel="noopener" aria-label="Instagram"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
-          <a href="https://twitter.com/kiran4u1982" class="footer-soc" target="_blank" rel="noopener" aria-label="Twitter / X"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-          <a href="https://wa.me/919513961740" class="footer-soc" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a><a href="https://youtube.com" class="footer-soc" target="_blank" rel="noopener" aria-label="YouTube"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg></a><a href="https://linkedin.com" class="footer-soc" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a data-cms-href="sections.footer_link2" href="https://www.facebook.com/SVIEBLR/" class="footer-soc" target="_blank" rel="noopener" aria-label="Facebook"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a data-cms-href="sections.footer_link3" href="https://instagram.com/svie.blr" class="footer-soc" target="_blank" rel="noopener" aria-label="Instagram"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a data-cms-href="sections.footer_link4" href="https://twitter.com/kiran4u1982" class="footer-soc" target="_blank" rel="noopener" aria-label="Twitter / X"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a data-cms-href="sections.footer_link5" href="https://wa.me/919513961740" class="footer-soc" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a><a data-cms-href="sections.footer_link6" href="https://youtube.com" class="footer-soc" target="_blank" rel="noopener" aria-label="YouTube"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg></a><a data-cms-href="sections.footer_link7" href="https://linkedin.com" class="footer-soc" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
         </div>
       </div>
       <div class="footer-contact-col">
-        <div class="footer-col-head">Get In Touch</div>
-        <a href="https://maps.google.com/?q=Venus+World,+172+A+B+%26+E,+Link+Road,+5th+Cross+Rd,+Malleshwaram,+Bengaluru,+Karnataka+560003" class="f-contact-item f-clink" target="_blank" rel="noopener"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="f-contact-text"><strong>Visit Us</strong><span data-cms="site.address">172 A, B &amp; E, Link Road, 5th Cross Rd, Malleshwaram, Bengaluru, Karnataka 560003</span></div></a>
-        <a href="tel:+919513961740" class="f-contact-item f-clink"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 19z"/></svg></div><div class="f-contact-text"><strong>Call Us</strong><span data-cms="site.phone1">+91 95139 61740</span> / <span data-cms="site.phone2">+91 98455 81156</span></div></a>
-        <a href="mailto:svie.blr5@gmail.com" class="f-contact-item f-clink"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="f-contact-text"><strong>Email Us</strong><span data-cms="site.email">svie.blr5@gmail.com</span></div></a>
+        <div data-cms="sections.footer_8" class="footer-col-head">Get In Touch</div>
+        <a data-cms-href="sections.footer_link9" href="https://maps.google.com/?q=Venus+World,+172+A+B+%26+E,+Link+Road,+5th+Cross+Rd,+Malleshwaram,+Bengaluru,+Karnataka+560003" class="f-contact-item f-clink" target="_blank" rel="noopener"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="f-contact-text"><strong data-cms="sections.footer_10">Visit Us</strong><span data-cms="site.address">172 A, B &amp; E, Link Road, 5th Cross Rd, Malleshwaram, Bengaluru, Karnataka 560003</span></div></a>
+        <a data-cms-href="sections.footer_link11" href="tel:+919513961740" class="f-contact-item f-clink"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 19z"/></svg></div><div class="f-contact-text"><strong data-cms="sections.footer_12">Call Us</strong><span data-cms="site.phone1">+91 95139 61740</span> / <span data-cms="site.phone2">+91 98455 81156</span></div></a>
+        <a data-cms-href="sections.footer_link13" href="mailto:svie.blr5@gmail.com" class="f-contact-item f-clink"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="f-contact-text"><strong data-cms="sections.footer_14">Email Us</strong><span data-cms="site.email">svie.blr5@gmail.com</span></div></a>
       </div>
     </div>
     <div class="footer-bottom">
-      <div class="footer-copy">© 2026 Sri Vasavi Interiors and Exteriors. All rights reserved.</div>
+      <div data-cms="sections.footer_15" class="footer-copy">© 2026 Sri Vasavi Interiors and Exteriors. All rights reserved.</div>
             <div class="footer-btm-links">
-        <a href="privacy-policy.html" class="footer-btm-link">Privacy Policy</a>
-        <a href="terms-of-service.html" class="footer-btm-link">Terms of Service</a>
+        <a data-cms-href="sections.footer_link16" href="privacy-policy.html" class="footer-btm-link"><span data-cms="sections.footer_17">Privacy Policy</span></a>
+        <a data-cms-href="sections.footer_link18" href="terms-of-service.html" class="footer-btm-link"><span data-cms="sections.footer_19">Terms of Service</span></a>
       </div>
     </div>
   </div>
 </footer>
 
 <script src="script.js?v=1aa36ae4"></script>
-<script src="cms-loader.js?v=6b33a5f2"></script>
+<script src="cms-loader.js?v=79bdc099"></script>
 
 <script>
 /* GA4 engagement event tracking */
