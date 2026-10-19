@@ -4234,6 +4234,12 @@ async function api(method, url, body) {
   }
   const r    = await fetch(url, opts);
   const data = await r.json();
+  // Session gone (expired or server restarted): back to the sign-in page rather than
+  // showing a bare "Unauthorized". Other 401s (e.g. wrong current password) carry their own message.
+  if (r.status === 401 && data.error === 'Unauthorized') {
+    location.href = '/admin';
+    throw new Error('Your session has expired — please sign in again');
+  }
   if (!r.ok && data.error) throw new Error(data.error);
   // After any successful content edit, refresh the unpublished-changes indicator.
   if (r.ok && ['POST','PUT','PATCH','DELETE'].includes(method) &&

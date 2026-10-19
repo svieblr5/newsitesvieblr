@@ -644,8 +644,17 @@ app.use(express.static(ROOT, { setHeaders: staticCacheHeaders }));
 app.use('/media', express.static(MEDIA_DIR, { setHeaders: staticCacheHeaders }));
 app.use('/admin', express.static(path.join(ROOT,'admin')));
 
-if (!process.env.SESSION_SECRET) {
-  console.warn('  ⚠  SESSION_SECRET env var not set — set it in production so sessions survive restarts.');
+// Session signing secret. Prefer SESSION_SECRET; otherwise generate one once and keep it in
+// DATA_DIR (survives redeploys). A fresh random secret per restart signed everyone out of the
+// CMS on every deploy.
+function sessionSecret() {
+  if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
+  const f = path.join(DATA_DIR, '.session-secret');
+  try { const s = fs.readFileSync(f, 'utf8').trim(); if (s.length >= 32) return s; } catch { /* first run */ }
+  const s = crypto.randomBytes(48).toString('hex');
+  try { fs.writeFileSync(f, s, { mode: 0o600 }); }
+  catch (e) { console.warn('  ⚠  Could not persist session secret — logins will reset on restart:', e.message); }
+  return s;
 }
 
 // Persistent, file-backed session store (pure JS, no native modules).
@@ -662,7 +671,7 @@ app.use(session({
     reapInterval: 60 * 60,       // purge expired sessions hourly
     logFn:        () => {},      // silence the store's verbose logging
   }),
-  secret:            process.env.SESSION_SECRET || crypto.randomBytes(48).toString('hex'),
+  secret:            sessionSecret(),
   resave:            false,
   saveUninitialized: false,
   cookie: {
