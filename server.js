@@ -91,8 +91,32 @@ const saveConfig = d  => storage.writeJSON(CONFIG_FILE, d);
 const envSMTPPass = () => (process.env.SMTP_PASS || '').trim();
 const smtpPass    = (cfg) => envSMTPPass() || (cfg && cfg.emailPass) || '';
 
+// One-time admin password reset without file access: set ADMIN_RESET_PASSWORD (8+ chars)
+// in the hPanel Node.js environment variables and redeploy. Applied once per distinct value
+// (a bcrypt hash of it is remembered), so later password changes in the CMS survive restarts.
+// Checked on login too, not only at startup: under Hostinger's LiteSpeed runner the
+// app.listen callback isn't guaranteed to run.
+let envResetChecked = false;
+async function applyEnvPasswordReset() {
+  if (envResetChecked) return;
+  const resetPass = (process.env.ADMIN_RESET_PASSWORD || '').trim();
+  if (resetPass.length >= 8) {
+    const c = getConfig();
+    if (!c.passwordResetHash || !await bcrypt.compare(resetPass, c.passwordResetHash)) {
+      await hashAndSavePassword(resetPass);
+      const c2 = getConfig();
+      c2.passwordResetHash = await bcrypt.hash(resetPass, SALT_ROUNDS);
+      saveConfig(c2);
+      logActivity('Admin password reset via ADMIN_RESET_PASSWORD', 'system');
+      console.log('  ✓ Admin password reset from ADMIN_RESET_PASSWORD (you can now remove the variable)');
+    }
+  }
+  envResetChecked = true;
+}
+
 // ── Password: bcrypt-based with auto-migration from plaintext ──
 async function verifyPassword(input) {
+  await applyEnvPasswordReset();
   const cfg = getConfig();
   if (cfg.passwordHash) {
     return bcrypt.compare(input, cfg.passwordHash);
@@ -2667,21 +2691,7 @@ app.listen(PORT, async () => {
     console.log('  ✓ Password auto-migrated to bcrypt hash');
   }
 
-  // One-time admin password reset without file access: set ADMIN_RESET_PASSWORD (8+ chars)
-  // in the hPanel Node.js environment variables and restart. Applied once per distinct value
-  // (a bcrypt hash of it is remembered), so later password changes in the CMS survive restarts.
-  const resetPass = (process.env.ADMIN_RESET_PASSWORD || '').trim();
-  if (resetPass.length >= 8) {
-    const c = getConfig();
-    if (!c.passwordResetHash || !await bcrypt.compare(resetPass, c.passwordResetHash)) {
-      await hashAndSavePassword(resetPass);
-      const c2 = getConfig();
-      c2.passwordResetHash = await bcrypt.hash(resetPass, SALT_ROUNDS);
-      saveConfig(c2);
-      logActivity('Admin password reset via ADMIN_RESET_PASSWORD', 'system');
-      console.log('  ✓ Admin password reset from ADMIN_RESET_PASSWORD (you can now remove the variable)');
-    }
-  }
+  await applyEnvPasswordReset();
 
   console.log('\n╔══════════════════════════════════════╗');
   console.log('║      SVIE CMS — Server Running       ║');
