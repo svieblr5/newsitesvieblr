@@ -640,6 +640,12 @@ app.use((req, res, next) => {
   }
   next();
 });
+// An uploaded logo (MEDIA_DIR) replaces the bundled one everywhere it's referenced.
+app.get('/images/logo.png', (req,res,next) => {
+  if (!fs.existsSync(LOGO_FILE)) return next();
+  res.set('Cache-Control', 'public, max-age=86400');
+  res.type('png').sendFile(LOGO_FILE);
+});
 app.use(express.static(ROOT, { setHeaders: staticCacheHeaders }));
 app.use('/media', express.static(MEDIA_DIR, { setHeaders: staticCacheHeaders }));
 app.use('/admin', express.static(path.join(ROOT,'admin')));
@@ -787,6 +793,14 @@ async function optimizeImage(absPath, { maxW = 1600, quality = 80 } = {}) {
 }
 
 // ── Multer: gallery uploads ──
+// Stored extension comes from the (already filtered) MIME type, never the client's filename:
+// "x.html" sent as image/png must not land on disk — and get served — as an HTML page.
+const MIME_EXT = {
+  'image/jpeg':'.jpg', 'image/jpg':'.jpg', 'image/png':'.png', 'image/webp':'.webp', 'image/gif':'.gif',
+  'video/mp4':'.mp4', 'video/webm':'.webm', 'video/quicktime':'.mov',
+};
+const safeExt = file => MIME_EXT[file.mimetype] || '.bin';
+
 const galleryStorage = multer.diskStorage({
   destination: (req,file,cb) => {
     const d = path.join(MEDIA_DIR,'gallery');
@@ -794,7 +808,7 @@ const galleryStorage = multer.diskStorage({
     cb(null, d);
   },
   filename: (req,file,cb) => {
-    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const ext  = safeExt(file);
     const base = crypto.randomBytes(8).toString('hex');
     cb(null, Date.now() + '-' + base + ext);
   }
@@ -817,7 +831,7 @@ const beforeafterStorage = multer.diskStorage({
     cb(null, d);
   },
   filename: (req,file,cb) => {
-    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const ext  = safeExt(file);
     const base = crypto.randomBytes(8).toString('hex');
     cb(null, Date.now() + '-' + file.fieldname + '-' + base + ext);
   }
@@ -841,7 +855,7 @@ const baVideoStorage = multer.diskStorage({
     cb(null, d);
   },
   filename: (req,file,cb) => {
-    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const ext  = safeExt(file);
     const base = crypto.randomBytes(8).toString('hex');
     cb(null, Date.now() + '-' + file.fieldname + '-' + base + ext);
   }
@@ -860,12 +874,12 @@ const uploadBAVideo = multer({
 // ── Multer: team photo uploads ──
 const teamStorage = multer.diskStorage({
   destination: (req,file,cb) => {
-    const d = path.join(ROOT,'images','team');
+    const d = path.join(MEDIA_DIR,'team');   // survives redeploys
     if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
     cb(null, d);
   },
   filename: (req,file,cb) => {
-    const ext = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const ext = safeExt(file);
     cb(null, 'team-' + parseInt(req.params.index||0) + '-' + Date.now() + ext);
   }
 });
@@ -893,10 +907,13 @@ const uploadRestore = multer({
   },
 });
 
-// ── Multer: logo / favicon (always overwrites the canonical images/logo.png) ──
+// ── Multer: logo / favicon ──
+// An uploaded logo lives in MEDIA_DIR/logo.png (the bundled images/logo.png is restored on every
+// deploy) and is served in its place by the /images/logo.png route below.
+const LOGO_FILE = path.join(MEDIA_DIR, 'logo.png');
 const logoStorage = multer.diskStorage({
-  destination: (req,file,cb) => { const d = path.join(ROOT,'images'); if(!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true}); cb(null, d); },
-  filename:    (req,file,cb) => cb(null, 'logo.png'),
+  destination: (req,file,cb) => cb(null, MEDIA_DIR),
+  filename:    (req,file,cb) => cb(null, 'logo-upload.tmp'),
 });
 const ALLOWED_LOGO_MIME = new Set(['image/png','image/jpeg','image/jpg','image/webp','image/svg+xml','image/x-icon','image/vnd.microsoft.icon']);
 const uploadLogo = multer({
@@ -1239,14 +1256,20 @@ app.get('/api/backup', requireAuth, (req,res) => {
 // ── Logo / favicon upload (overwrites images/logo.png, used as logo + favicon) ──
 app.post('/api/logo/upload', requireAuth, csrfProtect, uploadLogo.single('logo'), async (req,res) => {
   try {
-    const dest = path.join(ROOT, 'images', 'logo.png'); // multer already wrote the upload here
-    // If sharp is available, normalize whatever was uploaded into a clean, capped PNG.
-    if (sharp && req.file.mimetype !== 'image/svg+xml') {
-      const buf = await sharp(dest, { failOn:'none' })
+    const tmp = req.file.path;
+    // Normalize whatever was uploaded (incl. SVG, rasterized — no script survives) into a capped PNG.
+    if (sharp) {
+      const buf = await sharp(tmp, { failOn:'none' })
         .resize({ width:512, height:512, fit:'inside', withoutEnlargement:true })
         .png()
         .toBuffer();
-      fs.writeFileSync(dest, buf);
+      fs.writeFileSync(LOGO_FILE, buf);
+      try { fs.unlinkSync(tmp); } catch { /* temp file; overwritten by the next upload */ }
+    } else if (req.file.mimetype === 'image/svg+xml') {
+      try { fs.unlinkSync(tmp); } catch {}
+      return res.status(400).json({ error:'SVG logos need image processing, which is unavailable — upload a PNG instead.' });
+    } else {
+      fs.renameSync(tmp, LOGO_FILE);
     }
     // Bump a version in config (immediate + global) so the frontend cache-busts the logo.
     const cfg = getConfig(); cfg.logoVersion = Date.now(); saveConfig(cfg);
@@ -1275,7 +1298,7 @@ app.post('/api/team/upload/:index', requireAuth, csrfProtect, uploadTeam.single(
     const idx = parseInt(req.params.index);
     if (isNaN(idx) || idx < 0 || idx > 20) return res.status(400).json({ error:'Invalid index' });
     const fname = await optimizeImage(req.file.path, { maxW:800, quality:82 }) || req.file.filename;
-    const src = 'images/team/' + fname;
+    const src = 'media/team/' + fname;
     const c   = readContent();
     if (!c.about)       c.about      = {};
     if (!c.about.team)  c.about.team = [];
@@ -1293,8 +1316,9 @@ app.delete('/api/team/photo/:index', requireAuth, csrfProtect, (req,res) => {
     const c      = readContent();
     const member = (c.about?.team||[])[idx];
     if (member?.photo) {
-      const fp = path.join(ROOT, member.photo);
-      if (fs.existsSync(fp)) fs.unlinkSync(fp);
+      // only uploaded team photos — never other site files the field might point at
+      const fp = /^\/?(images|media)\/team\//.test(member.photo) ? mediaAbsPath(member.photo) : null;
+      if (fp && fs.existsSync(fp)) fs.unlinkSync(fp);
       member.photo = '';
       writeContent(c);
     }
@@ -1470,7 +1494,7 @@ const projectPhotoStorage = multer.diskStorage({
     cb(null, d);
   },
   filename: (req,file,cb) => {
-    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const ext  = safeExt(file);
     const base = crypto.randomBytes(8).toString('hex');
     cb(null, Date.now() + '-' + base + ext);
   }
@@ -1506,7 +1530,7 @@ const siteImageStorage = multer.diskStorage({
     cb(null, d);
   },
   filename: (req,file,cb) => {
-    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const ext  = safeExt(file);
     cb(null, Date.now() + '-' + crypto.randomBytes(8).toString('hex') + ext);
   }
 });

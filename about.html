@@ -319,19 +319,22 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
       if (!team || team.length <= 2) return;
       const grid = document.getElementById('teamGrid');
       const delays = ['d2','d3','d4','d5'];
+      const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+      const safePhoto = p => typeof p==='string' && /^(images\/|media\/|https:\/\/)[^'"()\\\s]+$/.test(p) ? p : '';
       team.slice(2).forEach(function(m, idx) {
         const i = idx + 2;
         const card = document.createElement('div');
         card.className = 'team-card reveal ' + (delays[idx % delays.length] || 'd2');
-        if (m.photo) {
-          card.innerHTML = `<div class="team-photo" style="background-image:url('${m.photo}');background-size:cover;background-position:center top"></div>`;
+        const photo = safePhoto(m.photo);
+        if (photo) {
+          card.innerHTML = `<div class="team-photo" style="background-image:url('${photo}');background-size:cover;background-position:center top"></div>`;
         } else {
-          card.innerHTML = `<div class="team-photo"><div class="team-initials">${m.initials||'?'}</div></div>`;
+          card.innerHTML = `<div class="team-photo"><div class="team-initials">${esc(m.initials||'?')}</div></div>`;
         }
         card.innerHTML += `<div class="team-body">
-          <div class="team-role">${m.role||''}</div>
-          <div class="team-name">${m.name||''}</div>
-          <div class="team-bio">${m.bio||''}</div>
+          <div class="team-role">${esc(m.role)}</div>
+          <div class="team-name">${esc(m.name)}</div>
+          <div class="team-bio">${esc(m.bio)}</div>
         </div>`;
         grid.appendChild(card);
       });
@@ -416,6 +419,6 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <script src="visitor-tracker.js" defer></script>
-<script>/* lazy-load chat widget after first paint: idle timeout or first interaction, whichever comes first */(function(){var d=0,l=function(){if(d)return;d=1;var s=document.createElement("script");s.src="chat-widget.js?v=e8a5a375";document.body.appendChild(s)};"requestIdleCallback"in window?requestIdleCallback(l,{timeout:5000}):addEventListener("load",function(){setTimeout(l,2000)});["pointerdown","keydown","touchstart","scroll"].forEach(function(e){addEventListener(e,l,{once:true,passive:true})})})();</script>
+<script>/* lazy-load chat widget after first paint: idle timeout or first interaction, whichever comes first */(function(){var d=0,l=function(){if(d)return;d=1;var s=document.createElement("script");s.src="chat-widget.js?v=4eff04ff";document.body.appendChild(s)};"requestIdleCallback"in window?requestIdleCallback(l,{timeout:5000}):addEventListener("load",function(){setTimeout(l,2000)});["pointerdown","keydown","touchstart","scroll"].forEach(function(e){addEventListener(e,l,{once:true,passive:true})})})();</script>
 </body>
 </html>

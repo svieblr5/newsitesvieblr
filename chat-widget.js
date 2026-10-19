@@ -157,7 +157,8 @@
 
   /* ── Helpers ────────────────────────────────────────────────────────── */
   function escapeHTML(s) {
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // quotes too: render() puts URLs from the reply inside href="…"
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   // Turn plain text into safe HTML: escape, linkify URLs and the phone number,
   // preserve line breaks.

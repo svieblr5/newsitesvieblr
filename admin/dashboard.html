@@ -4487,7 +4487,7 @@ function vRenderMap(points) {
     const r = 6 + (p.count/mx)*22;
     const col = p.count>=50?'#0e4d2a':p.count>=11?'#1A4530':'#C9A05A';
     L.circleMarker([p.lat,p.lon],{radius:r,fillColor:col,color:'#fff',weight:1.5,opacity:.9,fillOpacity:.7})
-      .bindPopup(`<div style="font-family:Jost,sans-serif"><strong style="color:#1A4530">${vFlag(p.countryCode)} ${p.city||'—'}</strong><br><small style="color:#6a6460">${p.country||''}</small><br><strong style="color:#C9A05A">${p.count} visit${p.count!==1?'s':''}</strong></div>`)
+      .bindPopup(`<div style="font-family:Jost,sans-serif"><strong style="color:#1A4530">${vFlag(p.countryCode)} ${esc(p.city||'—')}</strong><br><small style="color:#6a6460">${esc(p.country||'')}</small><br><strong style="color:#C9A05A">${p.count} visit${p.count!==1?'s':''}</strong></div>`)
       .addTo(vMapLayer);
   });
   const valid = points.filter(p=>p.lat||p.lon);
