@@ -369,7 +369,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 <div class="cursor-ring"></div>
 
 <!-- Lightbox -->
-<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Gallery image viewer">
+<div data-cms-group="Gallery — Section 1" class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Gallery image viewer">
   <div class="lb-bar">
     <span class="lb-index" id="lb-index">1 / 18</span>
     <button class="lb-close" id="lb-close" aria-label="Close">✕</button>
@@ -454,9 +454,9 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
     <div class="gal-hero-content">
       <div class="gal-hero-text">
       <div class="breadcrumb">
-        <a href="index.html">Home</a>
+        <a data-cms-href="sections.gallery_x2_link1" href="index.html"><span data-cms="sections.gallery_x2_2">Home</span></a>
         <span class="breadcrumb-sep">/</span>
-        <span>Portfolio</span>
+        <span data-cms="sections.gallery_x2_3">Portfolio</span>
       </div>
       <h1 style="font-family:var(--font-display);font-size:clamp(2.8rem,6vw,4.5rem);font-weight:600;color:var(--cream);line-height:1.05;margin-bottom:16px">
         <span data-cms="sections.gallery_s1_1">Our</span> <em data-cms="sections.gallery_s1_2" style="font-style:italic;color:var(--gold)">Portfolio</em>
@@ -485,11 +485,13 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
     <div class="bh-pairs" id="bh-pairs"></div>
 
     <div class="bh-tabs" role="tablist">
-      <button class="gal-chip active" data-bh="after" role="tab" aria-selected="true">After · Finished</button>
-      <button class="gal-chip" data-bh="before" role="tab" aria-selected="false">Before</button>
+      <button class="gal-chip active" data-bh="after" role="tab" aria-selected="true"><span data-cms="sections.gallery_x3_1">After · Finished</span></button>
+      <button class="gal-chip" data-bh="before" role="tab" aria-selected="false"><span data-cms="sections.gallery_x3_2">Before</span></button>
     </div>
     <div class="bh-grid" id="bh-grid"></div>
     <div class="bh-more-wrap"><button class="gal-chip" id="bh-more" type="button">Show all photos</button></div>
+    <!-- label pattern for the button above ({n} = number of photos); edited in CMS → Page Sections -->
+    <span data-cms="sections.gallery_more_label" hidden>Show all {n} photos</span>
 
     <div class="bh-videos" id="bh-videos"></div>
     </div>
@@ -825,8 +827,8 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
   </div>
 </div></footer>
 
-<script src="script.js?v=1aa36ae4"></script>
-<script src="cms-loader.js?v=79bdc099"></script>
+<script src="script.js?v=b2dd6e18"></script>
+<script src="cms-loader.js?v=574b874c"></script>
 <script>
 (function(){
   var lb    = document.getElementById('lightbox');
@@ -1006,7 +1008,8 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
         '</div>';
       }).join('');
       more.parentNode.style.display=(!expanded&&n>INITIAL)?'':'none';
-      more.textContent='Show all '+n+' photos';
+      var tpl=(document.querySelector('[data-cms="sections.gallery_more_label"]')||{}).textContent||'';
+      more.textContent=(/\{n\}/.test(tpl)?tpl:'Show all {n} photos').replace('{n}',n);
     }
     setProjectPhotos=function(list){ photos=list; expanded=false; renderGrid(); };
     grid.addEventListener('click',function(e){
@@ -1073,6 +1076,8 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(data){
       renderSpotlight(data && Array.isArray(data.beforeafter) ? data.beforeafter : BA_STATIC);
+      var lbl=data && data.sections && data.sections.gallery_more_label, lblEl=document.querySelector('[data-cms="sections.gallery_more_label"]');
+      if(lbl && lblEl) lblEl.textContent=lbl;   // before re-rendering, whichever script loads first
       if(data && Array.isArray(data.project_photos)) setProjectPhotos(data.project_photos);
       var items = data && data.gallery;
       if(!items || !items.length){ initGallery(); return; }
@@ -1080,7 +1085,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
       var masonry = document.getElementById('gal-masonry');
       masonry.innerHTML = items.map(cardHtml).join('');
 
-      /* Re-run script.js?v=1aa36ae4 reveal observer on new cards */
+      /* Re-run script.js?v=b2dd6e18 reveal observer on new cards */
       document.querySelectorAll('.gal-card.reveal').forEach(function(el){
         if(window.revealObserver) window.revealObserver.observe(el);
         else el.classList.add('in');   // fallback: never leave cards hidden

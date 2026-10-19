@@ -301,7 +301,24 @@
     // Text content
     document.querySelectorAll('[data-cms]').forEach(function (el) {
       var val = resolve(data, el.getAttribute('data-cms'));
-      if (val != null && val !== '') el.textContent = val;
+      if (val != null && val !== '') {
+        el.textContent = val;
+        // Count-up stats animate towards data-count — keep it in step with the edited text ("50+")
+        if (el.hasAttribute('data-count')) {
+          var mm = String(val).match(/^(\D*)(\d+(?:\.\d+)?)(.*)$/);
+          if (mm) { el.setAttribute('data-pre', mm[1]); el.setAttribute('data-count', mm[2]); el.setAttribute('data-suf', mm[3]); }
+        }
+      }
+    });
+
+    // Form hints and image descriptions
+    document.querySelectorAll('[data-cms-placeholder]').forEach(function (el) {
+      var val = resolve(data, el.getAttribute('data-cms-placeholder'));
+      if (typeof val === 'string' && val) el.setAttribute('placeholder', val);
+    });
+    document.querySelectorAll('[data-cms-alt]').forEach(function (el) {
+      var val = resolve(data, el.getAttribute('data-cms-alt'));
+      if (typeof val === 'string' && val) el.setAttribute('alt', val);
     });
 
     // Image src attributes  (data-cms-src="furniture_page.images.kitchen")

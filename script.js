@@ -63,14 +63,13 @@
     const io2 = new IntersectionObserver(entries=>{
       if(!entries[0].isIntersecting) return;
       io2.disconnect();
-      const target = +el.dataset.count;
-      const suf = el.dataset.suf||'';
-      const pre = el.dataset.pre||'';
       let start, dur=1800;
       (function step(ts){
         if(!start) start=ts;
         const p = Math.min((ts-start)/dur,1);
         const e = 1-Math.pow(1-p,3);
+        // read every frame: the CMS may update the figure while it is animating
+        const target = +el.dataset.count||0, suf = el.dataset.suf||'', pre = el.dataset.pre||'';
         el.textContent = pre + Math.round(e*target) + suf;
         if(p<1) requestAnimationFrame(step);
       })(performance.now());

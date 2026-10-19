@@ -570,14 +570,63 @@ function normalizeSeo(seo) {
   }
   return { global: seo.global || {}, pages };
 }
+// Keep the LocalBusiness JSON-LD (what Google shows in the business panel) in step with
+// CMS → Contact Info, so a changed phone/email/address/hours doesn't leave Google with stale data.
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+function to24h(h, m, ap) { h = +h % 12 + (/p/i.test(ap) ? 12 : 0); return String(h).padStart(2,'0') + ':' + m; }
+function ldPhone(p) {
+  const d = String(p || '').replace(/[^\d+]/g, '');
+  if (!d) return null;
+  return d.startsWith('+') ? d : (d.length === 10 ? '+91' + d : (d.startsWith('91') && d.length === 12 ? '+' + d : d));
+}
+function applyBusinessInfo(node, site) {
+  if (Array.isArray(node)) { node.forEach(n => applyBusinessInfo(n, site)); return; }
+  if (!node || typeof node !== 'object') return;
+  const types = [].concat(node['@type'] || []);
+  if (types.includes('LocalBusiness')) {
+    if (site.name) node.name = site.name;
+    const phones = [site.phone1, site.phone2].map(ldPhone).filter(Boolean);
+    if (phones.length) node.telephone = phones.length === 1 ? phones[0] : phones;
+    if (site.email) node.email = site.email;
+    if (site.address && node.address && typeof node.address === 'object') {
+      // "…, Malleshwaram, Bengaluru, Karnataka 560003" → street part + PIN; city/region stay as set
+      const a = String(site.address).trim();
+      const m = a.match(/^(.*?),\s*(Bengaluru|Bangalore)\b[^,]*,\s*Karnataka\s*(\d{6})?\s*$/i);
+      node.address.streetAddress = m ? m[1] : a;
+      if (m && m[3]) node.address.postalCode = m[3];
+    }
+    // "Every Day · 10:00 AM – 9:00 PM" → openingHoursSpecification (left alone if not recognisable)
+    const h = String(site.hours || '').match(/(\d{1,2}):(\d{2})\s*(AM|PM)\s*[–—-]\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (h && /every\s*day|daily|all\s*days|mon(day)?\s*[–—-]\s*sun/i.test(site.hours)) {
+      node.openingHoursSpecification = [{ '@type':'OpeningHoursSpecification', dayOfWeek: DAYS,
+        opens: to24h(h[1], h[2], h[3]), closes: to24h(h[4], h[5], h[6]) }];
+    }
+  }
+  Object.values(node).forEach(v => { if (v && typeof v === 'object') applyBusinessInfo(v, site); });
+}
+function injectBusinessInfo(html, site) {
+  if (!site) return html;
+  return html.replace(/(<script type="application\/ld\+json">)([\s\S]*?)(<\/script>)/g, (all, open, json, close) => {
+    if (!/LocalBusiness/.test(json)) return all;
+    try {
+      const data = JSON.parse(json);
+      applyBusinessInfo(data, site);
+      return open + JSON.stringify(data).replace(/</g, '\\u003c') + close;   // no "</script>" breakout
+    } catch { return all; }
+  });
+}
+
 app.get(Object.keys(SEO_PAGE_KEY), (req, res, next) => {
   try {
     // read the LIVE/published content so unpublished draft SEO never leaks public
-    const seo = normalizeSeo(readLive().seo);
-    if (!seo) return next();                          // no CMS SEO yet → serve the file as-is
+    const live = readLive();
+    const seo  = normalizeSeo(live.seo);
+    if (!seo && !live.site) return next();            // nothing from the CMS → serve the file as-is
     const fp = path.join(ROOT, SEO_FILE[req.path] || req.path.replace(/^\//, ''));
     if (!fs.existsSync(fp)) return next();
-    const html = injectSeo(fs.readFileSync(fp, 'utf8'), SEO_PAGE_KEY[req.path], seo);
+    let html = fs.readFileSync(fp, 'utf8');
+    if (seo) html = injectSeo(html, SEO_PAGE_KEY[req.path], seo);
+    html = injectBusinessInfo(html, live.site);
     res.set('Cache-Control', HTML_CACHE_CONTROL);
     res.type('html').send(html);
   } catch (e) { next(); }                            // any error → fall through to static
@@ -1548,6 +1597,37 @@ app.post('/api/sections/upload-image', requireAuth, csrfProtect, uploadSiteImage
     const name = await optimizeImage(req.file.path, { maxW:1920, quality:82 }) || req.file.filename;
     logActivity('Uploaded site image: '+name, req.session.user);
     res.json({ success:true, path:'media/site-images/'+name });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// Link fields can point at an uploaded PDF (e.g. a new brochure) — MEDIA_DIR/files.
+const uploadSiteFile = multer({
+  storage: multer.diskStorage({
+    destination: (req,file,cb) => {
+      const d = path.join(MEDIA_DIR,'files');
+      if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
+      cb(null, d);
+    },
+    // keep a readable name (visitors see it when downloading), made safe + unique
+    filename: (req,file,cb) => {
+      const base = path.basename(file.originalname, path.extname(file.originalname)).replace(/[^a-zA-Z0-9-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60) || 'document';
+      cb(null, base + '-' + Date.now().toString(36) + '.pdf');
+    }
+  }),
+  limits:  { fileSize: 60*1024*1024 },
+  fileFilter: (req,file,cb) => {
+    const ok = file.mimetype === 'application/pdf';
+    cb(ok ? null : new Error('PDF files only'), ok);
+  },
+});
+app.post('/api/sections/upload-file', requireAuth, csrfProtect, uploadSiteFile.single('file'), (req,res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error:'Pick a PDF.' });
+    // the browser-supplied type isn't proof: require the PDF signature
+    const fd = fs.openSync(req.file.path, 'r'); const sig = Buffer.alloc(5); fs.readSync(fd, sig, 0, 5, 0); fs.closeSync(fd);
+    if (sig.toString('latin1') !== '%PDF-') { try { fs.unlinkSync(req.file.path); } catch {} return res.status(400).json({ error:'That file is not a valid PDF.' }); }
+    logActivity('Uploaded file: '+req.file.filename, req.session.user);
+    res.json({ success:true, path:'media/files/'+req.file.filename });
   } catch(e) { res.status(500).json({ error:e.message }); }
 });
 

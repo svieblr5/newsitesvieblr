@@ -3896,13 +3896,17 @@ async function saveElectronics() {
 const PS_PAGES = [['index.html','Home'],['about.html','About'],['services.html','Services'],['products.html','Products'],
   ['furniture.html','Furniture'],['electronics.html','Electronics'],['gallery.html','Gallery'],['contact.html','Contact'],
   ['privacy-policy.html','Privacy Policy'],['terms-of-service.html','Terms of Service'],['404.html','404 page']];
-const PS_ATTRS = [['data-cms','text'],['data-cms-src','img'],['data-cms-bg','bg'],['data-cms-href','href']];
+const PS_ATTRS = [['data-cms','text'],['data-cms-src','img'],['data-cms-alt','alt'],['data-cms-bg','bg'],['data-cms-href','href'],['data-cms-placeholder','placeholder']];
 let PS_FIELDS = [];   // [{key, kind, label, def, group, page}]
 
 function psLabel(el, kind) {
   if (kind==='img')  return 'Image';
   if (kind==='bg')   return 'Background image';
   if (kind==='href') return 'Link target — "' + (el.textContent.replace(/\s+/g,' ').trim().slice(0,40) || 'icon') + '"';
+  if (kind==='alt')  return 'Image description (for Google & screen readers)';
+  if (kind==='placeholder') return 'Form hint (grey example text in the box)';
+  if (el.hasAttribute('data-count')) return 'Animated number (e.g. 7+, 35+)';
+  if (el.getAttribute('data-cms')==='sections.gallery_more_label') return '"Show all photos" button — {n} becomes the number of photos';
   const cls = String(el.className||'');
   if (el.closest('h1,h2')) return el.closest('em') ? 'Heading (italic part)' : 'Heading';
   if (el.closest('h3,h4,h5')) return 'Sub-heading';
@@ -3915,7 +3919,11 @@ function psLabel(el, kind) {
   return 'Text';
 }
 function psDefault(el, kind) {
+  if (kind==='text' && el.hasAttribute('data-count'))   // shown as it ends up after counting, e.g. "7+"
+    return (el.getAttribute('data-pre')||'') + el.getAttribute('data-count') + (el.getAttribute('data-suf')||'');
   if (kind==='text') return el.textContent.replace(/\s+/g,' ').trim();
+  if (kind==='alt')  return el.getAttribute('alt') || '';
+  if (kind==='placeholder') return el.getAttribute('placeholder') || '';
   if (kind==='img')  return el.getAttribute('src') || '';
   if (kind==='bg')   return ((el.getAttribute('style')||'').match(/url\(\s*['"]?([^'")]+)/)||[])[1] || '';
   return el.getAttribute('href') || '';
@@ -3925,7 +3933,7 @@ async function psScan() {
     const html = await fetch('../'+page, {cache:'no-store'}).then(r=>r.ok?r.text():'').catch(()=>'');
     const doc  = new DOMParser().parseFromString(html, 'text/html');
     const out  = [];
-    doc.querySelectorAll('[data-cms^="sections."],[data-cms-src^="sections."],[data-cms-bg^="sections."],[data-cms-href^="sections."]').forEach(el=>{
+    doc.querySelectorAll(PS_ATTRS.map(([a])=>`[${a}^="sections."]`).join(',')).forEach(el=>{
       const g    = el.closest('[data-cms-group]');
       const head = g && g.querySelector('h1,h2,h3');
       if (head) head.querySelectorAll('br').forEach(br=>br.replaceWith(' '));   // parsed copy, not the live page
@@ -3951,6 +3959,13 @@ function psField(f, val) {
         <img id="psprev-${f.key}" src="${esc(psUrl(val))}" alt="" style="width:76px;height:56px;object-fit:cover;border-radius:6px;background:#eee;flex-shrink:0" onerror="this.style.opacity='.3'">
         <input type="text" ${attrs} value="${esc(val)}" style="flex:1" oninput="document.getElementById('psprev-${f.key}').src=psUrl(this.value)">
         <label class="btn btn-outline btn-sm" style="cursor:pointer;flex-shrink:0">Upload<input type="file" accept="image/*" style="display:none" onchange="psUpload('${f.key}',this)"></label>
+      </div></div></div>`;
+  }
+  if (f.kind==='href') {   // a link can also point at an uploaded PDF (e.g. a new brochure)
+    return `<div class="frow full"><div class="fg"><label>${esc(f.label)}</label>
+      <div style="display:flex;gap:10px;align-items:center">
+        <input type="text" ${attrs} value="${esc(val)}" style="flex:1">
+        <label class="btn btn-outline btn-sm" style="cursor:pointer;flex-shrink:0">Upload PDF<input type="file" accept="application/pdf" style="display:none" onchange="psUpload('${f.key}',this,'pdf')"></label>
       </div></div></div>`;
   }
   const input = f.kind==='text' && f.def.length > 70
@@ -3984,16 +3999,18 @@ function psFilter(q) {
     d.open = !!q && hit;
   });
 }
-async function psUpload(key, input) {
+async function psUpload(key, input, kind) {
   const file = input.files[0]; if (!file) return;
-  const fd = new FormData(); fd.append('image', file);
+  const pdf = kind === 'pdf';
+  const fd = new FormData(); fd.append(pdf ? 'file' : 'image', file);
   toast('Uploading…');
-  const r = await fetch('/api/sections/upload-image',{method:'POST',body:fd,headers:{'X-CSRF-Token':_csrfToken}}).then(x=>x.json()).catch(e=>({error:e.message}));
+  const r = await fetch(pdf ? '/api/sections/upload-file' : '/api/sections/upload-image',{method:'POST',body:fd,headers:{'X-CSRF-Token':_csrfToken}}).then(x=>x.json()).catch(e=>({error:e.message}));
   input.value = '';
   if (!r.success) { toast('Upload failed: '+(r.error||''),'err'); return; }
-  const el = document.getElementById('ps-'+key);
-  el.value = r.path; document.getElementById('psprev-'+key).src = psUrl(r.path);
-  toast('Image uploaded — click Save Changes, then Publish');
+  document.getElementById('ps-'+key).value = r.path;
+  const prev = document.getElementById('psprev-'+key);
+  if (prev) prev.src = psUrl(r.path);
+  toast((pdf ? 'PDF' : 'Image') + ' uploaded — click Save Changes, then Publish');
 }
 async function savePageSections() {
   const data = {};
