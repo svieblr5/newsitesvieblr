@@ -470,6 +470,11 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
         Navigation
       </button>
 
+      <button class="nav-btn" data-p="sections" onclick="show('sections',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        Page Sections
+      </button>
+
       <div class="nav-hd">Content</div>
       <button class="nav-btn" data-p="gallery" onclick="show('gallery',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -846,6 +851,15 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
           <span class="badge badge-gold" id="galCount">0 items</span>
         </div>
         <div class="gal-grid" id="galGrid"></div>
+      </div>
+
+      <!-- ══ PAGE SECTIONS ══ -->
+      <div id="p-sections" class="panel">
+        <div class="card">
+          <div class="card-title">Page Sections</div>
+          <div class="card-sub">Text for sections that have no page editor of their own. Each field starts with what the website shows today; clear a field to go back to that original text. Save, then Publish to go live.</div>
+        </div>
+        <div id="psEditor"><div style="color:#8a7e72;font-size:.82rem;padding:24px 0;text-align:center">Loading…</div></div>
       </div>
 
       <!-- ══ BEFORE / AFTER ══ -->
@@ -1778,7 +1792,7 @@ const titles = {
   dashboard:'Dashboard', activity:'Activity Log', home:'Home Page',
   about:'About Page', services:'Services Page', products:'Products Page',
   furniture:'Furniture Page', electronics:'Electronics Page',
-  contact:'Contact Info', navigation:'Navigation', gallery:'Gallery',
+  contact:'Contact Info', navigation:'Navigation', gallery:'Gallery', sections:'Page Sections',
   beforeafter:'Before & After', testimonials:'Testimonials', blog:'Blog & News', media:'Media Library',
   seo:'SEO Settings', enquiries:'Enquiries Inbox',
   calltracking:'Click to Call — Call Log', settings:'Site Settings',
@@ -1828,6 +1842,7 @@ function show(id, btn) {
   if (id==='settings')     load2FA();
   if (id==='gallery')      loadGallery();
   if (id==='beforeafter')  loadBeforeAfter();
+  if (id==='sections')     loadPageSections();
   if (id==='testimonials') loadTestimonials();
   if (id==='blog')         loadBlog();
   if (id==='media')        loadMedia();
@@ -3790,6 +3805,54 @@ async function saveElectronics() {
   toast('Electronics page saved');
 }
 
+// ── PAGE SECTIONS ─────────────────────────────
+// Generic editor for page text tagged data-cms="sections.<key>". The original text
+// is read from the live page itself, so defaults never drift from what visitors see.
+const PAGE_SECTIONS = [{"title":"Home — Construction Philosophy","page":"index.html","fields":[{"key":"sections.home_philosophy_1","label":"Text"},{"key":"sections.home_philosophy_2","label":"Heading"},{"key":"sections.home_philosophy_3","label":"Heading (italic part)"},{"key":"sections.home_philosophy_4","label":"Paragraph","multiline":1},{"key":"sections.home_philosophy_5","label":"Paragraph","multiline":1},{"key":"sections.home_philosophy_6","label":"Link / button text"}]},{"title":"Home — Sri Vasavi (Patron Deity)","page":"index.html","fields":[{"key":"sections.home_vasavi_1","label":"Text"},{"key":"sections.home_vasavi_2","label":"Heading"},{"key":"sections.home_vasavi_3","label":"Heading (italic part)"},{"key":"sections.home_vasavi_4","label":"Paragraph","multiline":1},{"key":"sections.home_vasavi_5","label":"Paragraph","multiline":1},{"key":"sections.home_vasavi_6","label":"Text"},{"key":"sections.home_vasavi_7","label":"Text"},{"key":"sections.home_vasavi_8","label":"Text"}]},{"title":"About — What Sets Us Apart","page":"about.html","fields":[{"key":"sections.about_apart_1","label":"Text"},{"key":"sections.about_apart_2","label":"Heading"},{"key":"sections.about_apart_3","label":"Heading (italic part)"},{"key":"sections.about_apart_4","label":"Text"},{"key":"sections.about_apart_5","label":"Text","multiline":1},{"key":"sections.about_apart_6","label":"Text"},{"key":"sections.about_apart_7","label":"Text","multiline":1},{"key":"sections.about_apart_8","label":"Text"},{"key":"sections.about_apart_9","label":"Text","multiline":1},{"key":"sections.about_apart_10","label":"Text"},{"key":"sections.about_apart_11","label":"Text","multiline":1},{"key":"sections.about_apart_12","label":"Text"},{"key":"sections.about_apart_13","label":"Text","multiline":1},{"key":"sections.about_apart_14","label":"Text"},{"key":"sections.about_apart_15","label":"Text","multiline":1}]},{"title":"About — Bottom call-to-action","page":"about.html","fields":[{"key":"sections.about_cta_1","label":"Text"},{"key":"sections.about_cta_2","label":"Heading"},{"key":"sections.about_cta_3","label":"Heading (italic part)"},{"key":"sections.about_cta_4","label":"Paragraph","multiline":1},{"key":"sections.about_cta_5","label":"Link / button text"},{"key":"sections.about_cta_6","label":"Link / button text"}]},{"title":"Services — Bottom call-to-action","page":"services.html","fields":[{"key":"sections.services_cta_1","label":"Text"},{"key":"sections.services_cta_2","label":"Heading"},{"key":"sections.services_cta_3","label":"Heading (italic part)"},{"key":"sections.services_cta_4","label":"Paragraph","multiline":1},{"key":"sections.services_cta_5","label":"Link / button text"},{"key":"sections.services_cta_6","label":"Link / button text"}]},{"title":"Products — Global Trusted Brands","page":"products.html","fields":[{"key":"sections.products_brands_1","label":"Text"},{"key":"sections.products_brands_2","label":"Heading"},{"key":"sections.products_brands_3","label":"Heading (italic part)"},{"key":"sections.products_brands_4","label":"Paragraph","multiline":1},{"key":"sections.products_brands_5","label":"Text"},{"key":"sections.products_brands_6","label":"Text"},{"key":"sections.products_brands_7","label":"Text"},{"key":"sections.products_brands_8","label":"Text"},{"key":"sections.products_brands_9","label":"Text"},{"key":"sections.products_brands_10","label":"Text"},{"key":"sections.products_brands_11","label":"Text"},{"key":"sections.products_brands_12","label":"Text"},{"key":"sections.products_brands_13","label":"Text"},{"key":"sections.products_brands_14","label":"Text"},{"key":"sections.products_brands_15","label":"Text"},{"key":"sections.products_brands_16","label":"Text"},{"key":"sections.products_brands_17","label":"Text"},{"key":"sections.products_brands_18","label":"Text"},{"key":"sections.products_brands_19","label":"Text"},{"key":"sections.products_brands_20","label":"Text"},{"key":"sections.products_brands_21","label":"Text"},{"key":"sections.products_brands_22","label":"Text"},{"key":"sections.products_brands_23","label":"Text"},{"key":"sections.products_brands_24","label":"Text"},{"key":"sections.products_brands_25","label":"Text"},{"key":"sections.products_brands_26","label":"Text"},{"key":"sections.products_brands_27","label":"Text"},{"key":"sections.products_brands_28","label":"Text"},{"key":"sections.products_brands_29","label":"Text"},{"key":"sections.products_brands_30","label":"Text"},{"key":"sections.products_brands_31","label":"Text"},{"key":"sections.products_brands_32","label":"Text"},{"key":"sections.products_brands_33","label":"Text"},{"key":"sections.products_brands_34","label":"Text"},{"key":"sections.products_brands_35","label":"Text"},{"key":"sections.products_brands_36","label":"Text"},{"key":"sections.products_brands_37","label":"Text"},{"key":"sections.products_brands_38","label":"Text"},{"key":"sections.products_brands_39","label":"Text"},{"key":"sections.products_brands_40","label":"Text"},{"key":"sections.products_brands_41","label":"Text"},{"key":"sections.products_brands_42","label":"Text"},{"key":"sections.products_brands_43","label":"Text"},{"key":"sections.products_brands_44","label":"Text"},{"key":"sections.products_brands_45","label":"Text"},{"key":"sections.products_brands_46","label":"Text"},{"key":"sections.products_brands_47","label":"Text"},{"key":"sections.products_brands_48","label":"Sub-heading"},{"key":"sections.products_brands_49","label":"Paragraph","multiline":1},{"key":"sections.products_brands_50","label":"Text"},{"key":"sections.products_brands_51","label":"Text"},{"key":"sections.products_brands_52","label":"Sub-heading"},{"key":"sections.products_brands_53","label":"Paragraph","multiline":1},{"key":"sections.products_brands_54","label":"Text"}]},{"title":"Products — Bottom call-to-action","page":"products.html","fields":[{"key":"sections.products_cta_1","label":"Text"},{"key":"sections.products_cta_2","label":"Heading"},{"key":"sections.products_cta_3","label":"Heading (italic part)"},{"key":"sections.products_cta_4","label":"Paragraph","multiline":1},{"key":"sections.products_cta_5","label":"Link / button text"},{"key":"sections.products_cta_6","label":"Link / button text"}]},{"title":"Electronics — Our Showrooms","page":"electronics.html","fields":[{"key":"sections.electronics_showrooms_1","label":"Text"},{"key":"sections.electronics_showrooms_2","label":"Heading"},{"key":"sections.electronics_showrooms_3","label":"Heading (italic part)"},{"key":"sections.electronics_showrooms_4","label":"Text"},{"key":"sections.electronics_showrooms_5","label":"Text"},{"key":"sections.electronics_showrooms_6","label":"Text"},{"key":"sections.electronics_showrooms_7","label":"Text","multiline":1},{"key":"sections.electronics_showrooms_8","label":"Link / button text"},{"key":"sections.electronics_showrooms_9","label":"Text"},{"key":"sections.electronics_showrooms_10","label":"Text"},{"key":"sections.electronics_showrooms_11","label":"Text"},{"key":"sections.electronics_showrooms_12","label":"Text"},{"key":"sections.electronics_showrooms_13","label":"Bold text"},{"key":"sections.electronics_showrooms_14","label":"Text"},{"key":"sections.electronics_showrooms_15","label":"Link / button text"}]},{"title":"Electronics — Brands We Trust & Carry","page":"electronics.html","fields":[{"key":"sections.electronics_brands_1","label":"Text"},{"key":"sections.electronics_brands_2","label":"Heading"},{"key":"sections.electronics_brands_3","label":"Heading (italic part)"},{"key":"sections.electronics_brands_4","label":"Text"},{"key":"sections.electronics_brands_5","label":"Text"},{"key":"sections.electronics_brands_6","label":"Text"},{"key":"sections.electronics_brands_7","label":"Text"},{"key":"sections.electronics_brands_8","label":"Text"},{"key":"sections.electronics_brands_9","label":"Text"},{"key":"sections.electronics_brands_10","label":"Text"},{"key":"sections.electronics_brands_11","label":"Text"},{"key":"sections.electronics_brands_12","label":"Text"},{"key":"sections.electronics_brands_13","label":"Text"},{"key":"sections.electronics_brands_14","label":"Text"},{"key":"sections.electronics_brands_15","label":"Text"},{"key":"sections.electronics_brands_16","label":"Text"},{"key":"sections.electronics_brands_17","label":"Text"},{"key":"sections.electronics_brands_18","label":"Text"},{"key":"sections.electronics_brands_19","label":"Text"},{"key":"sections.electronics_brands_20","label":"Text"},{"key":"sections.electronics_brands_21","label":"Text"},{"key":"sections.electronics_brands_22","label":"Text"},{"key":"sections.electronics_brands_23","label":"Text"},{"key":"sections.electronics_brands_24","label":"Text"},{"key":"sections.electronics_brands_25","label":"Text"},{"key":"sections.electronics_brands_26","label":"Text"},{"key":"sections.electronics_brands_27","label":"Text"}]},{"title":"Electronics — Bottom call-to-action","page":"electronics.html","fields":[{"key":"sections.electronics_cta_1","label":"Text"},{"key":"sections.electronics_cta_2","label":"Heading"},{"key":"sections.electronics_cta_3","label":"Heading (italic part)"},{"key":"sections.electronics_cta_4","label":"Paragraph","multiline":1},{"key":"sections.electronics_cta_5","label":"Link / button text"},{"key":"sections.electronics_cta_6","label":"Link / button text"}]},{"title":"Gallery — Before & After heading","page":"gallery.html","fields":[{"key":"sections.gallery_spotlight_1","label":"Text"},{"key":"sections.gallery_spotlight_2","label":"Heading"},{"key":"sections.gallery_spotlight_3","label":"Heading (italic part)"},{"key":"sections.gallery_spotlight_4","label":"Paragraph","multiline":1}]}];
+const _psDefaults = {};
+async function psPageDefaults(page) {
+  if (_psDefaults[page]) return _psDefaults[page];
+  const html = await fetch('../'+page, {cache:'no-store'}).then(r=>r.ok?r.text():'').catch(()=>'');
+  const doc  = new DOMParser().parseFromString(html, 'text/html');
+  const out  = {};
+  doc.querySelectorAll('[data-cms^="sections."]').forEach(el=>{
+    out[el.getAttribute('data-cms').slice(9)] = el.textContent.replace(/\s+/g,' ').trim();
+  });
+  return (_psDefaults[page] = out);
+}
+async function loadPageSections() {
+  const box   = document.getElementById('psEditor');
+  const saved = (C && C.sections) || {};
+  const defs  = {};
+  await Promise.all([...new Set(PAGE_SECTIONS.map(s=>s.page))].map(async p=>{ defs[p] = await psPageDefaults(p); }));
+  box.innerHTML = PAGE_SECTIONS.map(sec=>{
+    const d = defs[sec.page] || {};
+    const rows = sec.fields.map(f=>{
+      const k = f.key.slice(9), def = d[k] || '', val = saved[k] || def;
+      const input = f.multiline
+        ? `<textarea id="ps-${k}" data-def="${esc(def)}" style="min-height:72px">${esc(val)}</textarea>`
+        : `<input type="text" id="ps-${k}" data-def="${esc(def)}" value="${esc(val)}">`;
+      return `<div class="frow full"><div class="fg"><label>${esc(f.label)}</label>${input}</div></div>`;
+    }).join('');
+    return `<details class="card" style="padding:0">
+      <summary style="cursor:pointer;padding:16px 20px;font-weight:600;color:#1A4530">${esc(sec.title)}
+        <span style="color:#8a7e72;font-weight:400;font-size:.75rem">· ${sec.fields.length} fields · <a href="../${sec.page}" target="_blank" onclick="event.stopPropagation()">view page</a></span></summary>
+      <div style="padding:0 20px 16px">${rows}</div>
+    </details>`;
+  }).join('');
+}
+async function savePageSections() {
+  const data = {};
+  PAGE_SECTIONS.forEach(sec=>sec.fields.forEach(f=>{
+    const k = f.key.slice(9), el = document.getElementById('ps-'+k);
+    if (!el) return;
+    const v = el.value.trim();
+    data[k] = (v && v !== el.dataset.def) ? v : '';   // '' = keep the page's original text
+  }));
+  await api('POST','/api/content/sections', data);
+  C = await api('GET','/api/content');
+}
+
 // ── SAVE DISPATCHER ───────────────────────────
 async function saveCurrent() {
   const btn = document.getElementById('saveBtn');
@@ -3805,6 +3868,7 @@ async function saveCurrent() {
     else if (curPanel==='navigation')  await saveNavigation();
     else if (curPanel==='seo')         await saveSEO();
     else if (curPanel==='settings')    await saveSettings();
+    else if (curPanel==='sections')    await savePageSections();
     else { toast('Nothing to save on this panel'); btn.textContent='Save Changes'; btn.disabled=false; return; }
     loadStats();
     toast('Saved to draft ✓ — click Publish to go live');

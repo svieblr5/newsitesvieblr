@@ -63,6 +63,14 @@ const MEDIA_DIR = process.env.MEDIA_DIR
   || (hbuildsMatch ? path.join(hbuildsMatch[1], 'svie-media') : path.join(ROOT, 'media'));
 try { fs.mkdirSync(MEDIA_DIR, { recursive: true }); } catch { /* exists */ }
 
+// CMS uploads are stored as "media/<sub>/<file>" (served from MEDIA_DIR, survives redeploys);
+// older entries and the site's own files are build-relative ("images/…", "videos/…").
+function mediaAbsPath(rel) {
+  rel = String(rel || '').replace(/^\/+/, '');
+  if (!rel || rel.includes('..')) return null;
+  return rel.startsWith('media/') ? path.join(MEDIA_DIR, rel.slice(6)) : path.join(ROOT, rel);
+}
+
 // ── File paths ──
 const CONTENT_FILE  = path.join(DATA_DIR, 'content.json');        // LIVE / published — public site reads this
 const DRAFT_FILE    = path.join(DATA_DIR, 'content-draft.json');  // DRAFT working copy — dashboard edits this
@@ -768,7 +776,7 @@ async function optimizeImage(absPath, { maxW = 1600, quality = 80 } = {}) {
 // ── Multer: gallery uploads ──
 const galleryStorage = multer.diskStorage({
   destination: (req,file,cb) => {
-    const d = path.join(ROOT,'images','gallery');
+    const d = path.join(MEDIA_DIR,'gallery');
     if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
     cb(null, d);
   },
@@ -791,7 +799,7 @@ const upload = multer({
 // ── Multer: before/after slider uploads (two images per pair) ──
 const beforeafterStorage = multer.diskStorage({
   destination: (req,file,cb) => {
-    const d = path.join(ROOT,'images','beforeafter');
+    const d = path.join(MEDIA_DIR,'beforeafter');
     if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
     cb(null, d);
   },
@@ -811,13 +819,11 @@ const uploadBA = multer({
 });
 
 // ── Multer: before/after VIDEO uploads (one video + optional poster image) ──
-// The video goes to /videos/beforeafter, an optional poster to /images/beforeafter.
+// The video and its optional poster both go to MEDIA_DIR/beforeafter (served at /media).
 const ALLOWED_VIDEO_MIME = new Set(['video/mp4','video/webm','video/quicktime']);
 const baVideoStorage = multer.diskStorage({
   destination: (req,file,cb) => {
-    const sub = file.fieldname === 'video' ? path.join('videos','beforeafter')
-                                           : path.join('images','beforeafter');
-    const d = path.join(ROOT, sub);
+    const d = path.join(MEDIA_DIR, 'beforeafter');
     if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
     cb(null, d);
   },
@@ -1301,7 +1307,7 @@ app.post('/api/gallery/upload', requireAuth, csrfProtect, upload.single('image')
   try {
     const fname = await optimizeImage(req.file.path, { maxW:1600, quality:80 }) || req.file.filename;
     const c    = readContent();
-    const item = { id:'g'+Date.now(), src:'images/gallery/'+fname, title:req.body.title||'New Project', tag:req.body.tag||'Design', category:req.body.category||'interior' };
+    const item = { id:'g'+Date.now(), src:'media/gallery/'+fname, title:req.body.title||'New Project', tag:req.body.tag||'Design', category:req.body.category||'interior' };
     (c.gallery = c.gallery||[]).push(item);
     writeContent(c);
     logActivity('Uploaded image: '+fname, req.session.user);
@@ -1326,8 +1332,8 @@ app.delete('/api/gallery/:id', requireAuth, csrfProtect, (req,res) => {
     const item = (c.gallery||[]).find(g=>g.id===req.params.id);
     if (!item) return res.status(404).json({ error:'Not found' });
     if (item.src && !/g\d{2}\.(jpg|webp|jpeg|png)/.test(item.src)) {
-      const fp = path.join(ROOT, item.src);
-      if (fs.existsSync(fp)) fs.unlinkSync(fp);
+      const fp = mediaAbsPath(item.src);
+      if (fp && fs.existsSync(fp)) fs.unlinkSync(fp);
     }
     c.gallery = c.gallery.filter(g=>g.id!==req.params.id);
     writeContent(c);
@@ -1367,8 +1373,8 @@ app.post('/api/beforeafter/upload', requireAuth, csrfProtect,
     const item = {
       id:'ba'+Date.now(),
       title:  (req.body.title||'Project Transformation').toString().slice(0,120),
-      before: 'images/beforeafter/'+bName,
-      after:  'images/beforeafter/'+aName,
+      before: 'media/beforeafter/'+bName,
+      after:  'media/beforeafter/'+aName,
     };
     (c.beforeafter = c.beforeafter||[]).push(item);
     writeContent(c);
@@ -1391,14 +1397,14 @@ app.post('/api/beforeafter/upload-video', requireAuth, csrfProtect,
     let poster = null;
     if (pf) {
       const pName = await optimizeImage(pf.path, { maxW:1600, quality:80 }) || pf.filename;
-      poster = 'images/beforeafter/'+pName;
+      poster = 'media/beforeafter/'+pName;
     }
     const c    = readContent();
     const item = {
       id:'ba'+Date.now(),
       type:'video',
       title:  (req.body.title||'Project Transformation').toString().slice(0,120),
-      video:  'videos/beforeafter/'+vf.filename,
+      video:  'media/beforeafter/'+vf.filename,
       poster,
     };
     (c.beforeafter = c.beforeafter||[]).push(item);
@@ -1427,9 +1433,10 @@ app.delete('/api/beforeafter/:id', requireAuth, csrfProtect, (req,res) => {
     if (!item) return res.status(404).json({ error:'Not found' });
     ['before','after','poster','video'].forEach(k => {
       const rel = item[k];
-      if (rel && (rel.startsWith('images/beforeafter/') || rel.startsWith('videos/beforeafter/'))) {
-        const fp = path.join(ROOT, rel);
-        if (fs.existsSync(fp)) try { fs.unlinkSync(fp); } catch {}
+      // only files the CMS uploaded — never the site's own images/bharat-home or videos/bharat-home
+      if (rel && /^\/?(images|videos|media)\/beforeafter\//.test(rel)) {
+        const fp = mediaAbsPath(rel);
+        if (fp && fs.existsSync(fp)) try { fs.unlinkSync(fp); } catch {}
       }
     });
     c.beforeafter = c.beforeafter.filter(b=>b.id!==req.params.id);
@@ -2689,6 +2696,34 @@ app.use((req, res) => {
 // ═══════════════════════════════════════════
 //  START
 // ═══════════════════════════════════════════
+// One-time: the gallery's Before & After section now renders from the CMS list. Seed it with
+// what the page showed while it was hard-coded (6 sliders + 2 walkthrough videos). The previous
+// list is kept as a restore point in Version History.
+const BA_SPOTLIGHT_SEED = [
+  { id:'ba-bh-hall',    title:'Living hall — opened up & marble floored', before:'images/bharat-home/pairs/hall-before.webp',    after:'images/bharat-home/pairs/hall-after.webp' },
+  { id:'ba-bh-kitchen', title:'Modular kitchen',                          before:'images/bharat-home/pairs/kitchen-before.webp', after:'images/bharat-home/pairs/kitchen-after.webp' },
+  { id:'ba-bh-opening', title:'Structural opening with wood-clad beam',   before:'images/bharat-home/pairs/opening-before.webp', after:'images/bharat-home/pairs/opening-after.webp' },
+  { id:'ba-bh-tvwall',  title:'Marble TV wall with lit display niches',   before:'images/bharat-home/pairs/tv-wall-before.webp', after:'images/bharat-home/pairs/tv-wall-after.webp', tall:true },
+  { id:'ba-bh-wash',    title:'Wash area vanity',                         before:'images/bharat-home/pairs/wash-before.webp',    after:'images/bharat-home/pairs/wash-after.webp',    tall:true },
+  { id:'ba-bh-arch',    title:'Arch & column finish',                     before:'images/bharat-home/pairs/arch-before.webp',    after:'images/bharat-home/pairs/arch-after.webp',    tall:true },
+  { id:'ba-bh-walk1', type:'video', title:'Finished home walkthrough — part 1', video:'videos/bharat-home/walkthrough-1.mp4', poster:'videos/bharat-home/walkthrough-1-poster.webp' },
+  { id:'ba-bh-walk2', type:'video', title:'Finished home walkthrough — part 2', video:'videos/bharat-home/walkthrough-2.mp4', poster:'videos/bharat-home/walkthrough-2-poster.webp' },
+];
+function seedBeforeAfterSpotlight() {
+  try {
+    if (getConfig().baSpotlightSeeded) return;
+    const live = readLive();
+    snapshotVersion(live, 'system', 'Before syncing Before & After with the gallery page');
+    live.beforeafter = BA_SPOTLIGHT_SEED.map(b => ({ ...b }));
+    writeLive(live);
+    const draft = readJSON(DRAFT_FILE, null);          // only touch a draft that actually exists
+    if (draft !== null) { draft.beforeafter = BA_SPOTLIGHT_SEED.map(b => ({ ...b })); writeDraft(draft); }
+    const cfg = getConfig(); cfg.baSpotlightSeeded = true; saveConfig(cfg);
+    console.log('  ✓ Before & After list synced with the gallery page (old list saved in Version History)');
+  } catch (e) { console.warn('[seed] before/after:', e.message); }
+}
+seedBeforeAfterSpotlight();
+
 app.listen(PORT, async () => {
   // Auto-migrate plaintext password to bcrypt on first start
   const cfg = getConfig();

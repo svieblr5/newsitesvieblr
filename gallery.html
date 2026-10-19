@@ -477,9 +477,9 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 <section class="sec bh-sec" id="bharat-home">
   <div class="wrap">
     <div class="ba-head">
-      <div class="eyebrow reveal" style="justify-content:center">Our Work</div>
-      <h2 class="ba-heading reveal d1">Before &amp; After <em>work at Malleswaram</em></h2>
-      <p class="ba-sub reveal d2">A complete home renovation in Bengaluru: structural opening, marble flooring, modular kitchen, TV wall and wash area. Drag each slider to compare.</p>
+      <div data-cms="sections.gallery_spotlight_1" class="eyebrow reveal" style="justify-content:center">Our Work</div>
+      <h2 class="ba-heading reveal d1"><span data-cms="sections.gallery_spotlight_2">Before &amp; After</span> <em data-cms="sections.gallery_spotlight_3">work at Malleswaram</em></h2>
+      <p data-cms="sections.gallery_spotlight_4" class="ba-sub reveal d2">A complete home renovation in Bengaluru: structural opening, marble flooring, modular kitchen, TV wall and wash area. Drag each slider to compare.</p>
     </div>
 
     <div class="bh-pairs" id="bh-pairs"></div>
@@ -491,15 +491,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
     <div class="bh-grid" id="bh-grid"></div>
     <div class="bh-more-wrap"><button class="gal-chip" id="bh-more" type="button">Show all photos</button></div>
 
-    <div class="bh-videos">
-      <div class="ba-item reveal">
-        <div class="ba-video-wrap"><video class="ba-video" src="videos/bharat-home/walkthrough-1.mp4" poster="videos/bharat-home/walkthrough-1-poster.webp" controls playsinline preload="none" muted onvolumechange="this.muted=true"></video></div>
-        <div class="ba-caption">Finished home walkthrough — part 1</div>
-      </div>
-      <div class="ba-item reveal">
-        <div class="ba-video-wrap"><video class="ba-video" src="videos/bharat-home/walkthrough-2.mp4" poster="videos/bharat-home/walkthrough-2-poster.webp" controls playsinline preload="none" muted onvolumechange="this.muted=true"></video></div>
-        <div class="ba-caption">Finished home walkthrough — part 2</div>
-      </div>
+    <div class="bh-videos" id="bh-videos"></div>
     </div>
 
   </div>
@@ -911,29 +903,47 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
   document.getElementById('lb-next').onclick = function(){step(1);};
   lb.onclick = function(e){ if(e.target===lb) closeLb(); };
 
+  /* ── Before & After sliders + videos: managed in the CMS (Before & After panel).
+        BA_STATIC mirrors the CMS's initial entries; it is used only if the CMS can't be reached. ── */
+  var BA_STATIC=[
+    {title:'Living hall — opened up & marble floored', before:'images/bharat-home/pairs/hall-before.webp', after:'images/bharat-home/pairs/hall-after.webp'},
+    {title:'Modular kitchen', before:'images/bharat-home/pairs/kitchen-before.webp', after:'images/bharat-home/pairs/kitchen-after.webp'},
+    {title:'Structural opening with wood-clad beam', before:'images/bharat-home/pairs/opening-before.webp', after:'images/bharat-home/pairs/opening-after.webp'},
+    {title:'Marble TV wall with lit display niches', before:'images/bharat-home/pairs/tv-wall-before.webp', after:'images/bharat-home/pairs/tv-wall-after.webp', tall:true},
+    {title:'Wash area vanity', before:'images/bharat-home/pairs/wash-before.webp', after:'images/bharat-home/pairs/wash-after.webp', tall:true},
+    {title:'Arch & column finish', before:'images/bharat-home/pairs/arch-before.webp', after:'images/bharat-home/pairs/arch-after.webp', tall:true},
+    {type:'video', title:'Finished home walkthrough — part 1', video:'videos/bharat-home/walkthrough-1.mp4', poster:'videos/bharat-home/walkthrough-1-poster.webp'},
+    {type:'video', title:'Finished home walkthrough — part 2', video:'videos/bharat-home/walkthrough-2.mp4', poster:'videos/bharat-home/walkthrough-2-poster.webp'}
+  ];
+  // Only site-relative media paths (CMS uploads live under images/, videos/ or media/).
+  function baPath(p){ return (typeof p==='string' && /^\/?(images|videos|media)\/[\w\-.\/]+$/.test(p) && p.indexOf('..')<0) ? p.replace(/^\//,'') : ''; }
+  var renderSpotlight=function(){};
+
   /* ── Project spotlight: Bharat Home (static files in images/bharat-home) ── */
   (function(){
     var base='images/bharat-home/';
-    var pairs=[
-      ['hall','Living hall — opened up & marble floored'],
-      ['kitchen','Modular kitchen'],
-      ['opening','Structural opening with wood-clad beam'],
-      ['tv-wall','Marble TV wall with lit display niches',1],
-      ['wash','Wash area vanity',1],
-      ['arch','Arch & column finish',1]
-    ];
     var counts={after:18, before:69}, INITIAL=12;
     var pairsEl=document.getElementById('bh-pairs');
     var grid=document.getElementById('bh-grid');
     var more=document.getElementById('bh-more');
     if(!pairsEl||!grid) return;
 
-    pairsEl.innerHTML=pairs.map(function(p){
-      var t=esc(p[1]);
+    var videosEl=document.getElementById('bh-videos');
+    function observeReveal(root){
+      root.querySelectorAll('.reveal').forEach(function(el){
+        if(window.revealObserver) window.revealObserver.observe(el);
+        else el.classList.add('in');
+      });
+    }
+    renderSpotlight=function(list){
+      var pairs=list.filter(function(b){ return b.type!=='video' && baPath(b.before) && baPath(b.after); });
+      var vids=list.filter(function(b){ return b.type==='video' && baPath(b.video); });
+      pairsEl.innerHTML=pairs.map(function(p){
+      var t=esc(p.title);
       return '<div class="ba-item reveal">'+
-        '<div class="ba-slider'+(p[2]?' ba-tall':'')+'" style="--pos:50%">'+
-          '<img class="ba-after" src="'+base+'pairs/'+p[0]+'-after.webp" alt="After — '+t+'" loading="lazy">'+
-          '<img class="ba-before" src="'+base+'pairs/'+p[0]+'-before.webp" alt="Before — '+t+'" loading="lazy">'+
+        '<div class="ba-slider'+(p.tall?' ba-tall':'')+'" style="--pos:50%">'+
+          '<img class="ba-after" src="'+esc(baPath(p.after))+'" alt="After — '+t+'" loading="lazy">'+
+          '<img class="ba-before" src="'+esc(baPath(p.before))+'" alt="Before — '+t+'" loading="lazy">'+
           '<span class="ba-tag ba-tag-b">Before</span>'+
           '<span class="ba-tag ba-tag-a">After</span>'+
           '<div class="ba-divider"><div class="ba-handle">'+
@@ -942,12 +952,27 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
         '</div>'+
         '<div class="ba-caption">'+t+'</div>'+
       '</div>';
-    }).join('');
-    pairsEl.querySelectorAll('.ba-slider').forEach(baBindSlider);
-    pairsEl.querySelectorAll('.reveal').forEach(function(el){
-      if(window.revealObserver) window.revealObserver.observe(el);
-      else el.classList.add('in');
-    });
+      }).join('');
+      pairsEl.style.display=pairs.length?'':'none';
+      pairsEl.querySelectorAll('.ba-slider').forEach(function(sl){
+        baBindSlider(sl);
+        var after=sl.querySelector('.ba-after');
+        // portrait photos uploaded from the CMS get the taller frame automatically
+        after.addEventListener('load',function(){ if(after.naturalHeight>after.naturalWidth*1.05) sl.classList.add('ba-tall'); });
+        sl.querySelectorAll('img').forEach(function(img){
+          img.addEventListener('error',function(){ var it=sl.closest('.ba-item'); if(it) it.remove(); });
+        });
+      });
+      videosEl.innerHTML=vids.map(function(v){
+        var poster=baPath(v.poster);
+        return '<div class="ba-item reveal">'+
+          '<div class="ba-video-wrap"><video class="ba-video" src="'+esc(baPath(v.video))+'"'+(poster?' poster="'+esc(poster)+'"':'')+' controls playsinline preload="none" muted onvolumechange="this.muted=true"></video></div>'+
+          '<div class="ba-caption">'+esc(v.title)+'</div>'+
+        '</div>';
+      }).join('');
+      videosEl.style.display=vids.length?'':'none';
+      observeReveal(pairsEl); observeReveal(videosEl);
+    };
 
     var kind='after', expanded=false;
     function renderGrid(){
@@ -1019,6 +1044,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
   fetch('/api/site-content')
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(data){
+      renderSpotlight(data && Array.isArray(data.beforeafter) ? data.beforeafter : BA_STATIC);
       var items = data && data.gallery;
       if(!items || !items.length){ initGallery(); return; }
 
@@ -1033,7 +1059,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 
       initGallery();
     })
-    .catch(function(){ initGallery(); }); /* static fallback on error */
+    .catch(function(){ renderSpotlight(BA_STATIC); initGallery(); }); /* static fallback on error */
 
   /* ── Keyboard nav ── */
   document.addEventListener('keydown',function(e){
