@@ -32,7 +32,15 @@ if (compression) app.use(compression());
 // the admin dashboard bounces straight back to the login page. Trust the first
 // proxy hop so secure cookies are issued correctly.
 app.set('trust proxy', 1);
+// www → apex. The .htaccess rule for this never runs (Node serves the site), so
+// www.svie5.com was answering 200 with a duplicate copy of every page.
+app.use((req, res, next) => {
+  const host = req.headers.host || '';
+  if (/^www\./i.test(host)) return res.redirect(301, 'https://' + host.slice(4) + req.originalUrl);
+  next();
+});
 const PORT = process.env.PORT || 3000;
+const HTML_CACHE_CONTROL = 'no-cache';   // browsers/CDN may store HTML but must revalidate before use
 const ROOT = __dirname;
 const SALT_ROUNDS = 12;
 
@@ -534,18 +542,21 @@ app.get(Object.keys(SEO_PAGE_KEY), (req, res, next) => {
     const fp = path.join(ROOT, SEO_FILE[req.path] || req.path.replace(/^\//, ''));
     if (!fs.existsSync(fp)) return next();
     const html = injectSeo(fs.readFileSync(fp, 'utf8'), SEO_PAGE_KEY[req.path], seo);
+    res.set('Cache-Control', HTML_CACHE_CONTROL);
     res.type('html').send(html);
   } catch (e) { next(); }                            // any error → fall through to static
 });
 
 // Long cache lifetimes for true static assets (images/fonts/css/js) speed up
-// repeat visits; HTML is left at the express.static default (revalidate every
-// time) since pages are CMS-editable and must reflect the latest content.
+// repeat visits; HTML must revalidate every time (cheap 304 via ETag) since pages
+// are CMS-editable and deploys must show up immediately, especially on mobile.
 const STATIC_ASSET_MAX_AGE = 30 * 24 * 60 * 60 * 1000;   // 30 days — images, fonts
 const STATIC_CODE_MAX_AGE  = 365 * 24 * 60 * 60 * 1000;  // 1 year — css/js (safe: cache-busted via ?v=<hash>, stamped by scripts/stamp-assets.js)
 function staticCacheHeaders(res, filePath) {
   const ext = path.extname(filePath).toLowerCase();
-  if (['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.ico', '.woff', '.woff2', '.pdf'].includes(ext)) {
+  if (ext === '.html') {
+    res.setHeader('Cache-Control', HTML_CACHE_CONTROL);
+  } else if (['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.ico', '.woff', '.woff2', '.pdf'].includes(ext)) {
     res.setHeader('Cache-Control', 'public, max-age=' + (STATIC_ASSET_MAX_AGE / 1000));
   } else if (['.css', '.js'].includes(ext)) {
     res.setHeader('Cache-Control', 'public, max-age=' + (STATIC_CODE_MAX_AGE / 1000) + ', immutable');
