@@ -301,20 +301,59 @@
     // Text content
     document.querySelectorAll('[data-cms]').forEach(function (el) {
       var val = resolve(data, el.getAttribute('data-cms'));
-      if (val != null && val !== '') el.textContent = val;
+      if (val != null && val !== '') {
+        el.textContent = val;
+        // Count-up stats animate towards data-count — keep it in step with the edited text ("50+")
+        if (el.hasAttribute('data-count')) {
+          var mm = String(val).match(/^(\D*)(\d+(?:\.\d+)?)(.*)$/);
+          if (mm) { el.setAttribute('data-pre', mm[1]); el.setAttribute('data-count', mm[2]); el.setAttribute('data-suf', mm[3]); }
+        }
+      }
+    });
+
+    // Form hints and image descriptions
+    document.querySelectorAll('[data-cms-placeholder]').forEach(function (el) {
+      var val = resolve(data, el.getAttribute('data-cms-placeholder'));
+      if (typeof val === 'string' && val) el.setAttribute('placeholder', val);
+    });
+    document.querySelectorAll('[data-cms-alt]').forEach(function (el) {
+      var val = resolve(data, el.getAttribute('data-cms-alt'));
+      if (typeof val === 'string' && val) el.setAttribute('alt', val);
     });
 
     // Image src attributes  (data-cms-src="furniture_page.images.kitchen")
     document.querySelectorAll('[data-cms-src]').forEach(function (el) {
       var val = resolve(data, el.getAttribute('data-cms-src'));
-      if (val) el.src = val;
+      if (val && el.getAttribute('src') !== val) {
+        // If the dashboard URL is dead (e.g. a removed stock photo), fall back to the page's own image
+        var fallback = el.getAttribute('src');
+        el.addEventListener('error', function onErr() {
+          el.removeEventListener('error', onErr);
+          if (fallback) el.src = fallback;
+        });
+        // A <picture>'s <source>s / srcset would keep showing the old image
+        if (el.parentElement && el.parentElement.tagName === 'PICTURE') {
+          el.parentElement.querySelectorAll('source').forEach(function (s) { s.remove(); });
+        }
+        el.removeAttribute('srcset');
+        el.src = val;
+      }
+    });
+
+    // Link targets  (data-cms-href="sections.home_s1_link2") — site pages, anchors, http(s), tel:, mailto:
+    document.querySelectorAll('[data-cms-href]').forEach(function (el) {
+      var val = resolve(data, el.getAttribute('data-cms-href'));
+      if (typeof val === 'string' && !/^\/\//.test(val.trim()) &&
+          /^(https?:\/\/|mailto:|tel:|#|[\w\-./]+(\.html|\/)?(#[\w-]*)?$)/i.test(val.trim())) {
+        el.setAttribute('href', val.trim());
+      }
     });
 
     // CSS background-image  (data-cms-bg="furniture_page.images.hero_bg")
     document.querySelectorAll('[data-cms-bg]').forEach(function (el) {
       var val = resolve(data, el.getAttribute('data-cms-bg'));
       // Only allow relative paths and https URLs to prevent CSS injection
-      if (val && typeof val === 'string' && /^(images\/|https:\/\/)/.test(val) && !val.includes('"') && !val.includes("'") && !val.includes(')')) {
+      if (val && typeof val === 'string' && /^(images\/|media\/|https:\/\/)/.test(val) && !val.includes('"') && !val.includes("'") && !val.includes(')')) {
         el.style.backgroundImage = "url('" + val + "')";
       }
     });

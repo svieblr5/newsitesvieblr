@@ -13,11 +13,18 @@
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://svie5.com/gallery.html">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Raleway:wght@300;400;500;600;700;800&family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Raleway:wght@300;400;500;600;700;800&family=Jost:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Raleway:wght@300;400;500;600;700;800&family=Jost:wght@300;400;500;600&display=swap"></noscript>
+<!-- Self-hosted Cormorant / Raleway / Jost (latin + latin-ext, variable woff2 in /fonts).
+     Non-default fonts picked in the CMS still load from Google via /fonts.css?v=0c59d47d. -->
+<style id="self-hosted-fonts">
+@font-face{font-family:'Cormorant';font-style:italic;font-weight:300 600;font-display:swap;src:url(/fonts/cormorant-italic-latin-ext-v24.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Cormorant';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/cormorant-normal-latin-ext-v24.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Jost';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/jost-normal-latin-ext-v20.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Raleway';font-style:normal;font-weight:300 800;font-display:swap;src:url(/fonts/raleway-normal-latin-ext-v37.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Cormorant';font-style:italic;font-weight:300 600;font-display:swap;src:url(/fonts/cormorant-italic-latin-v24.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Cormorant';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/cormorant-normal-latin-v24.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Jost';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/jost-normal-latin-v20.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Raleway';font-style:normal;font-weight:300 800;font-display:swap;src:url(/fonts/raleway-normal-latin-v37.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+</style>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Sri Vasavi Interiors and Exteriors">
 <meta property="og:locale" content="en_IN">
@@ -37,7 +44,7 @@
 {"@context":"https://schema.org","@graph":[{"@type":"ImageGallery","@id":"https://svie5.com/gallery.html#webpage","url":"https://svie5.com/gallery.html","name":"SVIE Portfolio Gallery","description":"Premium interior design, construction, and modular furniture projects across Bengaluru since 2017.","isPartOf":{"@id":"https://svie5.com/#website"},"about":{"@id":"https://svie5.com/#business"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://svie5.com/"},{"@type":"ListItem","position":2,"name":"Portfolio","item":"https://svie5.com/gallery.html"}]}]}
 </script>
 <style id="critical-css">/* Static fallback — served from file:// or when Node server is offline.
-   On localhost, the Express /fonts.css?v=0d861e74 route always takes priority over this file. */
+   On localhost, the Express /fonts.css?v=0c59d47d route always takes priority over this file. */
 :root{
   --font-display:'Cormorant', Georgia, serif;
   --font-sans:'Raleway', system-ui, sans-serif;
@@ -53,13 +60,13 @@
   --fm-lh-body:1.75;
   --fm-ls-heading:-0.02em;
 }
-html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --forest: #1A4530; --forest-mid: #215840; --forest-light: #2D6B52; --cream: #F5EFE6; --cream-2: #EDE5D8; --sand: #DDD0C0; --gold: #C9A05A; --gold-light: #E0C07E; --gold-pale: #F0DDB0; --gold-dark: #9A7038; --white: #FAFAF8; --off-white: #F5F3F0; --charcoal: #1A4530; --mid-gray: #2B4437; --light-gray: #D8D4CE; --font-display: 'Cormorant', Georgia, serif; --font-sans: 'Raleway', system-ui, sans-serif; --font-body: 'Jost', system-ui, sans-serif; --fm-scale-hero: 1; --fm-scale-section: 1; --fm-scale-body: 1; --fm-scale-nav: 1; --fm-scale-stats: 1; --fm-fw-display: 600; --fm-fw-body: 400; --fm-fw-sans: 600; --fm-lh-body: 1.75; --fm-ls-heading: -.02em; --r-sm: 4px; --r: 10px; --r-lg: 18px; --r-xl: 28px; --r-full: 9999px; --sh-sm: 0 2px 12px rgba(12,44,27,.06); --sh: 0 8px 40px rgba(12,44,27,.10); --sh-lg: 0 20px 70px rgba(12,44,27,.16); --sh-gold: 0 8px 40px rgba(201,160,90,.30); --ease: cubic-bezier(.4,0,.2,1); --ease-out: cubic-bezier(0,0,.2,1); --ease-in: cubic-bezier(.4,0,1,1); --spring: cubic-bezier(.34,1.56,.64,1); --t-fast: .2s var(--ease); --t: .35s var(--ease); --t-slow: .6s var(--ease-out); --max-w: 1320px; --gutter: 48px; --section: 80px; }*, ::before, ::after { box-sizing: border-box; margin: 0px; padding: 0px; }html { scroll-behavior: smooth; font-size: 16px; }body { font-family: var(--font-body); color: var(--charcoal); background: var(--white); line-height: 1.65; overflow-x: hidden; -webkit-font-smoothing: antialiased; }img { max-width: 100%; height: auto; display: block; }a { color: inherit; text-decoration: none; }button { cursor: pointer; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; font-family: inherit; }body::before { content: ""; position: fixed; inset: 0px; pointer-events: none; z-index: 9999; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 128px 128px; mix-blend-mode: multiply; }.cursor, .cursor-ring { position: fixed; top: 0px; left: 0px; border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); z-index: 10000; }.cursor { width: 8px; height: 8px; background: var(--gold); transition: transform .08s var(--ease), width .25s, height .25s, background .25s; }.cursor-ring { width: 36px; height: 36px; border: 1.5px solid var(--gold); opacity: 0.5; transition: transform .14s var(--ease), width .3s, height .3s, opacity .3s; }.wrap { max-width: var(--max-w); margin: 0px auto; padding: 0 var(--gutter); }@media (max-width: 768px){.wrap { padding: 0px 24px; }}.sec { padding: var(--section) 0; }.eyebrow { display: inline-flex; align-items: center; gap: 12px; font-family: var(--font-sans); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgb(128, 99, 38); margin-bottom: 18px; }.eyebrow::before { content: ""; width: 36px; height: 1px; background: var(--gold); }.d1 { font-family: var(--font-display); font-size: clamp(3.2rem, 7.5vw, 6.5rem); font-weight: 600; line-height: 1; letter-spacing: -0.02em; }.d2 { font-family: var(--font-display); font-size: clamp(2.4rem, 5vw, 4.2rem); font-weight: 600; line-height: 1.1; letter-spacing: -0.015em; }.d3 { font-family: var(--font-display); font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 500; line-height: 1.2; }.btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 30px; font-family: var(--font-sans); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border-radius: var(--r-full); transition: var(--t); position: relative; overflow: hidden; white-space: nowrap; }.btn svg { transition: transform .3s var(--spring); flex-shrink: 0; }.btn:hover svg { transform: translateX(5px); }.btn-gold { background: var(--gold); color: var(--forest-deep); }.btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: var(--sh-gold); }.nav { position: fixed; top: 0px; left: 0px; right: 0px; z-index: 1000; padding: 26px 0px; transition: padding var(--t), background var(--t), box-shadow var(--t); }.nav-inner { display: flex; align-items: center; justify-content: space-between; }.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }.nav-logo-img-wrap { flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; border: 2px solid rgba(201, 160, 90, 0.55); box-shadow: rgba(201, 160, 90, 0.15) 0px 0px 0px 1px, rgba(0, 0, 0, 0.35) 0px 4px 18px; overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform .3s var(--spring), box-shadow .3s var(--ease); background: rgb(42, 122, 42); }.nav-logo-img-wrap::before { display: none; }.nav-logo:hover .nav-logo-img-wrap { transform: scale(1.07); box-shadow: rgba(201, 160, 90, 0.5) 0px 0px 0px 2px, rgba(201, 160, 90, 0.3) 0px 6px 24px; }.nav-logo-img { width: 115%; height: 115%; object-fit: cover; display: block; object-position: center center; }.nav-logo-sep { display: none; }.nav-logo-text { display: flex; flex-direction: column; gap: 4px; border-left: 1.5px solid rgba(201, 160, 90, 0.35); padding-left: 14px; }.nav-logo-name { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--cream); letter-spacing: 0.03em; line-height: 1; white-space: nowrap; }.nav-logo-sub { font-family: var(--font-sans); font-size: 0.44rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); white-space: nowrap; background: rgba(10, 36, 22, 0.9); padding: 2px 8px; border-radius: 5px; opacity: 1; transition: opacity 0.3s; }.nav-logo:hover .nav-logo-sub { opacity: 1; }@media (max-width: 900px){.nav-logo { gap: 10px; }.nav-logo-img-wrap { width: 52px; height: 52px; }.nav-logo-text { padding-left: 12px; }.nav-logo-name { font-size: 1.05rem; }}@media (max-width: 640px){.nav-logo { gap: 9px; }.nav-logo-img-wrap { width: 44px; height: 44px; }.nav-logo-text { padding-left: 10px; }.nav-logo-name { font-size: 0.95rem; }.nav-logo-sub { font-size: 0.4rem; letter-spacing: 0.16em; }}.nav-links { display: flex; align-items: center; gap: 2px; }.nav-a { padding: 8px 13px; font-family: var(--font-sans); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245, 239, 230, 0.7); position: relative; transition: color var(--t-fast); }.nav-a::after { content: ""; position: absolute; bottom: 5px; left: 13px; right: 13px; height: 1px; background: var(--gold); transform: scaleX(0); transform-origin: right center; transition: transform .3s var(--ease); }.nav-a:hover { color: var(--cream); }.nav-a:hover::after, .nav-a.on::after { transform: scaleX(1); transform-origin: left center; }.nav-a.on { color: var(--cream); }.nav-drop { position: relative; }.nav-drop::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 230px; height: 20px; }.nav-drop-panel { position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%) translateY(-6px); background: rgba(12, 44, 27, 0.97); border: 1px solid rgba(201, 160, 90, 0.18); border-radius: var(--r); padding: 8px; min-width: 230px; opacity: 0; pointer-events: none; transition: var(--t); box-shadow: var(--sh-lg); }.nav-drop:hover .nav-drop-panel { opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0px); }.nav-drop-a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; font-family: var(--font-sans); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(245, 239, 230, 0.6); border-radius: var(--r-sm); transition: var(--t-fast); }.nav-drop-a:hover { background: rgba(201, 160, 90, 0.1); color: var(--gold); padding-left: 20px; }.nav-drop-a svg { opacity: 0.5; }.nav-cta { margin-left: 18px; }.nav-cta .btn { padding: 10px 22px; font-size: 0.7rem; }.nav-burger { display: none; flex-direction: column; gap: 5px; padding: 6px; cursor: pointer; }.nav-burger span { display: block; width: 22px; height: 1.5px; background: var(--cream); border-radius: 2px; transition: var(--t); }.nav-drawer { display: none; position: fixed; inset: 0px; background: var(--forest-ink); z-index: 999; flex-direction: column; padding: 100px 40px 40px; overflow-y: auto; }body:has(.nav-drawer.open) #svie-consent { transform: translateY(100%) !important; }.nav-close { position: absolute; top: 24px; right: 24px; width: 44px; height: 44px; border-radius: 50%; background: rgba(245, 239, 230, 0.08); display: flex; align-items: center; justify-content: center; color: var(--cream); cursor: pointer; font-size: 1.2rem; transition: background var(--t-fast); }@keyframes pulse { 
+html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --forest: #1A4530; --forest-mid: #215840; --forest-light: #2D6B52; --cream: #F5EFE6; --cream-2: #EDE5D8; --sand: #DDD0C0; --gold: #C9A05A; --gold-light: #E0C07E; --gold-pale: #F0DDB0; --gold-dark: #9A7038; --white: #FAFAF8; --off-white: #F5F3F0; --charcoal: #1A4530; --mid-gray: #2B4437; --light-gray: #D8D4CE; --font-display: 'Cormorant', Georgia, serif; --font-sans: 'Raleway', system-ui, sans-serif; --font-body: 'Jost', system-ui, sans-serif; --fm-scale-hero: 1; --fm-scale-section: 1; --fm-scale-body: 1; --fm-scale-nav: 1; --fm-scale-stats: 1; --fm-fw-display: 600; --fm-fw-body: 400; --fm-fw-sans: 600; --fm-lh-body: 1.75; --fm-ls-heading: -.02em; --r-sm: 4px; --r: 10px; --r-lg: 18px; --r-xl: 28px; --r-full: 9999px; --sh-sm: 0 2px 12px rgba(12,44,27,.06); --sh: 0 8px 40px rgba(12,44,27,.10); --sh-lg: 0 20px 70px rgba(12,44,27,.16); --sh-gold: 0 8px 40px rgba(201,160,90,.30); --ease: cubic-bezier(.4,0,.2,1); --ease-out: cubic-bezier(0,0,.2,1); --ease-in: cubic-bezier(.4,0,1,1); --spring: cubic-bezier(.34,1.56,.64,1); --t-fast: .2s var(--ease); --t: .35s var(--ease); --t-slow: .6s var(--ease-out); --max-w: 1320px; --gutter: 48px; --section: 80px; }*, ::before, ::after { box-sizing: border-box; margin: 0px; padding: 0px; }html { scroll-behavior: smooth; font-size: 16px; }body { font-family: var(--font-body); color: var(--charcoal); background: var(--white); line-height: 1.65; overflow-x: hidden; -webkit-font-smoothing: antialiased; }img { max-width: 100%; height: auto; display: block; }a { color: inherit; text-decoration: none; }button { cursor: pointer; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; font-family: inherit; }body::before { content: ""; position: fixed; inset: 0px; pointer-events: none; z-index: 9999; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 128px 128px; }.cursor, .cursor-ring { position: fixed; top: 0px; left: 0px; border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); z-index: 10000; }.cursor { width: 8px; height: 8px; background: var(--gold); transition: transform .08s var(--ease), width .25s, height .25s, background .25s; }.cursor-ring { width: 36px; height: 36px; border: 1.5px solid var(--gold); opacity: 0.5; transition: transform .14s var(--ease), width .3s, height .3s, opacity .3s; }.wrap { max-width: var(--max-w); margin: 0px auto; padding: 0 var(--gutter); }@media (max-width: 768px){.wrap { padding: 0px 24px; }}.sec { padding: var(--section) 0; }.eyebrow { display: inline-flex; align-items: center; gap: 12px; font-family: var(--font-sans); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgb(128, 99, 38); margin-bottom: 18px; }.eyebrow::before { content: ""; width: 36px; height: 1px; background: var(--gold); }:where(h1,h2,h3,h4,h5,h6).d1 { font-family: var(--font-display); font-size: clamp(3.2rem, 7.5vw, 6.5rem); font-weight: 600; line-height: 1; letter-spacing: -0.02em; }:where(h1,h2,h3,h4,h5,h6).d2 { font-family: var(--font-display); font-size: clamp(2.4rem, 5vw, 4.2rem); font-weight: 600; line-height: 1.1; letter-spacing: -0.015em; }:where(h1,h2,h3,h4,h5,h6).d3 { font-family: var(--font-display); font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 500; line-height: 1.2; }.btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 30px; font-family: var(--font-sans); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border-radius: var(--r-full); transition: var(--t); position: relative; overflow: hidden; white-space: nowrap; }.btn svg { transition: transform .3s var(--spring); flex-shrink: 0; }.btn:hover svg { transform: translateX(5px); }.btn-gold { background: var(--gold); color: var(--forest-deep); }.btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: var(--sh-gold); }.nav { position: fixed; top: 0px; left: 0px; right: 0px; z-index: 1000; padding: 26px 0px; transition: padding var(--t), background var(--t), box-shadow var(--t); }.nav-inner { display: flex; align-items: center; justify-content: space-between; }.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }.nav-logo-img-wrap { flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; border: 2px solid rgba(201, 160, 90, 0.55); box-shadow: rgba(201, 160, 90, 0.15) 0px 0px 0px 1px, rgba(0, 0, 0, 0.35) 0px 4px 18px; overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform .3s var(--spring), box-shadow .3s var(--ease); background: rgb(42, 122, 42); }.nav-logo-img-wrap::before { display: none; }.nav-logo:hover .nav-logo-img-wrap { transform: scale(1.07); box-shadow: rgba(201, 160, 90, 0.5) 0px 0px 0px 2px, rgba(201, 160, 90, 0.3) 0px 6px 24px; }.nav-logo-img { width: 115%; height: 115%; object-fit: cover; display: block; object-position: center center; }.nav-logo-sep { display: none; }.nav-logo-text { display: flex; flex-direction: column; gap: 4px; border-left: 1.5px solid rgba(201, 160, 90, 0.35); padding-left: 14px; }.nav-logo-name { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--cream); letter-spacing: 0.03em; line-height: 1; white-space: nowrap; }.nav-logo-sub { font-family: var(--font-sans); font-size: 0.44rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); white-space: nowrap; background: rgba(10, 36, 22, 0.9); padding: 2px 8px; border-radius: 5px; opacity: 1; transition: opacity 0.3s; }.nav-logo:hover .nav-logo-sub { opacity: 1; }@media (max-width: 900px){.nav-logo { gap: 10px; }.nav-logo-img-wrap { width: 52px; height: 52px; }.nav-logo-text { padding-left: 12px; }.nav-logo-name { font-size: 1.05rem; }}@media (max-width: 640px){.nav-logo { gap: 9px; }.nav-logo-img-wrap { width: 44px; height: 44px; }.nav-logo-text { padding-left: 10px; }.nav-logo-name { font-size: 0.95rem; }.nav-logo-sub { font-size: 0.4rem; letter-spacing: 0.16em; }}.nav-links { display: flex; align-items: center; gap: 2px; }.nav-a { padding: 8px 13px; font-family: var(--font-sans); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245, 239, 230, 0.7); position: relative; transition: color var(--t-fast); }.nav-a::after { content: ""; position: absolute; bottom: 5px; left: 13px; right: 13px; height: 1px; background: var(--gold); transform: scaleX(0); transform-origin: right center; transition: transform .3s var(--ease); }.nav-a:hover { color: var(--cream); }.nav-a:hover::after, .nav-a.on::after { transform: scaleX(1); transform-origin: left center; }.nav-a.on { color: var(--cream); }.nav-drop { position: relative; }.nav-drop::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 230px; height: 20px; }.nav-drop-panel { position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%) translateY(-6px); background: rgba(12, 44, 27, 0.97); border: 1px solid rgba(201, 160, 90, 0.18); border-radius: var(--r); padding: 8px; min-width: 230px; opacity: 0; pointer-events: none; transition: var(--t); box-shadow: var(--sh-lg); }.nav-drop:hover .nav-drop-panel { opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0px); }.nav-drop-a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; font-family: var(--font-sans); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(245, 239, 230, 0.6); border-radius: var(--r-sm); transition: var(--t-fast); }.nav-drop-a:hover { background: rgba(201, 160, 90, 0.1); color: var(--gold); padding-left: 20px; }.nav-drop-a svg { opacity: 0.5; }.nav-cta { margin-left: 18px; }.nav-cta .btn { padding: 10px 22px; font-size: 0.7rem; }.nav-burger { display: none; flex-direction: column; gap: 5px; padding: 6px; cursor: pointer; }.nav-burger span { display: block; width: 22px; height: 1.5px; background: var(--cream); border-radius: 2px; transition: var(--t); }.nav-drawer { display: none; position: fixed; inset: 0px; background: var(--forest-ink); z-index: 999; flex-direction: column; padding: 100px 40px 40px; overflow-y: auto; }body:has(.nav-drawer.open) #svie-consent { transform: translateY(100%) !important; }.nav-close { position: absolute; top: 24px; right: 24px; width: 44px; height: 44px; border-radius: 50%; background: rgba(245, 239, 230, 0.08); display: flex; align-items: center; justify-content: center; color: var(--cream); cursor: pointer; font-size: 1.2rem; transition: background var(--t-fast); }@keyframes pulse { 
   0%, 100% { box-shadow: rgba(201, 160, 90, 0.45) 0px 0px 0px 0px; }
   60% { box-shadow: rgba(201, 160, 90, 0) 0px 0px 0px 8px; }
 }@keyframes scrollDrop { 
-  0% { top: -40%; opacity: 0; }
+  0% { transform: translateY(-100%); opacity: 0; }
   30% { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
+  100% { transform: translateY(250%); opacity: 0; }
 }@keyframes marqueeMove { 
   0% { transform: translateX(0px); }
   100% { transform: translateX(-50%); }
@@ -67,17 +74,26 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
   0% { transform: scale(1); opacity: 0.7; }
   70% { transform: scale(1.35); opacity: 0; }
   100% { transform: scale(1.35); opacity: 0; }
-}.d1 { font-size: calc(clamp(3.2rem,7.5vw,6.5rem)*var(--fm-scale-hero,1)); font-weight: var(--fm-fw-display,600); letter-spacing: var(--fm-ls-heading,-.02em); }.d2 { font-size: calc(clamp(2.4rem,5vw,4.2rem)*var(--fm-scale-section,1)); font-weight: var(--fm-fw-display,600); letter-spacing: calc(var(--fm-ls-heading,-.02em)*.75); }.d3 { font-size: calc(clamp(1.8rem,3.5vw,2.8rem)*var(--fm-scale-section,1)); font-weight: var(--fm-fw-display,500); }.nav-a { font-size: calc(.72rem*var(--fm-scale-nav,1)); font-weight: var(--fm-fw-sans,600); }@media (max-width: 900px){:root { --section: 72px; --gutter: 28px; }.nav-links, .nav-cta { display: none; }.nav-burger { display: flex; }}@media (max-width: 768px){.wrap { padding: 0px 20px; }}@media (max-width: 640px){:root { --section: 56px; --gutter: 18px; }.wrap { padding: 0px 18px; }.gal-masonry { columns: 2; }.wa-float { width: 48px; height: 48px; bottom: 18px; right: 18px; }.wa-float svg { width: 22px; height: 22px; }.d1 { font-size: clamp(1.9rem, 7vw, 2.8rem); }.d2 { font-size: clamp(1.5rem, 5.5vw, 2.2rem); }}@media (max-width: 480px){:root { --section: 48px; --gutter: 16px; }.wrap { padding: 0px 16px; }.nav-inner { height: 60px; }.nav-logo-name { font-size: 0.72rem; }.nav-logo-sub { display: none; }.gal-masonry { columns: 1; }.btn, .btn-gold, .btn-ghost { padding: 13px 22px; font-size: 0.68rem; }.wa-float { width: 44px; height: 44px; bottom: 14px; right: 14px; }}.gal-hero { padding: 155px 0px 68px; background: var(--forest-deep); position: relative; overflow: hidden; }.gal-hero::before { content: ""; position: absolute; inset: 0px; background: radial-gradient(55% 55% at 78% 38%, rgba(43, 80, 64, 0.52) 0%, transparent 60%), radial-gradient(40% 48% at 12% 72%, rgba(21, 40, 32, 0.38) 0%, transparent 52%); }.gal-hero-content { position: relative; z-index: 1; }.gal-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 44px; }.gal-chip { padding: 9px 22px; border-radius: var(--r-full); font-family: var(--font-sans); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; border: 1.5px solid var(--light-gray); color: var(--mid-gray); background: var(--white); cursor: pointer; transition: all .22s var(--ease); white-space: nowrap; }.gal-chip:hover { border-color: var(--forest-mid); color: var(--forest-mid); }.gal-chip.active { background: var(--forest-deep); border-color: var(--forest-deep); color: var(--cream); box-shadow: rgba(12, 44, 27, 0.2) 0px 4px 16px; }.gal-count { margin-left: auto; align-self: center; font-family: var(--font-sans); font-size: 0.68rem; font-weight: 600; color: var(--mid-gray); }.gal-masonry { columns: 3; column-gap: 16px; }@media (max-width: 900px){.gal-masonry { columns: 2; }}@media (max-width: 500px){.gal-masonry { columns: 1; }}.ba-sec { background: rgb(246, 243, 238); }.ba-head { text-align: center; margin-bottom: 34px; }.ba-heading { font-family: Cormorant, serif; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 600; color: rgb(26, 69, 48); line-height: 1.1; margin: 6px 0px 8px; }.ba-heading em { font-style: italic; color: rgb(201, 160, 90); }.ba-sub { color: rgb(107, 100, 89); font-size: 0.95rem; max-width: 520px; margin: 0px auto; }.ba-track { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; max-width: 880px; margin: 0px auto; }@media (max-width: 820px){.ba-track { grid-template-columns: 1fr; max-width: 460px; }}.gal-card { break-inside: avoid; margin-bottom: 16px; border-radius: var(--r-lg); overflow: hidden; position: relative; cursor: pointer; background: var(--forest-mid); box-shadow: rgba(12, 44, 27, 0.1) 0px 3px 18px; transition: transform .36s var(--ease), box-shadow .36s var(--ease); }.gal-card:hover { transform: translateY(-7px); box-shadow: rgba(12, 44, 27, 0.22) 0px 28px 64px; }.gal-card img { width: 100%; height: auto; display: block; transition: transform .6s var(--ease); }.gal-card:hover img { transform: scale(1.06); }.gal-overlay { position: absolute; inset: 0px; background: linear-gradient(to top, rgba(12, 44, 27, 0.9) 0%, rgba(12, 44, 27, 0.3) 44%, transparent 68%); display: flex; flex-direction: column; justify-content: flex-end; padding: 20px 18px; opacity: 0; transition: opacity .3s var(--ease); }.gal-card:hover .gal-overlay { opacity: 1; }.gal-label { font-family: var(--font-sans); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }.gal-label::before { content: ""; width: 14px; height: 1px; background: var(--gold); }.gal-title { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--cream); line-height: 1.3; }.gal-expand { position: absolute; top: 13px; right: 13px; width: 34px; height: 34px; border-radius: 50%; background: rgba(245, 239, 230, 0.12); border: 1px solid rgba(245, 239, 230, 0.2); display: flex; align-items: center; justify-content: center; color: var(--cream); opacity: 0; transition: opacity 0.28s, background 0.18s; }.gal-card:hover .gal-expand { opacity: 1; }.gal-expand:hover { background: rgba(201, 160, 90, 0.35) !important; }.svie-badge { position: absolute; top: 13px; left: 13px; padding: 4px 10px; background: rgba(201, 160, 90, 0.9); border-radius: var(--r-full); font-family: var(--font-sans); font-size: 0.55rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--forest-deep); opacity: 0; transition: opacity 0.28s; }.gal-card:hover .svie-badge { opacity: 1; }.lightbox { position: fixed; inset: 0px; background: rgba(10, 36, 22, 0.97); backdrop-filter: blur(30px); z-index: 9000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .28s var(--ease); }.lb-bar { position: absolute; top: 0px; left: 0px; right: 0px; padding: 18px 22px; z-index: 2; display: flex; align-items: center; background: linear-gradient(rgba(10, 36, 22, 0.85), transparent); }.lb-index { font-family: var(--font-sans); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245, 239, 230, 0.72); }.lb-close { margin-left: auto; width: 42px; height: 42px; border-radius: 50%; background: rgba(245, 239, 230, 0.08); border: 1px solid rgba(245, 239, 230, 0.14); display: flex; align-items: center; justify-content: center; color: var(--cream); font-size: 1.1rem; cursor: pointer; transition: background 0.18s; }.lb-close:hover { background: rgba(201, 160, 90, 0.28); color: var(--gold); }.lb-wrap { max-width: 90vw; max-height: 80vh; }.lb-img { max-width: 100%; max-height: 78vh; object-fit: contain; border-radius: var(--r); transform: scale(0.93); transition: transform .36s var(--spring); box-shadow: rgba(0, 0, 0, 0.75) 0px 40px 100px; }.lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%; background: rgba(245, 239, 230, 0.07); border: 1px solid rgba(245, 239, 230, 0.13); display: flex; align-items: center; justify-content: center; color: var(--cream); cursor: pointer; z-index: 2; transition: background .18s, transform .22s var(--spring); }.lb-nav:hover { background: rgba(201, 160, 90, 0.24); transform: translateY(-50%) scale(1.1); }#lb-prev { left: 18px; }#lb-next { right: 18px; }.lb-caption { position: absolute; bottom: 0px; left: 0px; right: 0px; padding: 18px 28px; text-align: center; z-index: 2; background: linear-gradient(to top, rgba(10, 36, 22, 0.85), transparent); }.lb-cap-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 500; color: var(--cream); margin-bottom: 4px; }.lb-cap-cat { font-family: var(--font-sans); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }@keyframes svieBlink { 
+}:where(h1,h2,h3,h4,h5,h6).d1 { font-size: calc(clamp(3.2rem,7.5vw,6.5rem)*var(--fm-scale-hero,1)); font-weight: var(--fm-fw-display,600); letter-spacing: var(--fm-ls-heading,-.02em); }:where(h1,h2,h3,h4,h5,h6).d2 { font-size: calc(clamp(2.4rem,5vw,4.2rem)*var(--fm-scale-section,1)); font-weight: var(--fm-fw-display,600); letter-spacing: calc(var(--fm-ls-heading,-.02em)*.75); }:where(h1,h2,h3,h4,h5,h6).d3 { font-size: calc(clamp(1.8rem,3.5vw,2.8rem)*var(--fm-scale-section,1)); font-weight: var(--fm-fw-display,500); }.nav-a { font-size: calc(.72rem*var(--fm-scale-nav,1)); font-weight: var(--fm-fw-sans,600); }@media (max-width: 900px){:root { --section: 72px; --gutter: 28px; }.nav-links, .nav-cta { display: none; }.nav-burger { display: flex; }}@media (max-width: 768px){.wrap { padding: 0px 20px; }}@media (max-width: 640px){:root { --section: 56px; --gutter: 18px; }.wrap { padding: 0px 18px; }.gal-masonry { columns: 2; }.wa-float { width: 48px; height: 48px; bottom: 18px; right: 18px; }.wa-float svg { width: 22px; height: 22px; }:where(h1,h2,h3,h4,h5,h6).d1 { font-size: clamp(1.9rem, 7vw, 2.8rem); }:where(h1,h2,h3,h4,h5,h6).d2 { font-size: clamp(1.5rem, 5.5vw, 2.2rem); }}@media (max-width: 480px){:root { --section: 48px; --gutter: 16px; }.wrap { padding: 0px 16px; }.nav-inner { height: 60px; }.nav-logo-name { font-size: 0.72rem; }.nav-logo-sub { display: none; }.gal-masonry { columns: 1; }.btn, .btn-gold, .btn-ghost { padding: 13px 22px; font-size: 0.68rem; }.wa-float { width: 44px; height: 44px; bottom: 14px; right: 14px; }}.gal-hero { padding: 155px 0px 68px; background: var(--forest-deep); position: relative; overflow: hidden; }.gal-hero::before { content: ""; position: absolute; inset: 0px; background: radial-gradient(55% 55% at 78% 38%, rgba(43, 80, 64, 0.52) 0%, transparent 60%), radial-gradient(40% 48% at 12% 72%, rgba(21, 40, 32, 0.38) 0%, transparent 52%); }.gal-hero-content { position: relative; z-index: 1; display:flex; align-items:flex-end; justify-content:space-between; gap:32px; flex-wrap:wrap; }
+.gal-hero-text { flex:1 1 320px; min-width:0; }
+.gal-hero-jump { display:flex; gap:10px; flex-wrap:wrap; }
+.gal-jump { display:inline-flex; align-items:center; gap:8px; padding:11px 20px; border-radius:var(--r-full);
+  font-family:var(--font-sans); font-size:.66rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--cream); border:1.5px solid rgba(201,160,90,.45); background:rgba(245,239,230,.04); transition:all .22s var(--ease); }
+.gal-jump:hover { background:var(--gold); border-color:var(--gold); color:var(--forest-deep); }
+.gal-jump-gold { background:var(--gold); border-color:var(--gold); color:var(--forest-deep); }
+.gal-jump-gold:hover { background:var(--gold-light); border-color:var(--gold-light); }
+@media(max-width:640px){ .gal-hero { padding:112px 0 36px; } .gal-hero-content { gap:22px; } }.gal-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 44px; }.gal-chip { padding: 9px 22px; border-radius: var(--r-full); font-family: var(--font-sans); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; border: 1.5px solid var(--light-gray); color: var(--mid-gray); background: var(--white); cursor: pointer; transition: all .22s var(--ease); white-space: nowrap; }.gal-chip:hover { border-color: var(--forest-mid); color: var(--forest-mid); }.gal-chip.active { background: var(--forest-deep); border-color: var(--forest-deep); color: var(--cream); box-shadow: rgba(12, 44, 27, 0.2) 0px 4px 16px; }.gal-count { margin-left: auto; align-self: center; font-family: var(--font-sans); font-size: 0.68rem; font-weight: 600; color: var(--mid-gray); }.gal-masonry { columns: 3; column-gap: 16px; }@media (max-width: 900px){.gal-masonry { columns: 2; }}@media (max-width: 500px){.gal-masonry { columns: 1; }}.ba-sec { background: rgb(246, 243, 238); }.ba-head { text-align: center; margin-bottom: 34px; }.ba-heading { font-family: Cormorant, serif; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 600; color: rgb(26, 69, 48); line-height: 1.1; margin: 6px 0px 8px; }.ba-heading em { font-style: italic; color: rgb(201, 160, 90); }.ba-sub { color: rgb(107, 100, 89); font-size: 0.95rem; max-width: 520px; margin: 0px auto; }.ba-track { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; max-width: 880px; margin: 0px auto; }@media (max-width: 820px){.ba-track { grid-template-columns: 1fr; max-width: 460px; }}.gal-card { break-inside: avoid; margin-bottom: 16px; border-radius: var(--r-lg); overflow: hidden; position: relative; cursor: pointer; background: var(--forest-mid); box-shadow: rgba(12, 44, 27, 0.1) 0px 3px 18px; transition: transform .36s var(--ease), box-shadow .36s var(--ease); }.gal-card:hover { transform: translateY(-7px); box-shadow: rgba(12, 44, 27, 0.22) 0px 28px 64px; }.gal-card img { width: 100%; height: auto; display: block; transition: transform .6s var(--ease); }.gal-card:hover img { transform: scale(1.06); }.gal-overlay { position: absolute; inset: 0px; background: linear-gradient(to top, rgba(12, 44, 27, 0.9) 0%, rgba(12, 44, 27, 0.3) 44%, transparent 68%); display: flex; flex-direction: column; justify-content: flex-end; padding: 20px 18px; opacity: 0; transition: opacity .3s var(--ease); }.gal-card:hover .gal-overlay { opacity: 1; }.gal-label { font-family: var(--font-sans); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }.gal-label::before { content: ""; width: 14px; height: 1px; background: var(--gold); }.gal-title { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--cream); line-height: 1.3; }.gal-expand { position: absolute; top: 13px; right: 13px; width: 34px; height: 34px; border-radius: 50%; background: rgba(245, 239, 230, 0.12); border: 1px solid rgba(245, 239, 230, 0.2); display: flex; align-items: center; justify-content: center; color: var(--cream); opacity: 0; transition: opacity 0.28s, background 0.18s; }.gal-card:hover .gal-expand { opacity: 1; }.gal-expand:hover { background: rgba(201, 160, 90, 0.35) !important; }.svie-badge { position: absolute; top: 13px; left: 13px; padding: 4px 10px; background: rgba(201, 160, 90, 0.9); border-radius: var(--r-full); font-family: var(--font-sans); font-size: 0.55rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--forest-deep); opacity: 0; transition: opacity 0.28s; }.gal-card:hover .svie-badge { opacity: 1; }.lightbox { position: fixed; inset: 0px; background: rgba(10, 36, 22, 0.97); backdrop-filter: blur(30px); z-index: 9000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .28s var(--ease); }.lb-bar { position: absolute; top: 0px; left: 0px; right: 0px; padding: 18px 22px; z-index: 2; display: flex; align-items: center; background: linear-gradient(rgba(10, 36, 22, 0.85), transparent); }.lb-index { font-family: var(--font-sans); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245, 239, 230, 0.72); }.lb-close { margin-left: auto; width: 42px; height: 42px; border-radius: 50%; background: rgba(245, 239, 230, 0.08); border: 1px solid rgba(245, 239, 230, 0.14); display: flex; align-items: center; justify-content: center; color: var(--cream); font-size: 1.1rem; cursor: pointer; transition: background 0.18s; }.lb-close:hover { background: rgba(201, 160, 90, 0.28); color: var(--gold); }.lb-wrap { max-width: 90vw; max-height: 80vh; }.lb-img { max-width: 100%; max-height: 78vh; object-fit: contain; border-radius: var(--r); transform: scale(0.93); transition: transform .36s var(--spring); box-shadow: rgba(0, 0, 0, 0.75) 0px 40px 100px; }.lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%; background: rgba(245, 239, 230, 0.07); border: 1px solid rgba(245, 239, 230, 0.13); display: flex; align-items: center; justify-content: center; color: var(--cream); cursor: pointer; z-index: 2; transition: background .18s, transform .22s var(--spring); }.lb-nav:hover { background: rgba(201, 160, 90, 0.24); transform: translateY(-50%) scale(1.1); }#lb-prev { left: 18px; }#lb-next { right: 18px; }.lb-caption { position: absolute; bottom: 0px; left: 0px; right: 0px; padding: 18px 28px; text-align: center; z-index: 2; background: linear-gradient(to top, rgba(10, 36, 22, 0.85), transparent); }.lb-cap-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 500; color: var(--cream); margin-bottom: 4px; }.lb-cap-cat { font-family: var(--font-sans); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }@keyframes svieBlink { 
   0%, 80%, 100% { opacity: 0.3; }
   40% { opacity: 1; }
-}.svie-chat-foot button:hover:not(:disabled) { background: rgb(179, 137, 74); }</style>
-<link rel="preload" href="styles.css?v=1d93e729" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="styles.css?v=1d93e729"></noscript>
+}.svie-chat-foot button:hover:not(:disabled) { background: rgb(179, 137, 74); }::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--cream)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}</style>
+<link rel="preload" href="styles.css?v=da1ffe2a" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="styles.css?v=da1ffe2a"></noscript>
 <style>
 
 /* ── Page Hero ── */
 .gal-hero {
-  padding: 155px 0 68px;
+  padding: 132px 0 44px;
   background: var(--forest-deep);
   position: relative; overflow: hidden;
 }
@@ -126,13 +142,10 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 @media(max-width:500px){ .gal-masonry { columns: 1; } }
 
 /* ── Before / After slider ── */
-.ba-sec { background:#f6f3ee; }
 .ba-head { text-align:center; margin-bottom:34px; }
 .ba-heading { font-family:'Cormorant',serif; font-size:clamp(2rem,4vw,2.8rem); font-weight:600; color:#1A4530; line-height:1.1; margin:6px 0 8px; }
 .ba-heading em { font-style:italic; color:#C9A05A; }
 .ba-sub { color:#6b6459; font-size:.95rem; max-width:520px; margin:0 auto; }
-.ba-track { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; max-width:880px; margin:0 auto; }
-@media(max-width:820px){ .ba-track { grid-template-columns:1fr; max-width:460px; } }
 .ba-item { }
 .ba-slider { position:relative; width:100%; aspect-ratio:3/2; overflow:hidden; border-radius:14px;
   box-shadow:0 14px 40px rgba(26,69,48,.16); cursor:ew-resize; user-select:none; touch-action:none;
@@ -153,6 +166,26 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 .ba-video-wrap { position:relative; width:100%; aspect-ratio:3/2; overflow:hidden; border-radius:14px;
   box-shadow:0 14px 40px rgba(26,69,48,.16); background:#000; }
 .ba-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+.ba-slider.ba-tall { aspect-ratio:4/5; }
+
+/* ── Project spotlight: Bharat Home ── */
+.bh-sec { background:var(--white); padding:calc(var(--section)*.7) 0 0; }
+.bh-sec .ba-head { margin-bottom:28px; }
+.bh-pairs { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin:0 auto 44px; }
+@media(max-width:980px){ .bh-pairs { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:600px){ .bh-pairs { grid-template-columns:1fr; max-width:460px; } }
+.bh-tabs { display:flex; justify-content:center; gap:8px; margin-bottom:26px; flex-wrap:wrap; }
+.bh-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px; }
+.bh-thumb { position:relative; aspect-ratio:1; border-radius:var(--r); overflow:hidden; cursor:pointer;
+  background:var(--cream-2); box-shadow:0 3px 14px rgba(12,44,27,.08); }
+.bh-thumb img { width:100%; height:100%; object-fit:cover; transition:transform .5s var(--ease); }
+.bh-thumb:hover img { transform:scale(1.07); }
+.bh-thumb.bh-hide { display:none; }
+.bh-more-wrap { text-align:center; margin-top:28px; }
+.bh-videos { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; max-width:760px; margin:44px auto 0; }
+@media(max-width:820px){ .bh-videos { grid-template-columns:1fr; max-width:460px; } }
+.bh-videos .ba-video-wrap { aspect-ratio:9/16; max-height:560px; }
+.bh-videos .ba-video { object-fit:contain; }
 
 /* ── Card ── */
 .gal-card {
@@ -307,12 +340,25 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </style>
 
 <!-- Google Analytics 4 (svie5.com) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-871TFESZ6Y"></script>
+<!-- gtag.js (~165KB) loads on first interaction or 4s after load so it never
+     competes with first paint; gtag() calls queue in dataLayer until then. -->
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
   gtag('js',new Date());
   gtag('config','G-871TFESZ6Y');
+  (function(){
+    var done=false, ev=['scroll','pointerdown','keydown','touchstart'];
+    function load(){
+      if(done) return; done=true;
+      ev.forEach(function(e){ removeEventListener(e,load); });
+      var s=document.createElement('script'); s.async=true;
+      s.src='https://www.googletagmanager.com/gtag/js?id=G-871TFESZ6Y';
+      document.head.appendChild(s);
+    }
+    ev.forEach(function(e){ addEventListener(e,load,{once:true,passive:true}); });
+    addEventListener('load',function(){ setTimeout(load,4000); });
+  })();
 </script>
 
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"SVIE Interior Design Portfolio","description":"Premium interior design, construction, and modular furniture projects across Bengaluru.","url":"https://svie5.com/gallery.html","numberOfItems":18,"itemListElement":[{"@type":"ListItem","position":1,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g01.jpg","name":"Luxury Living Room Interior Design","description":"Top class interior design project by SVIE Bengaluru"}},{"@type":"ListItem","position":2,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g02.jpg","name":"Premium Master Bedroom Interior","description":"Premium interior design work by SVIE Bengaluru"}},{"@type":"ListItem","position":3,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g03.jpg","name":"Quality Construction Project","description":"Quality construction project by SVIE Bengaluru"}},{"@type":"ListItem","position":4,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g04.jpg","name":"Modern Kitchen Interior Design","description":"SVIE craftsmanship interior design Bengaluru"}},{"@type":"ListItem","position":5,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g05.jpg","name":"Elegant Dining Area Design","description":"Quality interior design by SVIE Bengaluru"}},{"@type":"ListItem","position":6,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g06.jpg","name":"Contemporary Office Interior","description":"Premium interiors design by SVIE Bengaluru"}},{"@type":"ListItem","position":7,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g07.jpg","name":"Commercial Construction Project","description":"SVIE project execution construction Bengaluru"}},{"@type":"ListItem","position":8,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g08.webp","name":"Stylish Apartment Interior","description":"Stylish interior design project by SVIE Bengaluru"}},{"@type":"ListItem","position":9,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g09.jpg","name":"Crafted Living Space Design","description":"Crafted interior spaces by SVIE Bengaluru"}},{"@type":"ListItem","position":10,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g10.jpg","name":"Premium Interior Finishing Work","description":"Premium interior finish work by SVIE Bengaluru"}},{"@type":"ListItem","position":11,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g11.jpg","name":"SVIE Construction Site Work","description":"SVIE construction site work Bengaluru project"}},{"@type":"ListItem","position":12,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g12.jpg","name":"Exterior Design and Façade Work","description":"Exterior design work by SVIE Bengaluru"}},{"@type":"ListItem","position":13,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g13.jpg","name":"Designer Interior Showcase","description":"SVIE designer showcase interior Bengaluru"}},{"@type":"ListItem","position":14,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g14.jpg","name":"Premium Exterior Finish","description":"Premium exterior finish by SVIE Bengaluru"}},{"@type":"ListItem","position":15,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g15.jpg","name":"Interior Detailing and Finishing","description":"Interior detailing work by SVIE Bengaluru"}},{"@type":"ListItem","position":16,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g16.jpg","name":"SVIE Signature Design Project","description":"SVIE project showcase design Bengaluru"}},{"@type":"ListItem","position":17,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g17.jpg","name":"SVIE Planning and Execution","description":"SVIE planning and execution construction Bengaluru"}},{"@type":"ListItem","position":18,"item":{"@type":"ImageObject","url":"https://svie5.com/images/gallery/g18.jpg","name":"Completed Interior Design Project","description":"Finished interior project completed by SVIE Bengaluru"}}]}</script>
@@ -323,7 +369,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 <div class="cursor-ring"></div>
 
 <!-- Lightbox -->
-<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Gallery image viewer">
+<div data-cms-group="Gallery — Section 1" class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Gallery image viewer">
   <div class="lb-bar">
     <span class="lb-index" id="lb-index">1 / 18</span>
     <button class="lb-close" id="lb-close" aria-label="Close">✕</button>
@@ -403,35 +449,67 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 
 <!-- PAGE HERO -->
 <main id="main-content">
-<div class="gal-hero">
+<div data-cms-group="Gallery — Our" class="gal-hero">
   <div class="wrap">
     <div class="gal-hero-content">
+      <div class="gal-hero-text">
       <div class="breadcrumb">
-        <a href="index.html">Home</a>
+        <a data-cms-href="sections.gallery_x2_link1" href="index.html"><span data-cms="sections.gallery_x2_2">Home</span></a>
         <span class="breadcrumb-sep">/</span>
-        <span>Portfolio</span>
+        <span data-cms="sections.gallery_x2_3">Portfolio</span>
       </div>
       <h1 style="font-family:var(--font-display);font-size:clamp(2.8rem,6vw,4.5rem);font-weight:600;color:var(--cream);line-height:1.05;margin-bottom:16px">
-        Our <em style="font-style:italic;color:var(--gold)">Portfolio</em>
+        <span data-cms="sections.gallery_s1_1">Our</span> <em data-cms="sections.gallery_s1_2" style="font-style:italic;color:var(--gold)">Portfolio</em>
       </h1>
       <p style="font-size:.97rem;color:rgba(245,239,230,.85);max-width:540px;line-height:1.75" data-cms="gallery_page.hero_sub">
         Real work. Real spaces. Every photo is from an actual SVIE project — our premium interior designs, construction work, and finishes delivered across Bengaluru since 2017.
       </p>
+      </div>
+      <div class="gal-hero-jump">
+        <a data-cms-href="sections.gallery_s1_link3" href="#bharat-home" class="gal-jump gal-jump-gold"><span data-cms="sections.gallery_s1_4">Before &amp; After</span></a>
+        <a data-cms-href="sections.gallery_s1_link5" href="#gal-masonry" class="gal-jump"><span data-cms="sections.gallery_s1_6">All Projects</span></a>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- PROJECT SPOTLIGHT: BHARAT HOME -->
+<section data-cms-group="Gallery — Section 2" class="sec bh-sec" id="bharat-home">
+  <div class="wrap">
+    <div class="ba-head">
+      <div data-cms="sections.gallery_spotlight_1" class="eyebrow reveal" style="justify-content:center">Our Work</div>
+      <h2 class="ba-heading reveal d1"><span data-cms="sections.gallery_spotlight_2">Before &amp; After</span> <em data-cms="sections.gallery_spotlight_3">work at Malleswaram</em></h2>
+      <p data-cms="sections.gallery_spotlight_4" class="ba-sub reveal d2">A complete home renovation in Bengaluru: structural opening, marble flooring, modular kitchen, TV wall and wash area. Drag each slider to compare.</p>
+    </div>
+
+    <div class="bh-pairs" id="bh-pairs"></div>
+
+    <div class="bh-tabs" role="tablist">
+      <button class="gal-chip active" data-bh="after" role="tab" aria-selected="true"><span data-cms="sections.gallery_x3_1">After · Finished</span></button>
+      <button class="gal-chip" data-bh="before" role="tab" aria-selected="false"><span data-cms="sections.gallery_x3_2">Before</span></button>
+    </div>
+    <div class="bh-grid" id="bh-grid"></div>
+    <div class="bh-more-wrap"><button class="gal-chip" id="bh-more" type="button">Show all photos</button></div>
+    <!-- label pattern for the button above ({n} = number of photos); edited in CMS → Page Sections -->
+    <span data-cms="sections.gallery_more_label" hidden>Show all {n} photos</span>
+
+    <div class="bh-videos" id="bh-videos"></div>
+    </div>
+
+  </div>
+</section>
+
 <!-- GALLERY -->
-<section class="sec">
+<section data-cms-group="Gallery — All Projects" class="sec">
   <div class="wrap">
 
     <!-- Filter bar -->
     <div class="gal-filters">
-      <button class="gal-chip active" data-f="all">All Projects</button>
-      <button class="gal-chip" data-f="interior">Interiors</button>
-      <button class="gal-chip" data-f="design">Premium Design</button>
-      <button class="gal-chip" data-f="construction">Construction</button>
-      <button class="gal-chip" data-f="exterior">Exteriors</button>
+      <button class="gal-chip active" data-f="all"><span data-cms="sections.gallery_s3_1">All Projects</span></button>
+      <button class="gal-chip" data-f="interior"><span data-cms="sections.gallery_s3_2">Interiors</span></button>
+      <button class="gal-chip" data-f="design"><span data-cms="sections.gallery_s3_3">Premium Design</span></button>
+      <button class="gal-chip" data-f="construction"><span data-cms="sections.gallery_s3_4">Construction</span></button>
+      <button class="gal-chip" data-f="exterior"><span data-cms="sections.gallery_s3_5">Exteriors</span></button>
       <span class="gal-count" id="gal-count">18 Projects</span>
     </div>
 
@@ -695,74 +773,62 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
   </div>
 </section>
 
-<!-- BEFORE / AFTER -->
-<section class="sec ba-sec" id="ba-section" style="display:none">
-  <div class="wrap">
-    <div class="ba-head">
-      <div class="eyebrow reveal" style="justify-content:center">The Transformation</div>
-      <h2 class="ba-heading reveal d1">Before <em>&amp;</em> After</h2>
-      <p class="ba-sub reveal d2">Drag the slider to reveal how we transformed these Bengaluru spaces.</p>
-    </div>
-    <div class="ba-track" id="ba-track"></div>
-  </div>
-</section>
-
 <!-- CTA -->
-<section class="cta-sec">
+<section data-cms-group="Gallery — Like what you see?" class="cta-sec">
   <div class="wrap"><div class="cta-inner">
-    <div class="eyebrow reveal" style="justify-content:center">Your Space Next</div>
+    <div data-cms="sections.gallery_s4_1" class="eyebrow reveal" style="justify-content:center">Your Space Next</div>
     <h2 class="cta-quote reveal d1">
-      Like what you see?<br>
-      <em>Let's build yours in Bengaluru.</em>
+      <span data-cms="sections.gallery_s4_2">Like what you see?</span><br>
+      <em data-cms="sections.gallery_s4_3">Let's build yours in Bengaluru.</em>
     </h2>
     <p class="cta-body reveal d2" data-cms="gallery_page.cta_body">
       Every photo above is a real SVIE project. Contact us to start yours — from concept to completion, we deliver quality that lasts.
     </p>
     <div class="cta-btns reveal d3">
-      <a href="contact.html" class="btn btn-gold">
-        Book Free Consultation
+      <a data-cms-href="sections.gallery_s4_link4" href="contact.html" class="btn btn-gold">
+        <span data-cms="sections.gallery_s4_5">Book Free Consultation</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>
-      <a href="services.html" class="btn btn-ghost">Our Services</a>
+      <a data-cms-href="sections.gallery_s4_link6" href="services.html" class="btn btn-ghost"><span data-cms="sections.gallery_s4_7">Our Services</span></a>
     </div>
   </div></div>
 </section>
 
 <!-- FOOTER -->
 </main>
-<footer class="footer"><div class="footer-topline"></div><div class="wrap">
+<footer data-cms-group="All pages — Footer" class="footer"><div class="footer-topline"></div><div class="wrap">
   <div class="footer-grid">
     <div class="footer-brand-col">
       <div class="footer-brand-name" data-cms="site.name">Sri Vasavi Interiors and Exteriors</div>
       <div class="footer-brand-tag" data-cms="site.tagline">Innovative Ideas · Stylish Designs</div>
       <div class="footer-brand-pip"></div>
       <p class="footer-brand-desc" data-cms="site.description">Bengaluru's trusted interior design and construction company, delivering exceptional spaces since 2017 with ISO-certified quality and sustainable practices.</p>
-      <p class="footer-follow-label">Follow Us</p>
+      <p data-cms="sections.footer_1" class="footer-follow-label">Follow Us</p>
       <div class="footer-socials">
-        <a href="https://www.facebook.com/SVIEBLR/" class="footer-soc" target="_blank" rel="noopener" aria-label="Facebook"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
-        <a href="https://instagram.com/svie.blr" class="footer-soc" target="_blank" rel="noopener" aria-label="Instagram"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
-        <a href="https://twitter.com/kiran4u1982" class="footer-soc" target="_blank" rel="noopener" aria-label="Twitter / X"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-        <a href="https://wa.me/919513961740" class="footer-soc" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a><a href="https://youtube.com" class="footer-soc" target="_blank" rel="noopener" aria-label="YouTube"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg></a><a href="https://linkedin.com" class="footer-soc" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+        <a data-cms-href="sections.footer_link2" href="https://www.facebook.com/SVIEBLR/" class="footer-soc" target="_blank" rel="noopener" aria-label="Facebook"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        <a data-cms-href="sections.footer_link3" href="https://instagram.com/svie.blr" class="footer-soc" target="_blank" rel="noopener" aria-label="Instagram"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+        <a data-cms-href="sections.footer_link4" href="https://twitter.com/kiran4u1982" class="footer-soc" target="_blank" rel="noopener" aria-label="Twitter / X"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+        <a data-cms-href="sections.footer_link5" href="https://wa.me/919513961740" class="footer-soc" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a><a data-cms-href="sections.footer_link6" href="https://youtube.com" class="footer-soc" target="_blank" rel="noopener" aria-label="YouTube"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg></a><a data-cms-href="sections.footer_link7" href="https://linkedin.com" class="footer-soc" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
       </div>
     </div>
     <div class="footer-contact-col">
-      <div class="footer-col-head">Get In Touch</div>
-      <a href="https://maps.google.com/?q=Venus+World,+172+A+B+%26+E,+Link+Road,+5th+Cross+Rd,+Malleshwaram,+Bengaluru,+Karnataka+560003" class="f-contact-item f-clink" target="_blank" rel="noopener"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="f-contact-text"><strong>Visit Us</strong><span data-cms="site.address">172 A, B &amp; E, Link Road, 5th Cross Rd, Malleshwaram, Bengaluru, Karnataka 560003</span></div></a>
-      <a href="tel:+919513961740" class="f-contact-item f-clink"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 19z"/></svg></div><div class="f-contact-text"><strong>Call Us</strong><span data-cms="site.phone1">+91 95139 61740</span> / <span data-cms="site.phone2">+91 98455 81156</span></div></a>
-      <a href="mailto:svie.blr5@gmail.com" class="f-contact-item f-clink"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="f-contact-text"><strong>Email Us</strong><span data-cms="site.email">svie.blr5@gmail.com</span></div></a>
+      <div data-cms="sections.footer_8" class="footer-col-head">Get In Touch</div>
+      <a data-cms-href="sections.footer_link9" href="https://maps.google.com/?q=Venus+World,+172+A+B+%26+E,+Link+Road,+5th+Cross+Rd,+Malleshwaram,+Bengaluru,+Karnataka+560003" class="f-contact-item f-clink" target="_blank" rel="noopener"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="f-contact-text"><strong data-cms="sections.footer_10">Visit Us</strong><span data-cms="site.address">172 A, B &amp; E, Link Road, 5th Cross Rd, Malleshwaram, Bengaluru, Karnataka 560003</span></div></a>
+      <a data-cms-href="sections.footer_link11" href="tel:+919513961740" class="f-contact-item f-clink"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 19z"/></svg></div><div class="f-contact-text"><strong data-cms="sections.footer_12">Call Us</strong><span data-cms="site.phone1">+91 95139 61740</span> / <span data-cms="site.phone2">+91 98455 81156</span></div></a>
+      <a data-cms-href="sections.footer_link13" href="mailto:svie.blr5@gmail.com" class="f-contact-item f-clink"><div class="f-contact-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="f-contact-text"><strong data-cms="sections.footer_14">Email Us</strong><span data-cms="site.email">svie.blr5@gmail.com</span></div></a>
     </div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-copy">© 2026 Sri Vasavi Interiors and Exteriors. All rights reserved.</div>
+    <div data-cms="sections.footer_15" class="footer-copy">© 2026 Sri Vasavi Interiors and Exteriors. All rights reserved.</div>
         <div class="footer-btm-links">
-      <a href="privacy-policy.html" class="footer-btm-link">Privacy Policy</a>
-      <a href="terms-of-service.html" class="footer-btm-link">Terms of Service</a>
+      <a data-cms-href="sections.footer_link16" href="privacy-policy.html" class="footer-btm-link"><span data-cms="sections.footer_17">Privacy Policy</span></a>
+      <a data-cms-href="sections.footer_link18" href="terms-of-service.html" class="footer-btm-link"><span data-cms="sections.footer_19">Terms of Service</span></a>
     </div>
   </div>
 </div></footer>
 
-<script src="script.js?v=e57a2358"></script>
-<script src="cms-loader.js?v=040263e5"></script>
+<script src="script.js?v=b2dd6e18"></script>
+<script src="cms-loader.js?v=574b874c"></script>
 <script>
 (function(){
   var lb    = document.getElementById('lightbox');
@@ -798,44 +864,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
     '</div>';
   }
 
-  /* ── Before / After: render CMS pairs + wire up drag sliders ── */
-  function baRender(items){
-    var sec = document.getElementById('ba-section');
-    if(!sec) return;
-    if(!items || !items.length){ sec.style.display='none'; return; }
-    var track = document.getElementById('ba-track');
-    track.innerHTML = items.map(function(it){
-      var t = esc(it.title||'');
-      if(it.type==='video'){
-        var poster = it.poster ? ' poster="'+esc(it.poster)+'"' : '';
-        return '<div class="ba-item reveal">'+
-          '<div class="ba-video-wrap">'+
-            '<video class="ba-video" src="'+esc(it.video)+'"'+poster+' controls playsinline preload="none"></video>'+
-          '</div>'+
-          (t ? '<div class="ba-caption">'+t+'</div>' : '')+
-        '</div>';
-      }
-      return '<div class="ba-item reveal">'+
-        '<div class="ba-slider" style="--pos:50%">'+
-          '<img class="ba-after" src="'+esc(it.after)+'" alt="After — '+t+'" loading="lazy">'+
-          '<img class="ba-before" src="'+esc(it.before)+'" alt="Before — '+t+'" loading="lazy">'+
-          '<span class="ba-tag ba-tag-b">Before</span>'+
-          '<span class="ba-tag ba-tag-a">After</span>'+
-          '<div class="ba-divider"><div class="ba-handle">'+
-            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="14 6 8 12 14 18"/><polyline points="10 6 16 12 10 18"/></svg>'+
-          '</div></div>'+
-        '</div>'+
-        (t ? '<div class="ba-caption">'+t+'</div>' : '')+
-      '</div>';
-    }).join('');
-    sec.style.display='';
-    track.querySelectorAll('.ba-slider').forEach(baBindSlider);
-    track.querySelectorAll('.reveal').forEach(function(el){
-      if(window.revealObserver) window.revealObserver.observe(el);
-      else el.classList.add('in');   // fallback: never leave items hidden
-    });
-  }
-
+  /* ── Drag slider for before/after pairs ── */
   function baBindSlider(sl){
     var dragging=false;
     function setPos(clientX){
@@ -852,11 +881,165 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
     window.addEventListener('touchend', function(){ dragging=false; });
   }
 
+  /* ── Lightbox (shared by gallery cards and Bharat Home photos) ── */
+  function showLb(){
+    var c=vis[cur], img=c.querySelector('img');
+    lbImg.src=img.dataset.full||img.src; lbImg.alt=img.alt;
+    lbTit.textContent=c.dataset.title;
+    lbCat.textContent=c.dataset.tag;
+    lbIdx.textContent=(cur+1)+' / '+vis.length;
+  }
+  function openLb(i){
+    cur=i; showLb();
+    lb.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeLb(){
+    lb.classList.remove('open');
+    document.body.style.overflow='';
+    setTimeout(function(){lbImg.removeAttribute('src');},300);
+  }
+  function step(d){ cur=(cur+d+vis.length)%vis.length; openLb(cur); }
+  document.getElementById('lb-close').onclick = closeLb;
+  document.getElementById('lb-prev').onclick = function(){step(-1);};
+  document.getElementById('lb-next').onclick = function(){step(1);};
+  lb.onclick = function(e){ if(e.target===lb) closeLb(); };
+
+  /* ── Before & After sliders + videos: managed in the CMS (Before & After panel).
+        BA_STATIC mirrors the CMS's initial entries; it is used only if the CMS can't be reached. ── */
+  var BA_STATIC=[
+    {title:'Living hall — opened up & marble floored', before:'images/bharat-home/pairs/hall-before.webp', after:'images/bharat-home/pairs/hall-after.webp'},
+    {title:'Modular kitchen', before:'images/bharat-home/pairs/kitchen-before.webp', after:'images/bharat-home/pairs/kitchen-after.webp'},
+    {title:'Structural opening with wood-clad beam', before:'images/bharat-home/pairs/opening-before.webp', after:'images/bharat-home/pairs/opening-after.webp'},
+    {title:'Marble TV wall with lit display niches', before:'images/bharat-home/pairs/tv-wall-before.webp', after:'images/bharat-home/pairs/tv-wall-after.webp', tall:true},
+    {title:'Wash area vanity', before:'images/bharat-home/pairs/wash-before.webp', after:'images/bharat-home/pairs/wash-after.webp', tall:true},
+    {title:'Arch & column finish', before:'images/bharat-home/pairs/arch-before.webp', after:'images/bharat-home/pairs/arch-after.webp', tall:true},
+    {type:'video', title:'Finished home walkthrough — part 1', video:'videos/bharat-home/walkthrough-1.mp4', poster:'videos/bharat-home/walkthrough-1-poster.webp'},
+    {type:'video', title:'Finished home walkthrough — part 2', video:'videos/bharat-home/walkthrough-2.mp4', poster:'videos/bharat-home/walkthrough-2-poster.webp'}
+  ];
+  // Only site-relative media paths (CMS uploads live under images/, videos/ or media/).
+  function baPath(p){ return (typeof p==='string' && /^\/?(images|videos|media)\/[\w\-.\/]+$/.test(p) && p.indexOf('..')<0) ? p.replace(/^\//,'') : ''; }
+  var renderSpotlight=function(){};
+  var setProjectPhotos=function(){};
+
+  /* ── Project spotlight: Bharat Home (static files in images/bharat-home) ── */
+  (function(){
+    var base='images/bharat-home/';
+    var counts={after:18, before:69}, INITIAL=12;
+    var pairsEl=document.getElementById('bh-pairs');
+    var grid=document.getElementById('bh-grid');
+    var more=document.getElementById('bh-more');
+    if(!pairsEl||!grid) return;
+
+    var videosEl=document.getElementById('bh-videos');
+    function observeReveal(root){
+      root.querySelectorAll('.reveal').forEach(function(el){
+        if(window.revealObserver) window.revealObserver.observe(el);
+        else el.classList.add('in');
+      });
+    }
+    renderSpotlight=function(list){
+      var pairs=list.filter(function(b){ return b.type!=='video' && baPath(b.before) && baPath(b.after); });
+      var vids=list.filter(function(b){ return b.type==='video' && baPath(b.video); });
+      pairsEl.innerHTML=pairs.map(function(p){
+      var t=esc(p.title);
+      return '<div class="ba-item reveal">'+
+        '<div class="ba-slider'+(p.tall?' ba-tall':'')+'" style="--pos:50%">'+
+          '<img class="ba-after" src="'+esc(baPath(p.after))+'" alt="After — '+t+'" loading="lazy">'+
+          '<img class="ba-before" src="'+esc(baPath(p.before))+'" alt="Before — '+t+'" loading="lazy">'+
+          '<span class="ba-tag ba-tag-b">Before</span>'+
+          '<span class="ba-tag ba-tag-a">After</span>'+
+          '<div class="ba-divider"><div class="ba-handle">'+
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="14 6 8 12 14 18"/><polyline points="10 6 16 12 10 18"/></svg>'+
+          '</div></div>'+
+        '</div>'+
+        '<div class="ba-caption">'+t+'</div>'+
+      '</div>';
+      }).join('');
+      pairsEl.style.display=pairs.length?'':'none';
+      pairsEl.querySelectorAll('.ba-slider').forEach(function(sl){
+        baBindSlider(sl);
+        var after=sl.querySelector('.ba-after');
+        // portrait photos uploaded from the CMS get the taller frame automatically
+        after.addEventListener('load',function(){ if(after.naturalHeight>after.naturalWidth*1.05) sl.classList.add('ba-tall'); });
+        sl.querySelectorAll('img').forEach(function(img){
+          img.addEventListener('error',function(){ var it=sl.closest('.ba-item'); if(it) it.remove(); });
+        });
+      });
+      videosEl.innerHTML=vids.map(function(v){
+        var poster=baPath(v.poster);
+        return '<div class="ba-item reveal">'+
+          '<div class="ba-video-wrap"><video class="ba-video" src="'+esc(baPath(v.video))+'"'+(poster?' poster="'+esc(poster)+'"':'')+' controls playsinline preload="none" muted onvolumechange="this.muted=true"></video></div>'+
+          '<div class="ba-caption">'+esc(v.title)+'</div>'+
+        '</div>';
+      }).join('');
+      videosEl.style.display=vids.length?'':'none';
+      observeReveal(pairsEl); observeReveal(videosEl);
+    };
+
+    // Photo grid: managed in the CMS (Project Photos panel); staticPhotos() is the fallback.
+    var kind='after', expanded=false, photos=null;
+    var tabsEl=document.querySelector('.bh-tabs');
+    function staticPhotos(){
+      var out=[];
+      ['after','before'].forEach(function(k){
+        for(var i=1;i<=counts[k];i++){
+          var f=base+k+'/'+k+'-'+(i<10?'0':'')+i;
+          out.push({kind:k, src:f+'.webp', thumb:f+'-t.webp'});
+        }
+      });
+      return out;
+    }
+    function renderGrid(){
+      var all=(photos||staticPhotos()).filter(function(p){ return baPath(p.src); }), has={};
+      all.forEach(function(p){ has[p.kind]=1; });
+      var tabs=document.querySelectorAll('[data-bh]');
+      tabs.forEach(function(t){ t.style.display=has[t.dataset.bh]?'':'none'; });
+      if(!has[kind] && all.length){
+        kind=has.after?'after':'before';
+        tabs.forEach(function(t){ var on=t.dataset.bh===kind; t.classList.toggle('active',on); t.setAttribute('aria-selected',on?'true':'false'); });
+      }
+      if(tabsEl) tabsEl.style.display=all.length?'':'none';
+      var list=all.filter(function(p){ return p.kind===kind; }), n=list.length, label=kind==='after'?'After':'Before';
+      grid.innerHTML=list.map(function(p,j){
+        var i=j+1, full=baPath(p.src);
+        return '<div class="bh-thumb'+(!expanded&&i>INITIAL?' bh-hide':'')+'" data-title="Malleswaram renovation — '+label+' ('+i+' of '+n+')" data-tag="SVIE Project · Home Renovation">'+
+          '<img src="'+esc(baPath(p.thumb)||full)+'" data-full="'+esc(full)+'" alt="Malleswaram home renovation, '+label.toLowerCase()+' photo '+i+'" loading="lazy" decoding="async">'+
+        '</div>';
+      }).join('');
+      more.parentNode.style.display=(!expanded&&n>INITIAL)?'':'none';
+      var tpl=(document.querySelector('[data-cms="sections.gallery_more_label"]')||{}).textContent||'';
+      more.textContent=(/\{n\}/.test(tpl)?tpl:'Show all {n} photos').replace('{n}',n);
+    }
+    setProjectPhotos=function(list){ photos=list; expanded=false; renderGrid(); };
+    grid.addEventListener('click',function(e){
+      var t=e.target.closest('.bh-thumb'); if(!t) return;
+      vis=[].slice.call(grid.querySelectorAll('.bh-thumb'));
+      openLb(vis.indexOf(t));
+    });
+    more.addEventListener('click',function(){ expanded=true; renderGrid(); });
+    document.querySelectorAll('[data-bh]').forEach(function(tab,_,all){
+      tab.addEventListener('click',function(){
+        all.forEach(function(x){ x.classList.remove('active'); x.setAttribute('aria-selected','false'); });
+        tab.classList.add('active'); tab.setAttribute('aria-selected','true');
+        kind=tab.dataset.bh; expanded=false; renderGrid();
+      });
+    });
+    renderGrid();
+
+  })();
+
   /* ── Init filter + lightbox (called after any render) ── */
   function initGallery(){
-    var chips = document.querySelectorAll('.gal-chip');
+    // only the project filters — the Before/After tabs share the .gal-chip style
+    var chips = document.querySelectorAll('.gal-chip[data-f]');
     var cards = document.querySelectorAll('.gal-card[data-cat]');
     var countEl = document.getElementById('gal-count');
+    // hide filters for categories that currently have no projects
+    chips.forEach(function(chip){
+      var f = chip.dataset.f;
+      chip.style.display = (f==='all' || [].some.call(cards,function(c){ return c.dataset.cat===f; })) ? '' : 'none';
+    });
 
     function recount(f){
       var n = f==='all' ? cards.length : [].filter.call(cards,function(c){return c.dataset.cat===f;}).length;
@@ -877,35 +1060,12 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
       });
     });
 
-    /* Lightbox */
-    function openLb(i){
-      cur=i; var c=vis[i];
-      var img=c.querySelector('img');
-      lbImg.src=img.src; lbImg.alt=img.alt;
-      lbTit.textContent=c.dataset.title;
-      lbCat.textContent=c.dataset.tag;
-      lbIdx.textContent=(i+1)+' / '+vis.length;
-      lb.classList.add('open');
-      document.body.style.overflow='hidden';
-    }
-    function closeLb(){
-      lb.classList.remove('open');
-      document.body.style.overflow='';
-      setTimeout(function(){lbImg.removeAttribute('src');},300);
-    }
-    function step(d){ cur=(cur+d+vis.length)%vis.length; openLb(cur); }
-
     cards.forEach(function(c){
       c.addEventListener('click',function(){
         vis=[].filter.call(cards,function(x){return x.style.display!=='none';});
         openLb(vis.indexOf(c));
       });
     });
-
-    document.getElementById('lb-close').onclick = closeLb;
-    document.getElementById('lb-prev').onclick = function(){step(-1);};
-    document.getElementById('lb-next').onclick = function(){step(1);};
-    lb.onclick = function(e){ if(e.target===lb) closeLb(); };
 
     /* Count badge */
     recount('all');
@@ -915,14 +1075,17 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
   fetch('/api/site-content')
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(data){
-      if(data) baRender(data.beforeafter);
+      renderSpotlight(data && Array.isArray(data.beforeafter) ? data.beforeafter : BA_STATIC);
+      var lbl=data && data.sections && data.sections.gallery_more_label, lblEl=document.querySelector('[data-cms="sections.gallery_more_label"]');
+      if(lbl && lblEl) lblEl.textContent=lbl;   // before re-rendering, whichever script loads first
+      if(data && Array.isArray(data.project_photos)) setProjectPhotos(data.project_photos);
       var items = data && data.gallery;
       if(!items || !items.length){ initGallery(); return; }
 
       var masonry = document.getElementById('gal-masonry');
       masonry.innerHTML = items.map(cardHtml).join('');
 
-      /* Re-run script.js?v=e57a2358 reveal observer on new cards */
+      /* Re-run script.js?v=b2dd6e18 reveal observer on new cards */
       document.querySelectorAll('.gal-card.reveal').forEach(function(el){
         if(window.revealObserver) window.revealObserver.observe(el);
         else el.classList.add('in');   // fallback: never leave cards hidden
@@ -930,7 +1093,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 
       initGallery();
     })
-    .catch(function(){ initGallery(); }); /* static fallback on error */
+    .catch(function(){ renderSpotlight(BA_STATIC); initGallery(); }); /* static fallback on error */
 
   /* ── Keyboard nav ── */
   document.addEventListener('keydown',function(e){
@@ -938,13 +1101,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
     if(e.key==='Escape'){ lb.classList.remove('open'); document.body.style.overflow=''; }
     if(e.key==='ArrowLeft'){ cur=(cur-1+vis.length)%vis.length; }
     if(e.key==='ArrowRight'){ cur=(cur+1)%vis.length; }
-    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
-      var img=vis[cur].querySelector('img');
-      lbImg.src=img.src; lbImg.alt=img.alt;
-      lbTit.textContent=vis[cur].dataset.title;
-      lbCat.textContent=vis[cur].dataset.tag;
-      lbIdx.textContent=(cur+1)+' / '+vis.length;
-    }
+    if(e.key==='ArrowLeft'||e.key==='ArrowRight') showLb();
   });
 })();
 </script>
@@ -972,6 +1129,6 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <script src="visitor-tracker.js" defer></script>
-<script>/* lazy-load chat widget after first paint: idle timeout or first interaction, whichever comes first */(function(){var d=0,l=function(){if(d)return;d=1;var s=document.createElement("script");s.src="chat-widget.js?v=09bc35bc";document.body.appendChild(s)};"requestIdleCallback"in window?requestIdleCallback(l,{timeout:5000}):addEventListener("load",function(){setTimeout(l,2000)});["pointerdown","keydown","touchstart","scroll"].forEach(function(e){addEventListener(e,l,{once:true,passive:true})})})();</script>
+<script>/* lazy-load chat widget after first paint: idle timeout or first interaction, whichever comes first */(function(){var d=0,l=function(){if(d)return;d=1;var s=document.createElement("script");s.src="chat-widget.js?v=4eff04ff";document.body.appendChild(s)};"requestIdleCallback"in window?requestIdleCallback(l,{timeout:5000}):addEventListener("load",function(){setTimeout(l,2000)});["pointerdown","keydown","touchstart","scroll"].forEach(function(e){addEventListener(e,l,{once:true,passive:true})})})();</script>
 </body>
 </html>

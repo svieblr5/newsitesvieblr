@@ -470,6 +470,11 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
         Navigation
       </button>
 
+      <button class="nav-btn" data-p="sections" onclick="show('sections',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        Page Sections
+      </button>
+
       <div class="nav-hd">Content</div>
       <button class="nav-btn" data-p="gallery" onclick="show('gallery',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -478,6 +483,10 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
       <button class="nav-btn" data-p="beforeafter" onclick="show('beforeafter',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><polyline points="7 9 5 11 7 13"/><polyline points="17 9 19 11 17 13"/></svg>
         Before &amp; After
+      </button>
+      <button class="nav-btn" data-p="projectphotos" onclick="show('projectphotos',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Project Photos
       </button>
       <button class="nav-btn" data-p="testimonials" onclick="show('testimonials',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -848,6 +857,15 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
         <div class="gal-grid" id="galGrid"></div>
       </div>
 
+      <!-- ══ PAGE SECTIONS ══ -->
+      <div id="p-sections" class="panel">
+        <div class="card">
+          <div class="card-title">Page Sections</div>
+          <div class="card-sub">Every text, image and link on the website that no other panel covers, grouped by page section. Each field starts with what the website shows today; clear a field to go back to it. Use the search box to find something quickly. Save, then Publish to go live.</div>
+        </div>
+        <div id="psEditor"><div style="color:#8a7e72;font-size:.82rem;padding:24px 0;text-align:center">Loading…</div></div>
+      </div>
+
       <!-- ══ BEFORE / AFTER ══ -->
       <div id="p-beforeafter" class="panel">
         <div class="section-row">
@@ -882,6 +900,34 @@ body{font-family:'Jost',sans-serif;background:#f0ebe3;color:#1A4530}
           <span class="badge badge-gold" id="baCount">0 pairs</span>
         </div>
         <div class="gal-grid" id="baGrid"></div>
+      </div>
+
+      <!-- ══ PROJECT PHOTOS ══ -->
+      <div id="p-projectphotos" class="panel">
+        <div class="section-row">
+          <div>
+            <div style="font-family:'Cormorant',serif;font-size:1.3rem;font-weight:600;color:#1A4530">Project Photos</div>
+            <div style="font-size:.76rem;color:#8a7e72;margin-top:2px">The After / Before photo grid under the sliders on the Gallery page. The first 12 show straight away; the rest appear after "Show all photos".</div>
+          </div>
+        </div>
+        <div style="background:#faf9f7;border:1px solid #e8e4de;border-radius:12px;padding:16px 18px;margin-bottom:18px">
+          <div style="font-size:.7rem;font-weight:700;color:#215840;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px">Add photos</div>
+          <div class="frow">
+            <div class="fg"><label>Add to</label>
+              <select id="pp-kind"><option value="after">After · Finished</option><option value="before">Before</option></select></div>
+            <div class="fg"><label>Photos <span style="color:#8a7e72;font-weight:400">(JPG, PNG, WEBP — up to 30 at once, 10 MB each)</span></label><input type="file" id="pp-files" multiple accept="image/*"></div>
+          </div>
+          <button class="btn btn-gold" id="pp-add-btn" onclick="uploadProjectPhotos()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Upload Photos
+          </button>
+        </div>
+        <div class="gal-toolbar" style="gap:8px">
+          <button class="btn btn-sm" id="pp-tab-after" onclick="setPPKind('after')">After</button>
+          <button class="btn btn-sm" id="pp-tab-before" onclick="setPPKind('before')">Before</button>
+          <span style="font-size:.72rem;color:#8a7e72;margin-left:auto">Hover a photo: ◀ ▶ to reorder, 🗑 to remove</span>
+        </div>
+        <div class="gal-grid" id="ppGrid"></div>
       </div>
 
       <!-- ══ TESTIMONIALS ══ -->
@@ -1778,8 +1824,8 @@ const titles = {
   dashboard:'Dashboard', activity:'Activity Log', home:'Home Page',
   about:'About Page', services:'Services Page', products:'Products Page',
   furniture:'Furniture Page', electronics:'Electronics Page',
-  contact:'Contact Info', navigation:'Navigation', gallery:'Gallery',
-  beforeafter:'Before & After', testimonials:'Testimonials', blog:'Blog & News', media:'Media Library',
+  contact:'Contact Info', navigation:'Navigation', gallery:'Gallery', sections:'Page Sections',
+  beforeafter:'Before & After', projectphotos:'Project Photos', testimonials:'Testimonials', blog:'Blog & News', media:'Media Library',
   seo:'SEO Settings', enquiries:'Enquiries Inbox',
   calltracking:'Click to Call — Call Log', settings:'Site Settings',
   visitors:'Visitor Analytics Dashboard', ga:'Google Analytics',
@@ -1828,6 +1874,8 @@ function show(id, btn) {
   if (id==='settings')     load2FA();
   if (id==='gallery')      loadGallery();
   if (id==='beforeafter')  loadBeforeAfter();
+  if (id==='sections')     loadPageSections();
+  if (id==='projectphotos') loadProjectPhotos();
   if (id==='testimonials') loadTestimonials();
   if (id==='blog')         loadBlog();
   if (id==='media')        loadMedia();
@@ -3092,6 +3140,57 @@ function delBA(id,title) {
     async()=>{ await api('DELETE','/api/beforeafter/'+id); C=await api('GET','/api/content'); loadBeforeAfter(); toast('Deleted: '+title); },'Delete','btn-ok' );
 }
 
+// ── PROJECT PHOTOS ────────────────────────────
+let ppKind = 'after';
+async function loadProjectPhotos() {
+  const items  = await api('GET','/api/projectphotos').catch(()=>[]);
+  const counts = { after:0, before:0 };
+  items.forEach(p=>{ counts[p.kind] = (counts[p.kind]||0) + 1; });
+  ['after','before'].forEach(k=>{
+    const b = document.getElementById('pp-tab-'+k);
+    b.textContent = (k==='after'?'After':'Before') + ' · ' + counts[k];
+    b.className = 'btn btn-sm ' + (k===ppKind ? 'btn-gold' : 'btn-outline');
+  });
+  const list = items.filter(p=>p.kind===ppKind);
+  const grid = document.getElementById('ppGrid');
+  if (!list.length) { grid.innerHTML='<p style="color:#8a7e72;font-size:.82rem;grid-column:1/-1">No photos here yet. Upload some above!</p>'; return; }
+  grid.innerHTML = list.map((p,i)=>`<div class="gal-item">
+      <img src="../${esc(p.thumb||p.src)}" alt="" loading="lazy" onerror="this.style.opacity='.3'" style="width:100%;aspect-ratio:1;object-fit:cover;display:block">
+      <div class="gal-actions">
+        ${i>0 ? `<button class="gal-btn gal-btn-e" onclick="movePP('${p.id}',-1)" title="Move earlier">◀</button>` : ''}
+        ${i<list.length-1 ? `<button class="gal-btn gal-btn-e" onclick="movePP('${p.id}',1)" title="Move later">▶</button>` : ''}
+        <button class="gal-btn gal-btn-d" onclick="delPP('${p.id}')" title="Remove">🗑</button>
+      </div>
+      <div class="gal-info"><div class="gal-info-title">${ppKind==='after'?'After':'Before'} ${i+1}${i>=12?' <span style="color:#8a7e72;font-weight:400">· after "Show all"</span>':''}</div></div>
+    </div>`).join('');
+}
+function setPPKind(k) { ppKind = k; loadProjectPhotos(); }
+async function uploadProjectPhotos() {
+  const files = document.getElementById('pp-files').files;
+  if (!files.length) { toast('Pick one or more photos','err'); return; }
+  const kind = gv('pp-kind') || 'after';
+  const fd   = new FormData();
+  [...files].forEach(f=>fd.append('photos', f));
+  fd.append('kind', kind);
+  const btn = document.getElementById('pp-add-btn');
+  btn.disabled = true; const label = btn.innerHTML; btn.textContent = 'Uploading…';
+  const r = await fetch('/api/projectphotos/upload',{method:'POST',body:fd,headers:{'X-CSRF-Token':_csrfToken}}).then(x=>x.json()).catch(e=>({error:e.message}));
+  btn.disabled = false; btn.innerHTML = label;
+  if (r.success) {
+    toast(r.items.length + (r.items.length===1?' photo':' photos') + ' added');
+    document.getElementById('pp-files').value = '';
+    ppKind = kind; C = await api('GET','/api/content'); loadProjectPhotos(); schedulePubRefresh();
+  } else toast('Upload failed: '+(r.error||''),'err');
+}
+async function movePP(id, dir) {
+  await api('POST','/api/projectphotos/'+id+'/move',{dir});
+  loadProjectPhotos();
+}
+function delPP(id) {
+  openModal('Remove Photo',`<p style="color:#4a5568;font-size:.85rem">Remove this photo from the gallery grid?</p>`,
+    async()=>{ await api('DELETE','/api/projectphotos/'+id); C=await api('GET','/api/content'); loadProjectPhotos(); toast('Photo removed'); },'Remove','btn-ok' );
+}
+
 // ── TESTIMONIALS ──────────────────────────────
 async function loadTestimonials() {
   const items = await api('GET','/api/testimonials').catch(()=>[]);
@@ -3790,6 +3889,141 @@ async function saveElectronics() {
   toast('Electronics page saved');
 }
 
+// ── PAGE SECTIONS ─────────────────────────────
+// Generic editor for everything tagged data-cms / data-cms-src / data-cms-bg / data-cms-href with
+// a "sections.<key>" path. Fields, groups and original values are read from the pages themselves,
+// so anything tagged in the HTML shows up here automatically and defaults never drift.
+const PS_PAGES = [['index.html','Home'],['about.html','About'],['services.html','Services'],['products.html','Products'],
+  ['furniture.html','Furniture'],['electronics.html','Electronics'],['gallery.html','Gallery'],['contact.html','Contact'],
+  ['privacy-policy.html','Privacy Policy'],['terms-of-service.html','Terms of Service'],['404.html','404 page']];
+const PS_ATTRS = [['data-cms','text'],['data-cms-src','img'],['data-cms-alt','alt'],['data-cms-bg','bg'],['data-cms-href','href'],['data-cms-placeholder','placeholder']];
+let PS_FIELDS = [];   // [{key, kind, label, def, group, page}]
+
+function psLabel(el, kind) {
+  if (kind==='img')  return 'Image';
+  if (kind==='bg')   return 'Background image';
+  if (kind==='href') return 'Link target — "' + (el.textContent.replace(/\s+/g,' ').trim().slice(0,40) || 'icon') + '"';
+  if (kind==='alt')  return 'Image description (for Google & screen readers)';
+  if (kind==='placeholder') return 'Form hint (grey example text in the box)';
+  if (el.hasAttribute('data-count')) return 'Animated number (e.g. 7+, 35+)';
+  if (el.getAttribute('data-cms')==='sections.gallery_more_label') return '"Show all photos" button — {n} becomes the number of photos';
+  const cls = String(el.className||'');
+  if (el.closest('h1,h2')) return el.closest('em') ? 'Heading (italic part)' : 'Heading';
+  if (el.closest('h3,h4,h5')) return 'Sub-heading';
+  if (el.closest('a,button')) return 'Button / link text';
+  if (el.closest('label')) return 'Form label';
+  if (el.closest('li')) return 'List item';
+  if (/eyebrow|tag|badge|label|kicker/i.test(cls)) return 'Small label';
+  if (el.closest('p')) return 'Paragraph';
+  if (el.closest('strong,b')) return 'Bold text';
+  return 'Text';
+}
+function psDefault(el, kind) {
+  if (kind==='text' && el.hasAttribute('data-count'))   // shown as it ends up after counting, e.g. "7+"
+    return (el.getAttribute('data-pre')||'') + el.getAttribute('data-count') + (el.getAttribute('data-suf')||'');
+  if (kind==='text') return el.textContent.replace(/\s+/g,' ').trim();
+  if (kind==='alt')  return el.getAttribute('alt') || '';
+  if (kind==='placeholder') return el.getAttribute('placeholder') || '';
+  if (kind==='img')  return el.getAttribute('src') || '';
+  if (kind==='bg')   return ((el.getAttribute('style')||'').match(/url\(\s*['"]?([^'")]+)/)||[])[1] || '';
+  return el.getAttribute('href') || '';
+}
+async function psScan() {
+  const perPage = await Promise.all(PS_PAGES.map(async ([page,label])=>{
+    const html = await fetch('../'+page, {cache:'no-store'}).then(r=>r.ok?r.text():'').catch(()=>'');
+    const doc  = new DOMParser().parseFromString(html, 'text/html');
+    const out  = [];
+    doc.querySelectorAll(PS_ATTRS.map(([a])=>`[${a}^="sections."]`).join(',')).forEach(el=>{
+      const g    = el.closest('[data-cms-group]');
+      const head = g && g.querySelector('h1,h2,h3');
+      if (head) head.querySelectorAll('br').forEach(br=>br.replaceWith(' '));   // parsed copy, not the live page
+      const group = g && g.tagName==='FOOTER' ? 'All pages — Footer'
+        : label + ' — ' + (head ? head.textContent.replace(/\s+/g,' ').trim().slice(0,50) : ((g&&g.getAttribute('data-cms-group'))||'').replace(/^.*? — /,'') || 'Page');
+      PS_ATTRS.forEach(([attr,kind])=>{
+        const v = el.getAttribute(attr);
+        if (!v || !v.startsWith('sections.')) return;
+        out.push({ key:v.slice(9), kind, label:psLabel(el,kind), def:psDefault(el,kind), group, page });
+      });
+    });
+    return out;
+  }));
+  const seen = new Set();
+  PS_FIELDS = perPage.flat().filter(f=>!seen.has(f.key) && seen.add(f.key));   // footer is shared across pages
+}
+function psUrl(v) { return /^https?:\/\//.test(v) ? v : '../' + String(v||'').replace(/^\/+/,''); }
+function psField(f, val) {
+  const id = 'ps-'+f.key, attrs = `id="${id}" data-def="${esc(f.def)}"`;
+  if (f.kind==='img' || f.kind==='bg') {
+    return `<div class="frow full"><div class="fg"><label>${esc(f.label)}</label>
+      <div style="display:flex;gap:10px;align-items:center">
+        <img id="psprev-${f.key}" src="${esc(psUrl(val))}" alt="" style="width:76px;height:56px;object-fit:cover;border-radius:6px;background:#eee;flex-shrink:0" onerror="this.style.opacity='.3'">
+        <input type="text" ${attrs} value="${esc(val)}" style="flex:1" oninput="document.getElementById('psprev-${f.key}').src=psUrl(this.value)">
+        <label class="btn btn-outline btn-sm" style="cursor:pointer;flex-shrink:0">Upload<input type="file" accept="image/*" style="display:none" onchange="psUpload('${f.key}',this)"></label>
+      </div></div></div>`;
+  }
+  if (f.kind==='href') {   // a link can also point at an uploaded PDF (e.g. a new brochure)
+    return `<div class="frow full"><div class="fg"><label>${esc(f.label)}</label>
+      <div style="display:flex;gap:10px;align-items:center">
+        <input type="text" ${attrs} value="${esc(val)}" style="flex:1">
+        <label class="btn btn-outline btn-sm" style="cursor:pointer;flex-shrink:0">Upload PDF<input type="file" accept="application/pdf" style="display:none" onchange="psUpload('${f.key}',this,'pdf')"></label>
+      </div></div></div>`;
+  }
+  const input = f.kind==='text' && f.def.length > 70
+    ? `<textarea ${attrs} style="min-height:72px">${esc(val)}</textarea>`
+    : `<input type="text" ${attrs} value="${esc(val)}">`;
+  return `<div class="frow full"><div class="fg"><label>${esc(f.label)}</label>${input}</div></div>`;
+}
+async function loadPageSections() {
+  const box   = document.getElementById('psEditor');
+  const saved = (C && C.sections) || {};
+  await psScan();
+  const groups = [];
+  PS_FIELDS.forEach(f=>{
+    let g = groups.find(x=>x.name===f.group);
+    if (!g) groups.push(g = { name:f.group, page:f.page, fields:[] });
+    g.fields.push(f);
+  });
+  box.innerHTML = `<div class="card" style="padding:12px 16px"><input type="search" id="psFind" placeholder="Find text on the website… (e.g. Showroom, Grohe, 2017)" oninput="psFilter(this.value)" style="width:100%"></div>` +
+    groups.map(g=>`<details class="card ps-group" style="padding:0">
+      <summary style="cursor:pointer;padding:16px 20px;font-weight:600;color:#1A4530">${esc(g.name)}
+        <span style="color:#8a7e72;font-weight:400;font-size:.75rem">· ${g.fields.length} fields · <a href="../${g.page}" target="_blank" onclick="event.stopPropagation()">view page</a></span></summary>
+      <div style="padding:0 20px 16px">${g.fields.map(f=>psField(f, saved[f.key] || f.def)).join('')}</div>
+    </details>`).join('');
+}
+function psFilter(q) {
+  q = q.trim().toLowerCase();
+  document.querySelectorAll('#psEditor .ps-group').forEach(d=>{
+    const hit = !q || d.querySelector('summary').textContent.toLowerCase().includes(q) ||
+      [...d.querySelectorAll('input[type=text],textarea')].some(el=>el.value.toLowerCase().includes(q));
+    d.style.display = hit ? '' : 'none';
+    d.open = !!q && hit;
+  });
+}
+async function psUpload(key, input, kind) {
+  const file = input.files[0]; if (!file) return;
+  const pdf = kind === 'pdf';
+  const fd = new FormData(); fd.append(pdf ? 'file' : 'image', file);
+  toast('Uploading…');
+  const r = await fetch(pdf ? '/api/sections/upload-file' : '/api/sections/upload-image',{method:'POST',body:fd,headers:{'X-CSRF-Token':_csrfToken}}).then(x=>x.json()).catch(e=>({error:e.message}));
+  input.value = '';
+  if (!r.success) { toast('Upload failed: '+(r.error||''),'err'); return; }
+  document.getElementById('ps-'+key).value = r.path;
+  const prev = document.getElementById('psprev-'+key);
+  if (prev) prev.src = psUrl(r.path);
+  toast((pdf ? 'PDF' : 'Image') + ' uploaded — click Save Changes, then Publish');
+}
+async function savePageSections() {
+  const data = {};
+  PS_FIELDS.forEach(f=>{
+    const el = document.getElementById('ps-'+f.key);
+    if (!el) return;
+    const v = el.value.trim();
+    data[f.key] = (v && v !== el.dataset.def) ? v : '';   // '' = keep the page's original
+  });
+  await api('POST','/api/content/sections', data);
+  C = await api('GET','/api/content');
+}
+
 // ── SAVE DISPATCHER ───────────────────────────
 async function saveCurrent() {
   const btn = document.getElementById('saveBtn');
@@ -3805,6 +4039,7 @@ async function saveCurrent() {
     else if (curPanel==='navigation')  await saveNavigation();
     else if (curPanel==='seo')         await saveSEO();
     else if (curPanel==='settings')    await saveSettings();
+    else if (curPanel==='sections')    await savePageSections();
     else { toast('Nothing to save on this panel'); btn.textContent='Save Changes'; btn.disabled=false; return; }
     loadStats();
     toast('Saved to draft ✓ — click Publish to go live');
@@ -4086,10 +4321,16 @@ async function api(method, url, body) {
   }
   const r    = await fetch(url, opts);
   const data = await r.json();
+  // Session gone (expired or server restarted): back to the sign-in page rather than
+  // showing a bare "Unauthorized". Other 401s (e.g. wrong current password) carry their own message.
+  if (r.status === 401 && data.error === 'Unauthorized') {
+    location.href = '/admin';
+    throw new Error('Your session has expired — please sign in again');
+  }
   if (!r.ok && data.error) throw new Error(data.error);
   // After any successful content edit, refresh the unpublished-changes indicator.
   if (r.ok && ['POST','PUT','PATCH','DELETE'].includes(method) &&
-      /^\/api\/(content|gallery|beforeafter|testimonials|blog|team|restore)\b/.test(url)) {
+      /^\/api\/(content|gallery|beforeafter|projectphotos|testimonials|blog|team|restore)\b/.test(url)) {
     schedulePubRefresh();
   }
   return data;
@@ -4263,7 +4504,7 @@ function vRenderMap(points) {
     const r = 6 + (p.count/mx)*22;
     const col = p.count>=50?'#0e4d2a':p.count>=11?'#1A4530':'#C9A05A';
     L.circleMarker([p.lat,p.lon],{radius:r,fillColor:col,color:'#fff',weight:1.5,opacity:.9,fillOpacity:.7})
-      .bindPopup(`<div style="font-family:Jost,sans-serif"><strong style="color:#1A4530">${vFlag(p.countryCode)} ${p.city||'—'}</strong><br><small style="color:#6a6460">${p.country||''}</small><br><strong style="color:#C9A05A">${p.count} visit${p.count!==1?'s':''}</strong></div>`)
+      .bindPopup(`<div style="font-family:Jost,sans-serif"><strong style="color:#1A4530">${vFlag(p.countryCode)} ${esc(p.city||'—')}</strong><br><small style="color:#6a6460">${esc(p.country||'')}</small><br><strong style="color:#C9A05A">${p.count} visit${p.count!==1?'s':''}</strong></div>`)
       .addTo(vMapLayer);
   });
   const valid = points.filter(p=>p.lat||p.lon);

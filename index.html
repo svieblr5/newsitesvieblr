@@ -13,11 +13,18 @@
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://svie5.com/">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Raleway:wght@300;400;500;600;700;800&family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Raleway:wght@300;400;500;600;700;800&family=Jost:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Raleway:wght@300;400;500;600;700;800&family=Jost:wght@300;400;500;600&display=swap"></noscript>
+<!-- Self-hosted Cormorant / Raleway / Jost (latin + latin-ext, variable woff2 in /fonts).
+     Non-default fonts picked in the CMS still load from Google via /fonts.css?v=0c59d47d. -->
+<style id="self-hosted-fonts">
+@font-face{font-family:'Cormorant';font-style:italic;font-weight:300 600;font-display:swap;src:url(/fonts/cormorant-italic-latin-ext-v24.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Cormorant';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/cormorant-normal-latin-ext-v24.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Jost';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/jost-normal-latin-ext-v20.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Raleway';font-style:normal;font-weight:300 800;font-display:swap;src:url(/fonts/raleway-normal-latin-ext-v37.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Cormorant';font-style:italic;font-weight:300 600;font-display:swap;src:url(/fonts/cormorant-italic-latin-v24.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Cormorant';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/cormorant-normal-latin-v24.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Jost';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/jost-normal-latin-v20.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Raleway';font-style:normal;font-weight:300 800;font-display:swap;src:url(/fonts/raleway-normal-latin-v37.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+</style>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Sri Vasavi Interiors and Exteriors">
 <meta property="og:locale" content="en_IN">
@@ -35,7 +42,7 @@
 <meta name="twitter:image" content="https://svie5.com/images/og-default.jpg">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":["LocalBusiness","InteriorDesigner","HomeAndConstructionBusiness"],"@id":"https://svie5.com/#business","name":"Sri Vasavi Interiors and Exteriors","alternateName":"SVIE","description":"Bengaluru's premier interior design, construction, and modular furniture company. Innovative ideas, stylish designs since 2017.","url":"https://svie5.com","logo":{"@type":"ImageObject","url":"https://svie5.com/images/logo.png","width":512,"height":512},"image":"https://svie5.com/images/og-default.jpg","telephone":["+919513961740","+919845581156"],"email":"svie.blr5@gmail.com","address":{"@type":"PostalAddress","streetAddress":"172 A, B & E, Link Road, 5th Cross Rd, Malleshwaram","addressLocality":"Bengaluru","addressRegion":"Karnataka","postalCode":"560003","addressCountry":"IN"},"geo":{"@type":"GeoCoordinates","latitude":"13.0046","longitude":"77.5659"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"10:00","closes":"21:00"}],"priceRange":"₹₹₹","foundingDate":"2017","areaServed":[{"@type":"City","name":"Bengaluru"},{"@type":"State","name":"Karnataka"}],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Interior Design & Construction Services","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Interior Design & Decor"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Design & Quality Management"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Construction Management"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Modular Furniture (Green Nest)"}}]},"sameAs":["https://www.facebook.com/SVIEBLR/","https://instagram.com/svie.blr","https://twitter.com/kiran4u1982"],"currenciesAccepted":"INR","paymentAccepted":"Cash, Credit Card, Bank Transfer, UPI"},{"@type":"WebSite","@id":"https://svie5.com/#website","url":"https://svie5.com","name":"Sri Vasavi Interiors and Exteriors","publisher":{"@id":"https://svie5.com/#business"}}]}</script>
 <style id="critical-css">/* Static fallback — served from file:// or when Node server is offline.
-   On localhost, the Express /fonts.css?v=0d861e74 route always takes priority over this file. */
+   On localhost, the Express /fonts.css?v=0c59d47d route always takes priority over this file. */
 :root{
   --font-display:'Cormorant', Georgia, serif;
   --font-sans:'Raleway', system-ui, sans-serif;
@@ -51,13 +58,13 @@
   --fm-lh-body:1.75;
   --fm-ls-heading:-0.02em;
 }
-html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --forest: #1A4530; --forest-mid: #215840; --forest-light: #2D6B52; --cream: #F5EFE6; --cream-2: #EDE5D8; --sand: #DDD0C0; --gold: #C9A05A; --gold-light: #E0C07E; --gold-pale: #F0DDB0; --gold-dark: #9A7038; --white: #FAFAF8; --off-white: #F5F3F0; --charcoal: #1A4530; --mid-gray: #2B4437; --light-gray: #D8D4CE; --font-display: 'Cormorant', Georgia, serif; --font-sans: 'Raleway', system-ui, sans-serif; --font-body: 'Jost', system-ui, sans-serif; --fm-scale-hero: 1; --fm-scale-section: 1; --fm-scale-body: 1; --fm-scale-nav: 1; --fm-scale-stats: 1; --fm-fw-display: 600; --fm-fw-body: 400; --fm-fw-sans: 600; --fm-lh-body: 1.75; --fm-ls-heading: -.02em; --r-sm: 4px; --r: 10px; --r-lg: 18px; --r-xl: 28px; --r-full: 9999px; --sh-sm: 0 2px 12px rgba(12,44,27,.06); --sh: 0 8px 40px rgba(12,44,27,.10); --sh-lg: 0 20px 70px rgba(12,44,27,.16); --sh-gold: 0 8px 40px rgba(201,160,90,.30); --ease: cubic-bezier(.4,0,.2,1); --ease-out: cubic-bezier(0,0,.2,1); --ease-in: cubic-bezier(.4,0,1,1); --spring: cubic-bezier(.34,1.56,.64,1); --t-fast: .2s var(--ease); --t: .35s var(--ease); --t-slow: .6s var(--ease-out); --max-w: 1320px; --gutter: 48px; --section: 80px; }*, ::before, ::after { box-sizing: border-box; margin: 0px; padding: 0px; }html { scroll-behavior: smooth; font-size: 16px; }body { font-family: var(--font-body); color: var(--charcoal); background: var(--white); line-height: 1.65; overflow-x: hidden; -webkit-font-smoothing: antialiased; }img { max-width: 100%; height: auto; display: block; }a { color: inherit; text-decoration: none; }button { cursor: pointer; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; font-family: inherit; }body::before { content: ""; position: fixed; inset: 0px; pointer-events: none; z-index: 9999; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 128px 128px; mix-blend-mode: multiply; }.cursor, .cursor-ring { position: fixed; top: 0px; left: 0px; border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); z-index: 10000; }.cursor { width: 8px; height: 8px; background: var(--gold); transition: transform .08s var(--ease), width .25s, height .25s, background .25s; }.cursor-ring { width: 36px; height: 36px; border: 1.5px solid var(--gold); opacity: 0.5; transition: transform .14s var(--ease), width .3s, height .3s, opacity .3s; }.wrap { max-width: var(--max-w); margin: 0px auto; padding: 0 var(--gutter); }@media (max-width: 768px){.wrap { padding: 0px 24px; }}.sec { padding: var(--section) 0; }.btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 30px; font-family: var(--font-sans); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border-radius: var(--r-full); transition: var(--t); position: relative; overflow: hidden; white-space: nowrap; }.btn svg { transition: transform .3s var(--spring); flex-shrink: 0; }.btn:hover svg { transform: translateX(5px); }.btn-gold { background: var(--gold); color: var(--forest-deep); }.btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: var(--sh-gold); }.btn-ghost { border: 1.5px solid rgba(245, 239, 230, 0.35); color: var(--cream); }.btn-ghost:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }.nav { position: fixed; top: 0px; left: 0px; right: 0px; z-index: 1000; padding: 26px 0px; transition: padding var(--t), background var(--t), box-shadow var(--t); }.nav-inner { display: flex; align-items: center; justify-content: space-between; }.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }.nav-logo-img-wrap { flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; border: 2px solid rgba(201, 160, 90, 0.55); box-shadow: rgba(201, 160, 90, 0.15) 0px 0px 0px 1px, rgba(0, 0, 0, 0.35) 0px 4px 18px; overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform .3s var(--spring), box-shadow .3s var(--ease); background: rgb(42, 122, 42); }.nav-logo-img-wrap::before { display: none; }.nav-logo:hover .nav-logo-img-wrap { transform: scale(1.07); box-shadow: rgba(201, 160, 90, 0.5) 0px 0px 0px 2px, rgba(201, 160, 90, 0.3) 0px 6px 24px; }.nav-logo-img { width: 115%; height: 115%; object-fit: cover; display: block; object-position: center center; }.nav-logo-sep { display: none; }.nav-logo-text { display: flex; flex-direction: column; gap: 4px; border-left: 1.5px solid rgba(201, 160, 90, 0.35); padding-left: 14px; }.nav-logo-name { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--cream); letter-spacing: 0.03em; line-height: 1; white-space: nowrap; }.nav-logo-sub { font-family: var(--font-sans); font-size: 0.44rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); white-space: nowrap; background: rgba(10, 36, 22, 0.9); padding: 2px 8px; border-radius: 5px; opacity: 1; transition: opacity 0.3s; }.nav-logo:hover .nav-logo-sub { opacity: 1; }@media (max-width: 900px){.nav-logo { gap: 10px; }.nav-logo-img-wrap { width: 52px; height: 52px; }.nav-logo-text { padding-left: 12px; }.nav-logo-name { font-size: 1.05rem; }}@media (max-width: 640px){.nav-logo { gap: 9px; }.nav-logo-img-wrap { width: 44px; height: 44px; }.nav-logo-text { padding-left: 10px; }.nav-logo-name { font-size: 0.95rem; }.nav-logo-sub { font-size: 0.4rem; letter-spacing: 0.16em; }}.nav-links { display: flex; align-items: center; gap: 2px; }.nav-a { padding: 8px 13px; font-family: var(--font-sans); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245, 239, 230, 0.7); position: relative; transition: color var(--t-fast); }.nav-a::after { content: ""; position: absolute; bottom: 5px; left: 13px; right: 13px; height: 1px; background: var(--gold); transform: scaleX(0); transform-origin: right center; transition: transform .3s var(--ease); }.nav-a:hover { color: var(--cream); }.nav-a:hover::after, .nav-a.on::after { transform: scaleX(1); transform-origin: left center; }.nav-a.on { color: var(--cream); }.nav-drop { position: relative; }.nav-drop::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 230px; height: 20px; }.nav-drop-panel { position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%) translateY(-6px); background: rgba(12, 44, 27, 0.97); border: 1px solid rgba(201, 160, 90, 0.18); border-radius: var(--r); padding: 8px; min-width: 230px; opacity: 0; pointer-events: none; transition: var(--t); box-shadow: var(--sh-lg); }.nav-drop:hover .nav-drop-panel { opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0px); }.nav-drop-a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; font-family: var(--font-sans); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(245, 239, 230, 0.6); border-radius: var(--r-sm); transition: var(--t-fast); }.nav-drop-a:hover { background: rgba(201, 160, 90, 0.1); color: var(--gold); padding-left: 20px; }.nav-drop-a svg { opacity: 0.5; }.nav-cta { margin-left: 18px; }.nav-cta .btn { padding: 10px 22px; font-size: 0.7rem; }.nav-burger { display: none; flex-direction: column; gap: 5px; padding: 6px; cursor: pointer; }.nav-burger span { display: block; width: 22px; height: 1.5px; background: var(--cream); border-radius: 2px; transition: var(--t); }.nav-drawer { display: none; position: fixed; inset: 0px; background: var(--forest-ink); z-index: 999; flex-direction: column; padding: 100px 40px 40px; overflow-y: auto; }body:has(.nav-drawer.open) #svie-consent { transform: translateY(100%) !important; }.nav-close { position: absolute; top: 24px; right: 24px; width: 44px; height: 44px; border-radius: 50%; background: rgba(245, 239, 230, 0.08); display: flex; align-items: center; justify-content: center; color: var(--cream); cursor: pointer; font-size: 1.2rem; transition: background var(--t-fast); }.hero { min-height: 100vh; background: var(--forest-ink); position: relative; display: flex; align-items: center; overflow: hidden; }.hero-atmosphere { position: absolute; inset: 0px; background: radial-gradient(80% 60% at 70% 40%, rgba(31, 58, 44, 0.8) 0%, transparent 70%), radial-gradient(50% 70% at 20% 80%, rgba(21, 40, 32, 0.6) 0%, transparent 60%), linear-gradient(160deg, rgb(8, 17, 12) 0%, rgb(14, 26, 20) 50%, rgb(21, 40, 32) 100%); }.hero-img-panel { position: absolute; right: 0px; top: 0px; bottom: 0px; width: 52%; overflow: hidden; }.hero-img { position: absolute; inset: 0px; width: 100%; height: 100%; object-fit: cover; opacity: 0.32; transform: scale(1.04); transition: transform 8s var(--ease-out); }.hero:hover .hero-img { transform: scale(1); }.hero-img-panel::after { content: ""; position: absolute; inset: 0px; background: linear-gradient(to right, rgb(12, 44, 27) 0%, rgba(12, 44, 27, 0.75) 25%, rgba(12, 44, 27, 0.2) 65%, rgba(12, 44, 27, 0.05) 100%); }.hero-line { position: absolute; left: calc(var(--gutter) - 4px); top: 0px; bottom: 0px; width: 1px; background: linear-gradient(transparent, rgba(201, 160, 90, 0.5) 20%, rgba(201, 160, 90, 0.5) 80%, transparent); }.hero-content { position: relative; z-index: 2; max-width: 760px; padding-top: 80px; }.hero-badge { display: inline-flex; align-items: center; gap: 10px; padding: 7px 18px 7px 10px; background: rgba(201, 160, 90, 0.1); border: 1px solid rgba(201, 160, 90, 0.25); border-radius: var(--r-full); margin-bottom: 32px; }.hero-badge-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: 2.5s ease 0s infinite normal none running pulse; }.hero-badge-text { font-family: var(--font-sans); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }@keyframes pulse { 
+html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --forest: #1A4530; --forest-mid: #215840; --forest-light: #2D6B52; --cream: #F5EFE6; --cream-2: #EDE5D8; --sand: #DDD0C0; --gold: #C9A05A; --gold-light: #E0C07E; --gold-pale: #F0DDB0; --gold-dark: #9A7038; --white: #FAFAF8; --off-white: #F5F3F0; --charcoal: #1A4530; --mid-gray: #2B4437; --light-gray: #D8D4CE; --font-display: 'Cormorant', Georgia, serif; --font-sans: 'Raleway', system-ui, sans-serif; --font-body: 'Jost', system-ui, sans-serif; --fm-scale-hero: 1; --fm-scale-section: 1; --fm-scale-body: 1; --fm-scale-nav: 1; --fm-scale-stats: 1; --fm-fw-display: 600; --fm-fw-body: 400; --fm-fw-sans: 600; --fm-lh-body: 1.75; --fm-ls-heading: -.02em; --r-sm: 4px; --r: 10px; --r-lg: 18px; --r-xl: 28px; --r-full: 9999px; --sh-sm: 0 2px 12px rgba(12,44,27,.06); --sh: 0 8px 40px rgba(12,44,27,.10); --sh-lg: 0 20px 70px rgba(12,44,27,.16); --sh-gold: 0 8px 40px rgba(201,160,90,.30); --ease: cubic-bezier(.4,0,.2,1); --ease-out: cubic-bezier(0,0,.2,1); --ease-in: cubic-bezier(.4,0,1,1); --spring: cubic-bezier(.34,1.56,.64,1); --t-fast: .2s var(--ease); --t: .35s var(--ease); --t-slow: .6s var(--ease-out); --max-w: 1320px; --gutter: 48px; --section: 80px; }*, ::before, ::after { box-sizing: border-box; margin: 0px; padding: 0px; }html { scroll-behavior: smooth; font-size: 16px; }body { font-family: var(--font-body); color: var(--charcoal); background: var(--white); line-height: 1.65; overflow-x: hidden; -webkit-font-smoothing: antialiased; }img { max-width: 100%; height: auto; display: block; }a { color: inherit; text-decoration: none; }button { cursor: pointer; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; font-family: inherit; }body::before { content: ""; position: fixed; inset: 0px; pointer-events: none; z-index: 9999; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 128px 128px; }.cursor, .cursor-ring { position: fixed; top: 0px; left: 0px; border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); z-index: 10000; }.cursor { width: 8px; height: 8px; background: var(--gold); transition: transform .08s var(--ease), width .25s, height .25s, background .25s; }.cursor-ring { width: 36px; height: 36px; border: 1.5px solid var(--gold); opacity: 0.5; transition: transform .14s var(--ease), width .3s, height .3s, opacity .3s; }.wrap { max-width: var(--max-w); margin: 0px auto; padding: 0 var(--gutter); }@media (max-width: 768px){.wrap { padding: 0px 24px; }}.sec { padding: var(--section) 0; }.btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 30px; font-family: var(--font-sans); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border-radius: var(--r-full); transition: var(--t); position: relative; overflow: hidden; white-space: nowrap; }.btn svg { transition: transform .3s var(--spring); flex-shrink: 0; }.btn:hover svg { transform: translateX(5px); }.btn-gold { background: var(--gold); color: var(--forest-deep); }.btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: var(--sh-gold); }.btn-ghost { border: 1.5px solid rgba(245, 239, 230, 0.35); color: var(--cream); }.btn-ghost:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }.nav { position: fixed; top: 0px; left: 0px; right: 0px; z-index: 1000; padding: 26px 0px; transition: padding var(--t), background var(--t), box-shadow var(--t); }.nav-inner { display: flex; align-items: center; justify-content: space-between; }.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }.nav-logo-img-wrap { flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; border: 2px solid rgba(201, 160, 90, 0.55); box-shadow: rgba(201, 160, 90, 0.15) 0px 0px 0px 1px, rgba(0, 0, 0, 0.35) 0px 4px 18px; overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform .3s var(--spring), box-shadow .3s var(--ease); background: rgb(42, 122, 42); }.nav-logo-img-wrap::before { display: none; }.nav-logo:hover .nav-logo-img-wrap { transform: scale(1.07); box-shadow: rgba(201, 160, 90, 0.5) 0px 0px 0px 2px, rgba(201, 160, 90, 0.3) 0px 6px 24px; }.nav-logo-img { width: 115%; height: 115%; object-fit: cover; display: block; object-position: center center; }.nav-logo-sep { display: none; }.nav-logo-text { display: flex; flex-direction: column; gap: 4px; border-left: 1.5px solid rgba(201, 160, 90, 0.35); padding-left: 14px; }.nav-logo-name { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--cream); letter-spacing: 0.03em; line-height: 1; white-space: nowrap; }.nav-logo-sub { font-family: var(--font-sans); font-size: 0.44rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); white-space: nowrap; background: rgba(10, 36, 22, 0.9); padding: 2px 8px; border-radius: 5px; opacity: 1; transition: opacity 0.3s; }.nav-logo:hover .nav-logo-sub { opacity: 1; }@media (max-width: 900px){.nav-logo { gap: 10px; }.nav-logo-img-wrap { width: 52px; height: 52px; }.nav-logo-text { padding-left: 12px; }.nav-logo-name { font-size: 1.05rem; }}@media (max-width: 640px){.nav-logo { gap: 9px; }.nav-logo-img-wrap { width: 44px; height: 44px; }.nav-logo-text { padding-left: 10px; }.nav-logo-name { font-size: 0.95rem; }.nav-logo-sub { font-size: 0.4rem; letter-spacing: 0.16em; }}.nav-links { display: flex; align-items: center; gap: 2px; }.nav-a { padding: 8px 13px; font-family: var(--font-sans); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245, 239, 230, 0.7); position: relative; transition: color var(--t-fast); }.nav-a::after { content: ""; position: absolute; bottom: 5px; left: 13px; right: 13px; height: 1px; background: var(--gold); transform: scaleX(0); transform-origin: right center; transition: transform .3s var(--ease); }.nav-a:hover { color: var(--cream); }.nav-a:hover::after, .nav-a.on::after { transform: scaleX(1); transform-origin: left center; }.nav-a.on { color: var(--cream); }.nav-drop { position: relative; }.nav-drop::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 230px; height: 20px; }.nav-drop-panel { position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%) translateY(-6px); background: rgba(12, 44, 27, 0.97); border: 1px solid rgba(201, 160, 90, 0.18); border-radius: var(--r); padding: 8px; min-width: 230px; opacity: 0; pointer-events: none; transition: var(--t); box-shadow: var(--sh-lg); }.nav-drop:hover .nav-drop-panel { opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0px); }.nav-drop-a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; font-family: var(--font-sans); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(245, 239, 230, 0.6); border-radius: var(--r-sm); transition: var(--t-fast); }.nav-drop-a:hover { background: rgba(201, 160, 90, 0.1); color: var(--gold); padding-left: 20px; }.nav-drop-a svg { opacity: 0.5; }.nav-cta { margin-left: 18px; }.nav-cta .btn { padding: 10px 22px; font-size: 0.7rem; }.nav-burger { display: none; flex-direction: column; gap: 5px; padding: 6px; cursor: pointer; }.nav-burger span { display: block; width: 22px; height: 1.5px; background: var(--cream); border-radius: 2px; transition: var(--t); }.nav-drawer { display: none; position: fixed; inset: 0px; background: var(--forest-ink); z-index: 999; flex-direction: column; padding: 100px 40px 40px; overflow-y: auto; }body:has(.nav-drawer.open) #svie-consent { transform: translateY(100%) !important; }.nav-close { position: absolute; top: 24px; right: 24px; width: 44px; height: 44px; border-radius: 50%; background: rgba(245, 239, 230, 0.08); display: flex; align-items: center; justify-content: center; color: var(--cream); cursor: pointer; font-size: 1.2rem; transition: background var(--t-fast); }.hero { min-height: 100vh; background: var(--forest-ink); position: relative; display: flex; align-items: center; overflow: hidden; }.hero-atmosphere { position: absolute; inset: 0px; background: radial-gradient(80% 60% at 70% 40%, rgba(31, 58, 44, 0.8) 0%, transparent 70%), radial-gradient(50% 70% at 20% 80%, rgba(21, 40, 32, 0.6) 0%, transparent 60%), linear-gradient(160deg, rgb(8, 17, 12) 0%, rgb(14, 26, 20) 50%, rgb(21, 40, 32) 100%); }.hero-img-panel { position: absolute; right: 0px; top: 0px; bottom: 0px; width: 52%; overflow: hidden; }.hero-img { position: absolute; inset: 0px; width: 100%; height: 100%; object-fit: cover; opacity: 0.32; transform: scale(1.04); transition: transform 8s var(--ease-out); }.hero:hover .hero-img { transform: scale(1); }.hero-img-panel::after { content: ""; position: absolute; inset: 0px; background: linear-gradient(to right, rgb(12, 44, 27) 0%, rgba(12, 44, 27, 0.75) 25%, rgba(12, 44, 27, 0.2) 65%, rgba(12, 44, 27, 0.05) 100%); }.hero-line { position: absolute; left: calc(var(--gutter) - 4px); top: 0px; bottom: 0px; width: 1px; background: linear-gradient(transparent, rgba(201, 160, 90, 0.5) 20%, rgba(201, 160, 90, 0.5) 80%, transparent); }.hero-content { position: relative; z-index: 2; max-width: 760px; padding-top: 80px; }.hero-badge { display: inline-flex; align-items: center; gap: 10px; padding: 7px 18px 7px 10px; background: rgba(201, 160, 90, 0.1); border: 1px solid rgba(201, 160, 90, 0.25); border-radius: var(--r-full); margin-bottom: 32px; }.hero-badge-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: 2.5s ease 0s infinite normal none running pulse; }.hero-badge-text { font-family: var(--font-sans); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }@keyframes pulse { 
   0%, 100% { box-shadow: rgba(201, 160, 90, 0.45) 0px 0px 0px 0px; }
   60% { box-shadow: rgba(201, 160, 90, 0) 0px 0px 0px 8px; }
 }.hero-title { font-family: var(--font-display); font-size: clamp(2rem, 4.2vw, 3.6rem); font-weight: 600; color: var(--cream); line-height: 1.06; letter-spacing: -0.02em; margin-bottom: 22px; }.hero-title .line2 { font-style: italic; color: var(--gold); display: block; padding-left: 0.06em; text-shadow: rgba(201, 160, 90, 0.18) 0px 0px 40px; }.hero-title .line3 { display: block; font-weight: 300; color: rgba(245, 239, 230, 0.5); font-size: 0.44em; letter-spacing: 0.13em; text-transform: uppercase; font-style: normal; font-family: var(--font-sans); margin-top: 14px; }.hero-body { font-family: var(--font-body); font-size: 1rem; color: rgba(245, 239, 230, 0.55); max-width: 440px; line-height: 1.75; margin-bottom: 44px; }.hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }.hero-stats { display: flex; flex-wrap: wrap; gap: 0px; margin-top: 44px; padding-top: 24px; border-top: 1px solid rgba(245, 239, 230, 0.08); }.h-stat { padding: 0px 36px 0px 0px; margin-right: 36px; border-right: 1px solid rgba(245, 239, 230, 0.1); }.h-stat:last-child { border-width: medium; border-style: none; border-color: currentcolor; border-image: none; margin: 0px; padding: 0px; }.h-stat-n { font-family: var(--font-display); font-size: 2.4rem; font-weight: 600; color: var(--gold); line-height: 1; margin-bottom: 5px; }.h-stat-l { font-family: var(--font-sans); font-size: 0.62rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245, 239, 230, 0.38); }.hero-scroll { position: absolute; bottom: 36px; left: var(--gutter); display: flex; flex-direction: column; align-items: flex-start; gap: 10px; z-index: 3; }.hero-scroll-label { font-family: var(--font-sans); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(245, 239, 230, 0.3); writing-mode: vertical-lr; transform: rotate(180deg); }.hero-scroll-track { width: 1px; height: 56px; background: rgba(245, 239, 230, 0.12); position: relative; overflow: hidden; }.hero-scroll-bar { position: absolute; top: 0px; left: 0px; right: 0px; height: 40%; background: var(--gold); animation: 2s ease-in-out 0s infinite normal none running scrollDrop; }@keyframes scrollDrop { 
-  0% { top: -40%; opacity: 0; }
+  0% { transform: translateY(-100%); opacity: 0; }
   30% { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
+  100% { transform: translateY(250%); opacity: 0; }
 }.marquee-wrap { background: var(--cream-2); border-top: 1px solid var(--sand); border-bottom: 1px solid var(--sand); padding: 22px 0px; overflow: hidden; }.marquee-track { display: flex; align-items: center; gap: 0px; animation: 28s linear 0s infinite normal none running marqueeMove; }.marquee-track:hover { animation-play-state: paused; }.marquee-word { padding: 0px 32px; font-family: var(--font-sans); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-gray); flex-shrink: 0; white-space: nowrap; transition: color var(--t-fast); }.marquee-word:hover { color: var(--gold-dark); }.marquee-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); opacity: 0.5; flex-shrink: 0; }@keyframes marqueeMove { 
   0% { transform: translateX(0px); }
   100% { transform: translateX(-50%); }
@@ -68,20 +75,33 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 }.hero-title { font-size: calc(clamp(2rem,4.2vw,3.6rem)*var(--fm-scale-hero,1)); font-weight: var(--fm-fw-display,600); letter-spacing: var(--fm-ls-heading,-.02em); }.hero-body { font-size: calc(1rem*var(--fm-scale-body,1)); line-height: var(--fm-lh-body,1.75); font-weight: var(--fm-fw-body,400); }.h-stat-n { font-size: calc(2.4rem*var(--fm-scale-stats,1)); font-weight: var(--fm-fw-display,600); }.nav-a { font-size: calc(.72rem*var(--fm-scale-nav,1)); font-weight: var(--fm-fw-sans,600); }@media (max-width: 900px){:root { --section: 72px; --gutter: 28px; }.nav-links, .nav-cta { display: none; }.nav-burger { display: flex; }.hero-img-panel { opacity: 0.25; }.hero-stats { flex-wrap: wrap; gap: 20px 0px; }.h-stat { border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 0px 24px 0px 0px; margin: 0px; }.process-steps::before { display: none; }.services-header { grid-template-columns: 1fr; gap: 20px; }.visv-grid > div:nth-child(2) { display: none !important; }.call-float-tooltip { display: none; }}@media (max-width: 768px){.wrap { padding: 0px 20px; }}@media (max-width: 640px){:root { --section: 56px; --gutter: 18px; }.wrap { padding: 0px 18px; }.hero-actions { flex-direction: column; align-items: flex-start; }.wa-float { width: 48px; height: 48px; bottom: 18px; right: 18px; }.call-float { width: 48px; height: 48px; bottom: 78px; right: 18px; left: auto; }.call-float svg { width: 18px; height: 18px; }.wa-float svg { width: 22px; height: 22px; }}@media (max-width: 480px){:root { --section: 48px; --gutter: 16px; }.wrap { padding: 0px 16px; }.nav-inner { height: 60px; }.nav-logo-name { font-size: 0.72rem; }.nav-logo-sub { display: none; }.hero-stats { gap: 12px 0px; }.h-stat { padding: 0px 16px 0px 0px; }.btn, .btn-gold, .btn-ghost { padding: 13px 22px; font-size: 0.68rem; }.wa-float { width: 44px; height: 44px; bottom: 14px; right: 14px; }.call-float { width: 44px; height: 44px; bottom: 70px; right: 14px; left: auto; }}@keyframes svieBlink { 
   0%, 80%, 100% { opacity: 0.3; }
   40% { opacity: 1; }
-}.svie-chat-foot button:hover:not(:disabled) { background: rgb(179, 137, 74); }#svie-consent { position: fixed; bottom: 0px; left: 0px; right: 0px; z-index: 2147483647; background: rgb(12, 44, 27); color: rgb(245, 239, 230); display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 14px 22px; border-top: 2px solid rgb(201, 160, 90); box-shadow: rgba(0, 0, 0, 0.25) 0px -6px 28px; font-family: Jost, sans-serif; font-size: 13.5px; line-height: 1.5; transform: translateY(100%); transition: transform 0.35s; }#svie-consent.show { transform: translateY(0px); }#svie-consent p { flex: 1 1 0%; min-width: 220px; margin: 0px; }#svie-consent-title { font-family: Cormorant, serif; font-size: 15px; color: rgb(201, 160, 90); display: block; margin-bottom: 3px; font-weight: 600; }#svie-consent a { color: rgb(201, 160, 90); text-underline-offset: 3px; }#svie-consent-btns { display: flex; gap: 9px; flex-shrink: 0; }#svie-decline { padding: 8px 16px; border-radius: 6px; border: 1.5px solid rgba(245, 239, 230, 0.35); background: transparent; color: rgb(245, 239, 230); font-family: Raleway, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; cursor: pointer; transition: 0.2s; }#svie-decline:hover { border-color: rgb(245, 239, 230); }#svie-accept { padding: 8px 16px; border-radius: 6px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: linear-gradient(135deg, rgb(201, 160, 90), rgb(224, 192, 126)); color: rgb(12, 44, 27); font-family: Raleway, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; cursor: pointer; transition: 0.2s; }#svie-accept:hover { transform: translateY(-1px); box-shadow: rgba(201, 160, 90, 0.4) 0px 4px 12px; }</style>
-<link rel="preload" href="styles.css?v=1d93e729" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="styles.css?v=1d93e729"></noscript>
-<!-- Preload the hero background so LCP isn't blocked on CSS parse (served as WebP via .htaccess when supported) -->
+}.svie-chat-foot button:hover:not(:disabled) { background: rgb(179, 137, 74); }#svie-consent { position: fixed; bottom: 0px; left: 0px; right: 0px; z-index: 2147483647; background: rgb(12, 44, 27); color: rgb(245, 239, 230); display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 14px 22px; border-top: 2px solid rgb(201, 160, 90); box-shadow: rgba(0, 0, 0, 0.25) 0px -6px 28px; font-family: Jost, sans-serif; font-size: 13.5px; line-height: 1.5; transform: translateY(100%); transition: transform 0.35s; }#svie-consent.show { transform: translateY(0px); }#svie-consent p { flex: 1 1 0%; min-width: 220px; margin: 0px; }#svie-consent-title { font-family: Cormorant, serif; font-size: 15px; color: rgb(201, 160, 90); display: block; margin-bottom: 3px; font-weight: 600; }#svie-consent a { color: rgb(201, 160, 90); text-underline-offset: 3px; }#svie-consent-btns { display: flex; gap: 9px; flex-shrink: 0; }#svie-decline { padding: 8px 16px; border-radius: 6px; border: 1.5px solid rgba(245, 239, 230, 0.35); background: transparent; color: rgb(245, 239, 230); font-family: Raleway, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; cursor: pointer; transition: 0.2s; }#svie-decline:hover { border-color: rgb(245, 239, 230); }#svie-accept { padding: 8px 16px; border-radius: 6px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: linear-gradient(135deg, rgb(201, 160, 90), rgb(224, 192, 126)); color: rgb(12, 44, 27); font-family: Raleway, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; cursor: pointer; transition: 0.2s; }#svie-accept:hover { transform: translateY(-1px); box-shadow: rgba(201, 160, 90, 0.4) 0px 4px 12px; }::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--cream)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}</style>
+<link rel="preload" href="styles.css?v=da1ffe2a" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="styles.css?v=da1ffe2a"></noscript>
+<!-- Preload the hero background so LCP isn't blocked on CSS parse (served as WebP via .htaccess when supported) -->
 <link rel="preload" as="image" href="images/gallery/hero-mobile.webp" media="(max-width:900px)" fetchpriority="high">
 <link rel="preload" as="image" href="images/gallery/hero.webp" media="(min-width:901px)" fetchpriority="high">
 
 <!-- Google Analytics 4 (svie5.com) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-871TFESZ6Y"></script>
+<!-- gtag.js (~165KB) loads on first interaction or 4s after load so it never
+     competes with first paint; gtag() calls queue in dataLayer until then. -->
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
   gtag('js',new Date());
   gtag('config','G-871TFESZ6Y');
+  (function(){
+    var done=false, ev=['scroll','pointerdown','keydown','touchstart'];
+    function load(){
+      if(done) return; done=true;
+      ev.forEach(function(e){ removeEventListener(e,load); });
+      var s=document.createElement('script'); s.async=true;
+      s.src='https://www.googletagmanager.com/gtag/js?id=G-871TFESZ6Y';
+      document.head.appendChild(s);
+    }
+    ev.forEach(function(e){ addEventListener(e,load,{once:true,passive:true}); });
+    addEventListener('load',function(){ setTimeout(load,4000); });
+  })();
 </script>
 </head>
 <body>
@@ -170,12 +190,12 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </div>
 
 <!-- ═══ HERO ═══ -->
-<section class="hero">
+<section data-cms-group="Home — Start Your Project" class="hero">
   <div class="hero-atmosphere"></div>
   <div class="hero-img-panel">
     <picture>
       <source media="(max-width:900px)" srcset="images/gallery/hero-mobile.webp">
-      <img src="images/gallery/hero.webp" alt="" class="hero-img" width="900" height="600" fetchpriority="high" decoding="async">
+      <img data-cms-alt="sections.home_s1_img1_alt" data-cms-src="sections.home_s1_img1" src="images/gallery/hero.webp" alt="" class="hero-img" width="900" height="600" fetchpriority="high" decoding="async">
     </picture>
   </div>
   <div class="hero-line"></div>
@@ -198,24 +218,24 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
       </p>
 
       <div class="hero-actions">
-        <a href="contact.html" class="btn btn-gold">
-          Start Your Project
+        <a data-cms-href="sections.home_s1_link2" href="contact.html" class="btn btn-gold">
+          <span data-cms="sections.home_s1_3">Start Your Project</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
-        <a href="gallery.html" class="btn btn-ghost">View Our Work</a>
+        <a data-cms-href="sections.home_s1_link4" href="gallery.html" class="btn btn-ghost"><span data-cms="sections.home_s1_5">View Our Work</span></a>
       </div>
 
       <div class="hero-stats">
         <div class="h-stat">
-          <div class="h-stat-n" data-count="7" data-suf="+">7+</div>
+          <div data-cms="sections.home_x1_1" class="h-stat-n" data-count="7" data-suf="+">7+</div>
           <div class="h-stat-l" data-cms="home.stats.0.label">Years of Excellence</div>
         </div>
         <div class="h-stat">
-          <div class="h-stat-n" style="font-size:1.6rem">Several</div>
+          <div data-cms="sections.home_s1_6" class="h-stat-n" style="font-size:1.6rem">Several</div>
           <div class="h-stat-l" data-cms="home.stats.1.label">Projects Delivered</div>
         </div>
         <div class="h-stat">
-          <div class="h-stat-n" data-count="35" data-suf="+">35+</div>
+          <div data-cms="sections.home_x1_2" class="h-stat-n" data-count="35" data-suf="+">35+</div>
           <div class="h-stat-l" data-cms="home.stats.2.label">Trusted Brands</div>
         </div>
         <div class="h-stat">
@@ -228,43 +248,43 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 
   <div class="hero-scroll">
     <div class="hero-scroll-track"><div class="hero-scroll-bar"></div></div>
-    <div class="hero-scroll-label">Scroll</div>
+    <div data-cms="sections.home_s1_7" class="hero-scroll-label">Scroll</div>
   </div>
 </section>
 
 <!-- ═══ MARQUEE ═══ -->
-<div class="marquee-wrap">
+<div data-cms-group="Home — Interiors" class="marquee-wrap">
   <div class="marquee-track">
-    <span class="marquee-word">Interiors</span><span class="marquee-dot"></span>
-    <span class="marquee-word">Exteriors</span><span class="marquee-dot"></span>
-    <span class="marquee-word">Modular Kitchens</span><span class="marquee-dot"></span>
-    <span class="marquee-word">Wardrobes</span><span class="marquee-dot"></span>
-    <span class="marquee-word">Construction</span><span class="marquee-dot"></span>
-    <span class="marquee-word">Electronics</span><span class="marquee-dot"></span>
-    <span class="marquee-word">Furniture</span><span class="marquee-dot"></span>
-    <span class="marquee-word">Green Nest</span><span class="marquee-dot"></span>
-    <span class="marquee-word">Venus World</span><span class="marquee-dot"></span>
-    <span class="marquee-word">Bengaluru</span><span class="marquee-dot"></span>
+    <span data-cms="sections.home_s2_1" class="marquee-word">Interiors</span><span class="marquee-dot"></span>
+    <span data-cms="sections.home_s2_2" class="marquee-word">Exteriors</span><span class="marquee-dot"></span>
+    <span data-cms="sections.home_s2_3" class="marquee-word">Modular Kitchens</span><span class="marquee-dot"></span>
+    <span data-cms="sections.home_s2_4" class="marquee-word">Wardrobes</span><span class="marquee-dot"></span>
+    <span data-cms="sections.home_s2_5" class="marquee-word">Construction</span><span class="marquee-dot"></span>
+    <span data-cms="sections.home_s2_6" class="marquee-word">Electronics</span><span class="marquee-dot"></span>
+    <span data-cms="sections.home_s2_7" class="marquee-word">Furniture</span><span class="marquee-dot"></span>
+    <span data-cms="sections.home_s2_8" class="marquee-word">Green Nest</span><span class="marquee-dot"></span>
+    <span data-cms="sections.home_s2_9" class="marquee-word">Venus World</span><span class="marquee-dot"></span>
+    <span data-cms="sections.home_s2_10" class="marquee-word">Bengaluru</span><span class="marquee-dot"></span>
   </div>
 </div>
 
 <!-- ═══ SERVICES ═══ -->
-<section class="sec">
+<section data-cms-group="Home — Spaces Built" class="sec">
   <div class="wrap">
     <div class="services-header">
       <div>
-        <div class="eyebrow reveal">What We Do</div>
+        <div data-cms="sections.home_s2_1" class="eyebrow reveal">What We Do</div>
         <h2 class="d2 reveal d1">
-          Spaces Built<br>
-          <em class="italic-gold">With Purpose</em>
+          <span data-cms="sections.home_s2_2">Spaces Built</span><br>
+          <em data-cms="sections.home_s2_3" class="italic-gold">With Purpose</em>
         </h2>
       </div>
       <div class="services-header-right">
-        <p class="body-lg reveal d2" style="max-width:380px;text-align:right">
+        <p data-cms="sections.home_s2_4" class="body-lg reveal d2" style="max-width:380px;text-align:right">
           From concept to completion — we handle every aspect of your interior and construction journey.
         </p>
-        <a href="services.html" class="btn btn-outline-sm reveal d3">
-          All Services
+        <a data-cms-href="sections.home_s2_link5" href="services.html" class="btn btn-outline-sm reveal">
+          <span data-cms="sections.home_s2_6">All Services</span>
           <span class="btn-ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
         </a>
       </div>
@@ -273,43 +293,43 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
     <div class="services-grid">
       <!-- Card 1 -->
       <div class="s-card reveal">
-        <div class="s-card-num">01</div>
+        <div data-cms="sections.home_s2_7" class="s-card-num">01</div>
         <div class="s-card-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </div>
         <div class="s-card-tag" data-cms="home.services.0.tag">Design &amp; Interiors</div>
         <h3 class="s-card-title" data-cms="home.services.0.title">Design &amp; Quality Management</h3>
         <p class="s-card-desc" data-cms="home.services.0.desc">Exceptional guidance and superior property quality. We specialize in premium interiors, dampness proofing using epoxy products, and flawless exterior finishes.</p>
-        <a href="services.html" class="s-card-link">
-          Explore Service
+        <a data-cms-href="sections.home_s2_link8" href="services.html" class="s-card-link">
+          <span data-cms="sections.home_s2_9">Explore Service</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
       </div>
       <!-- Card 2 -->
       <div class="s-card reveal d2">
-        <div class="s-card-num">02</div>
+        <div data-cms="sections.home_s2_10" class="s-card-num">02</div>
         <div class="s-card-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
         <div class="s-card-tag" data-cms="home.services.1.tag">Construction</div>
         <h3 class="s-card-title" data-cms="home.services.1.title">Construction Management</h3>
         <p class="s-card-desc" data-cms="home.services.1.desc">High-quality, cost-effective construction for all sectors. Prompt project reviews, competitive bids, and on-time delivery with uncompromising attention to detail.</p>
-        <a href="services.html" class="s-card-link">
-          Explore Service
+        <a data-cms-href="sections.home_s2_link11" href="services.html" class="s-card-link">
+          <span data-cms="sections.home_s2_12">Explore Service</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
       </div>
       <!-- Card 3 -->
       <div class="s-card reveal d3">
-        <div class="s-card-num">03</div>
+        <div data-cms="sections.home_s2_13" class="s-card-num">03</div>
         <div class="s-card-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
         </div>
         <div class="s-card-tag" data-cms="home.services.2.tag">Green Nest</div>
         <h3 class="s-card-title" data-cms="home.services.2.title">Modular Furniture</h3>
         <p class="s-card-desc" data-cms="home.services.2.desc">ZED-technology modular furniture for homes and offices — ISO-certified, eco-friendly materials, precision-engineered for modern living and workspaces.</p>
-        <a href="furniture.html" class="s-card-link">
-          Explore Range
+        <a data-cms-href="sections.home_s2_link14" href="furniture.html" class="s-card-link">
+          <span data-cms="sections.home_s2_15">Explore Range</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
       </div>
@@ -318,25 +338,25 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </section>
 
 <!-- ═══ WHY SVIE (dark section) ═══ -->
-<section class="sec-dark">
+<section data-cms-group="Home — Built on Trust," class="sec-dark">
   <div class="wrap">
     <div class="why-grid">
       <!-- Visual -->
       <div class="why-visual reveal reveal-l">
         <div class="why-img-bg"></div>
         <div class="why-accent-box">
-          <div class="why-accent-num" data-count="7" data-suf="+">7+</div>
-          <div class="why-accent-label">Years of<br>Craftsmanship</div>
+          <div data-cms="sections.home_x4_1" class="why-accent-num" data-count="7" data-suf="+">7+</div>
+          <div class="why-accent-label"><span data-cms="sections.home_s3_1">Years of</span><br><span data-cms="sections.home_s3_2">Craftsmanship</span></div>
         </div>
       </div>
       <!-- Content -->
       <div>
-        <div class="eyebrow reveal">Why Choose SVIE</div>
+        <div data-cms="sections.home_s3_3" class="eyebrow reveal">Why Choose SVIE</div>
         <h2 class="d2 text-cream reveal d1">
-          Built on Trust,<br>
-          <em class="italic-gold">Driven by Design</em>
+          <span data-cms="sections.home_s3_4">Built on Trust,</span><br>
+          <em data-cms="sections.home_s3_5" class="italic-gold">Driven by Design</em>
         </h2>
-        <p class="body-lg reveal d2" style="color:rgba(245,239,230,.85);margin-top:14px;max-width:420px">
+        <p data-cms="sections.home_s3_6" class="body-lg reveal d2" style="color:rgba(245,239,230,.85);margin-top:14px;max-width:420px">
           We combine cutting-edge technology with sustainable practices to deliver spaces that are beautiful, durable, and uniquely yours.
         </p>
         <div class="why-items">
@@ -383,23 +403,23 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </section>
 
 <!-- ═══ STATS BAND ═══ -->
-<div class="stats-band">
+<div data-cms-group="Home — 7+" class="stats-band">
   <div class="wrap">
     <div class="stats-row">
       <div class="st-item reveal">
-        <div class="st-n" data-count="7" data-suf="+">7+</div>
+        <div data-cms="sections.home_s5_1" class="st-n" data-count="7" data-suf="+">7+</div>
         <div class="st-l" data-cms="home.stats_band.0.label">Years in Business</div>
       </div>
       <div class="st-item reveal d2">
-        <div class="st-n">Several</div>
+        <div data-cms="sections.home_s5_2" class="st-n">Several</div>
         <div class="st-l" data-cms="home.stats_band.1.label">Projects Completed</div>
       </div>
       <div class="st-item reveal d3">
-        <div class="st-n" data-count="35" data-suf="+">35+</div>
+        <div data-cms="sections.home_s5_3" class="st-n" data-count="35" data-suf="+">35+</div>
         <div class="st-l" data-cms="home.stats_band.2.label">Global Brand Partners</div>
       </div>
       <div class="st-item reveal d4">
-        <div class="st-n">Several</div>
+        <div data-cms="sections.home_s5_4" class="st-n">Several</div>
         <div class="st-l" data-cms="home.stats_band.3.label">Happy Clients Across</div>
       </div>
     </div>
@@ -407,31 +427,31 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </div>
 
 <!-- ═══ PROCESS ═══ -->
-<section class="sec sec-cream">
+<section data-cms-group="Home — How We Bring" class="sec sec-cream">
   <div class="wrap">
     <div style="text-align:center;max-width:560px;margin:0 auto">
-      <div class="eyebrow reveal" style="justify-content:center">Our Process</div>
-      <h2 class="d2 reveal d1">How We Bring<br><em class="italic-gold">Your Vision to Life</em></h2>
-      <p class="body-lg reveal d2" style="margin-top:14px">A clear, collaborative process from first conversation to final reveal.</p>
+      <div data-cms="sections.home_s4_1" class="eyebrow reveal" style="justify-content:center">Our Process</div>
+      <h2 class="d2 reveal d1"><span data-cms="sections.home_s4_2">How We Bring</span><br><em data-cms="sections.home_s4_3" class="italic-gold">Your Vision to Life</em></h2>
+      <p data-cms="sections.home_s4_4" class="body-lg reveal d2" style="margin-top:14px">A clear, collaborative process from first conversation to final reveal.</p>
     </div>
     <div class="process-steps">
       <div class="p-step reveal">
-        <div class="p-step-ring">01</div>
+        <div data-cms="sections.home_s4_5" class="p-step-ring">01</div>
         <div class="p-step-title" data-cms="home.process.0.title">Consultation</div>
         <div class="p-step-desc" data-cms="home.process.0.desc">We listen to your requirements, understand your lifestyle, and define the scope and budget together.</div>
       </div>
       <div class="p-step reveal d2">
-        <div class="p-step-ring">02</div>
+        <div data-cms="sections.home_s4_6" class="p-step-ring">02</div>
         <div class="p-step-title" data-cms="home.process.1.title">Design &amp; Plan</div>
         <div class="p-step-desc" data-cms="home.process.1.desc">Our architects and designers create detailed plans, 3D renders, and material selections for your approval.</div>
       </div>
       <div class="p-step reveal d3">
-        <div class="p-step-ring">03</div>
+        <div data-cms="sections.home_s4_7" class="p-step-ring">03</div>
         <div class="p-step-title" data-cms="home.process.2.title">Execution</div>
         <div class="p-step-desc" data-cms="home.process.2.desc">Expert craftsmen and contractors bring the design to life with rigorous quality checks at every stage.</div>
       </div>
       <div class="p-step reveal d4">
-        <div class="p-step-ring">04</div>
+        <div data-cms="sections.home_s4_8" class="p-step-ring">04</div>
         <div class="p-step-title" data-cms="home.process.3.title">Handover</div>
         <div class="p-step-desc" data-cms="home.process.3.desc">We deliver your dream space on time, with a final walkthrough and post-handover support included.</div>
       </div>
@@ -440,14 +460,14 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </section>
 
 <!-- ═══ QUALITY & ACCREDITATION ═══ -->
-<section class="sec sec-cream">
+<section data-cms-group="Home — Quality You Can" class="sec sec-cream">
   <div class="wrap">
     <div class="home-quality-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center">
 
       <!-- Left: Accreditation -->
       <div>
-        <div class="eyebrow reveal">Our Commitment</div>
-        <h2 class="d2 reveal d1">Quality You Can<br><em class="italic-gold">Count On</em></h2>
+        <div data-cms="sections.home_s5_1" class="eyebrow reveal">Our Commitment</div>
+        <h2 class="d2 reveal d1"><span data-cms="sections.home_s5_2">Quality You Can</span><br><em data-cms="sections.home_s5_3" class="italic-gold">Count On</em></h2>
         <div class="pip reveal d2"></div>
         <p class="body-lg reveal d3" style="margin-bottom:20px" data-cms="home.quality.body1">
           Accreditation is earned through dedication and excellence. At SVIE, we invest significant effort in attaining and maintaining accreditation across quality and service standards.
@@ -458,19 +478,19 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
         <div style="display:flex;flex-direction:column;gap:14px" class="reveal d4">
           <div style="display:flex;align-items:flex-start;gap:12px">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><polyline points="20 6 9 17 4 12"/></svg>
-            <span class="body-md">ISO-certified quality and service standards</span>
+            <span data-cms="sections.home_s5_4" class="body-md">ISO-certified quality and service standards</span>
           </div>
           <div style="display:flex;align-items:flex-start;gap:12px">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><polyline points="20 6 9 17 4 12"/></svg>
-            <span class="body-md">Third-party inspections by QCI and certified bodies</span>
+            <span data-cms="sections.home_s5_5" class="body-md">Third-party inspections by QCI and certified bodies</span>
           </div>
           <div style="display:flex;align-items:flex-start;gap:12px">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><polyline points="20 6 9 17 4 12"/></svg>
-            <span class="body-md">Advanced dampness proofing using premium epoxy products</span>
+            <span data-cms="sections.home_s5_6" class="body-md">Advanced dampness proofing using premium epoxy products</span>
           </div>
           <div style="display:flex;align-items:flex-start;gap:12px">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><polyline points="20 6 9 17 4 12"/></svg>
-            <span class="body-md">Superior interior and exterior enhancements</span>
+            <span data-cms="sections.home_s5_7" class="body-md">Superior interior and exterior enhancements</span>
           </div>
         </div>
       </div>
@@ -482,8 +502,8 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
           <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(201,160,90,.12) 0%,transparent 70%);pointer-events:none"></div>
 
           <div style="font-family:var(--font-display);font-size:3rem;color:var(--gold);opacity:.25;line-height:1;margin-bottom:12px">"</div>
-          <div class="eyebrow" style="color:var(--gold);margin-bottom:16px">Interior Design Studio</div>
-          <p style="font-family:var(--font-display);font-size:1.15rem;font-style:italic;color:var(--cream);line-height:1.7;margin-bottom:28px">
+          <div data-cms="sections.home_s5_8" class="eyebrow" style="color:var(--gold);margin-bottom:16px">Interior Design Studio</div>
+          <p data-cms="sections.home_s5_9" style="font-family:var(--font-display);font-size:1.15rem;font-style:italic;color:var(--cream);line-height:1.7;margin-bottom:28px">
             Our mission is to deliver exceptional service and expert guidance, helping clients enhance the quality and longevity of their properties. We provide professional advice on premium designs, advanced dampness and waterproofing solutions, and superior interior and exterior enhancements.
           </p>
           <div style="display:flex;align-items:center;gap:14px;padding-top:24px;border-top:1px solid rgba(245,239,230,.1)">
@@ -491,8 +511,8 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </div>
             <div>
-              <div style="font-family:var(--font-sans);font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:2px">SVIE</div>
-              <div style="font-size:.82rem;color:rgba(245,239,230,.6)">Sri Vasavi Interiors &amp; Exteriors, Bengaluru</div>
+              <div data-cms="sections.home_s5_10" style="font-family:var(--font-sans);font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:2px">SVIE</div>
+              <div data-cms="sections.home_s5_11" style="font-size:.82rem;color:rgba(245,239,230,.6)">Sri Vasavi Interiors &amp; Exteriors, Bengaluru</div>
             </div>
           </div>
         </div>
@@ -502,7 +522,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </section>
 
 <!-- ═══ VISVESVARAYA QUOTE BANNER ═══ -->
-<section style="background:var(--forest-deep);padding:52px 0;position:relative;overflow:hidden">
+<section data-cms-group="Home — Inspiration" style="background:var(--forest-deep);padding:52px 0;position:relative;overflow:hidden">
   <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,160,90,.3) 30%,rgba(201,160,90,.3) 70%,transparent)"></div>
   <div style="position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,160,90,.3) 30%,rgba(201,160,90,.3) 70%,transparent)"></div>
 
@@ -522,7 +542,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
         <!-- Eyebrow -->
         <div style="font-family:var(--font-sans);font-size:.6rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:10px">
           <div style="width:28px;height:1px;background:var(--gold);opacity:.6"></div>
-          Inspiration
+          <span data-cms="sections.home_s6_1">Inspiration</span>
         </div>
 
         <!-- Large decorative quote mark -->
@@ -538,7 +558,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
           </div>
           <div>
             <div style="font-family:var(--font-display);font-size:1rem;font-weight:600;color:var(--gold)" data-cms="home.visvesvaraya.name">Sir M. Visvesvaraya</div>
-            <div style="font-family:var(--font-sans);font-size:.54rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,239,230,.6);margin-top:3px">Bharat Ratna · Legendary Engineer · Bengaluru</div><!-- data-cms="home.visvesvaraya.title" attached below -->
+            <div data-cms="sections.home_s6_2" style="font-family:var(--font-sans);font-size:.54rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,239,230,.6);margin-top:3px">Bharat Ratna · Legendary Engineer · Bengaluru</div><!-- data-cms="home.visvesvaraya.title" attached below -->
           </div>
         </div>
       </div>
@@ -563,19 +583,19 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
         <!-- Make in India header -->
         <div style="display:flex;align-items:center;gap:10px;position:relative;z-index:1">
           <div style="width:24px;height:1px;background:var(--gold);opacity:.6"></div>
-          <span style="font-family:var(--font-sans);font-size:.58rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)">Make in India</span>
+          <span data-cms="sections.home_s6_3" style="font-family:var(--font-sans);font-size:.58rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)">Make in India</span>
           <!-- Tricolor strip -->
           <div style="display:flex;flex-direction:column;gap:2px">
             <div style="width:18px;height:2.5px;background:#FF9933;border-radius:1px"></div>
             <div style="width:18px;height:2.5px;background:rgba(245,239,230,.6);border-radius:1px"></div>
             <div style="width:18px;height:2.5px;background:#138808;border-radius:1px"></div>
           </div>
-          <span style="font-family:var(--font-sans);font-size:.56rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,239,230,.55)">· Construction Sector</span>
+          <span data-cms="sections.home_s6_4" style="font-family:var(--font-sans);font-size:.56rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,239,230,.55)">· Construction Sector</span>
         </div>
 
         <!-- Lion + headline row -->
         <div class="mii-row" style="display:flex;align-items:center;gap:20px;position:relative;z-index:1;width:100%">
-          <img width="279" height="148"
+          <img data-cms-alt="sections.home_s6_img5_alt" data-cms-src="sections.home_s6_img5" width="279" height="148"
             src="images/lion.png"
             alt="Make in India — SVIE Construction"
             style="width:160px;flex-shrink:0;height:auto;display:block;
@@ -585,34 +605,34 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
             loading="lazy"
           >
           <div>
-            <div style="font-family:var(--font-display);font-size:1.15rem;font-weight:600;color:var(--cream);line-height:1.4;margin-bottom:8px">Building India's future,<br><em style="color:var(--gold);font-style:italic">one space at a time.</em></div>
-            <div style="font-family:var(--font-sans);font-size:.78rem;color:rgba(245,239,230,.82);line-height:1.65">SVIE is proudly Indian — conceived, designed, and built in Bengaluru since 2017, contributing to the nation's construction and infrastructure growth.</div>
+            <div style="font-family:var(--font-display);font-size:1.15rem;font-weight:600;color:var(--cream);line-height:1.4;margin-bottom:8px"><span data-cms="sections.home_s6_6">Building India's future,</span><br><em data-cms="sections.home_s6_7" style="color:var(--gold);font-style:italic">one space at a time.</em></div>
+            <div data-cms="sections.home_s6_8" style="font-family:var(--font-sans);font-size:.78rem;color:rgba(245,239,230,.82);line-height:1.65">SVIE is proudly Indian — conceived, designed, and built in Bengaluru since 2017, contributing to the nation's construction and infrastructure growth.</div>
           </div>
         </div>
 
         <!-- Construction sector pillars -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;position:relative;z-index:1">
           <div style="border-left:2px solid rgba(201,160,90,.45);padding:8px 10px;background:rgba(201,160,90,.04);border-radius:0 6px 6px 0">
-            <div style="font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:3px">100% Indian Workforce</div>
-            <div style="font-size:.74rem;color:rgba(245,239,230,.6);line-height:1.4">Skilled craftsmen, engineers & architects — all local talent</div>
+            <div data-cms="sections.home_s6_9" style="font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:3px">100% Indian Workforce</div>
+            <div data-cms="sections.home_s6_10" style="font-size:.74rem;color:rgba(245,239,230,.6);line-height:1.4">Skilled craftsmen, engineers & architects — all local talent</div>
           </div>
           <div style="border-left:2px solid rgba(201,160,90,.45);padding:8px 10px;background:rgba(201,160,90,.04);border-radius:0 6px 6px 0">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
-              <div style="font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;font-weight:700">ZED Certified Mfg.</div>
-              <span style="font-size:.52rem;font-family:var(--font-sans);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);border-radius:20px;padding:1px 6px;white-space:nowrap">In Progress</span>
+              <div data-cms="sections.home_s6_11" style="font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;font-weight:700">ZED Certified Mfg.</div>
+              <span data-cms="sections.home_s6_12" style="font-size:.52rem;font-family:var(--font-sans);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);border-radius:20px;padding:1px 6px;white-space:nowrap">In Progress</span>
             </div>
-            <div style="font-size:.74rem;color:rgba(245,239,230,.6);line-height:1.4">Pursuing Govt. Zero Defect Zero Effect standard for all furniture</div>
+            <div data-cms="sections.home_s6_13" style="font-size:.74rem;color:rgba(245,239,230,.6);line-height:1.4">Pursuing Govt. Zero Defect Zero Effect standard for all furniture</div>
           </div>
           <div style="border-left:2px solid rgba(201,160,90,.45);padding:8px 10px;background:rgba(201,160,90,.04);border-radius:0 6px 6px 0">
-            <div style="font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:3px">Indian Brand Partners</div>
-            <div style="font-size:.74rem;color:rgba(245,239,230,.6);line-height:1.4">Kajaria, Asian Paints, Ultratech, Tata Tiscon & more</div>
+            <div data-cms="sections.home_s6_14" style="font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:3px">Indian Brand Partners</div>
+            <div data-cms="sections.home_s6_15" style="font-size:.74rem;color:rgba(245,239,230,.6);line-height:1.4">Kajaria, Asian Paints, Ultratech, Tata Tiscon & more</div>
           </div>
           <div style="border-left:2px solid rgba(201,160,90,.45);padding:8px 10px;background:rgba(201,160,90,.04);border-radius:0 6px 6px 0">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
-              <div style="font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;font-weight:700">ISO 9001 : 2015</div>
-              <span style="font-size:.52rem;font-family:var(--font-sans);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);border-radius:20px;padding:1px 6px;white-space:nowrap">In Progress</span>
+              <div data-cms="sections.home_s6_16" style="font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;font-weight:700">ISO 9001 : 2015</div>
+              <span data-cms="sections.home_s6_17" style="font-size:.52rem;font-family:var(--font-sans);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);border-radius:20px;padding:1px 6px;white-space:nowrap">In Progress</span>
             </div>
-            <div style="font-size:.74rem;color:rgba(245,239,230,.6);line-height:1.4">Actively pursuing ISO 9001:2015 certification — quality excellence underway</div>
+            <div data-cms="sections.home_s6_18" style="font-size:.74rem;color:rgba(245,239,230,.6);line-height:1.4">Actively pursuing ISO 9001:2015 certification — quality excellence underway</div>
           </div>
         </div>
 
@@ -623,29 +643,29 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </section>
 
 <!-- ═══ CONSTRUCTION PHILOSOPHY ═══ -->
-<section class="sec">
+<section data-cms-group="Home — Section 7" class="sec">
   <div class="wrap">
     <div style="max-width:860px;margin:0 auto;text-align:center">
-      <div class="eyebrow reveal" style="justify-content:center">Construction Philosophy</div>
+      <div data-cms="sections.home_philosophy_1" class="eyebrow reveal" style="justify-content:center">Construction Philosophy</div>
       <h2 class="d2 reveal d1" style="margin-bottom:32px">
-        Building More Than<br><em class="italic-gold">Just Structures</em>
+        <span data-cms="sections.home_philosophy_2">Building More Than</span><br><em data-cms="sections.home_philosophy_3" class="italic-gold">Just Structures</em>
       </h2>
     </div>
     <div class="home-philosophy-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:8px">
       <div class="reveal" style="background:var(--cream);border-radius:var(--r-lg);padding:36px 40px;border-left:3px solid var(--gold)">
-        <p style="font-family:var(--font-display);font-size:1.12rem;font-style:italic;color:var(--charcoal);line-height:1.7">
+        <p data-cms="sections.home_philosophy_4" style="font-family:var(--font-display);font-size:1.12rem;font-style:italic;color:var(--charcoal);line-height:1.7">
           Construction is a passion-driven process that creates countless opportunities to elevate quality of life. At SVIE, we are dedicated to helping clients across all sectors achieve the highest standards in both home and office environments.
         </p>
       </div>
       <div class="reveal d2" style="background:var(--cream);border-radius:var(--r-lg);padding:36px 40px;border-left:3px solid var(--gold)">
-        <p style="font-family:var(--font-display);font-size:1.12rem;font-style:italic;color:var(--charcoal);line-height:1.7">
+        <p data-cms="sections.home_philosophy_5" style="font-family:var(--font-display);font-size:1.12rem;font-style:italic;color:var(--charcoal);line-height:1.7">
           Guided by inspiration from great heights, our goal is to reach new levels of excellence while delivering the finest solutions to our customers. This unwavering commitment reflects the very best practices of SVIE.
         </p>
       </div>
     </div>
     <div class="reveal d3" style="text-align:center;margin-top:36px">
-      <a href="services.html" class="btn btn-outline-sm">
-        Explore Our Services
+      <a data-cms-href="sections.home_s7_link1" href="services.html" class="btn btn-outline-sm">
+        <span data-cms="sections.home_philosophy_6">Explore Our Services</span>
         <span class="btn-ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
       </a>
     </div>
@@ -653,7 +673,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </section>
 
 <!-- ═══ SRI VASAVI ═══ -->
-<section style="background:var(--forest-deep);padding:52px 0;position:relative;overflow:hidden">
+<section data-cms-group="Home — Section 8" style="background:var(--forest-deep);padding:52px 0;position:relative;overflow:hidden">
   <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,160,90,.35) 30%,rgba(201,160,90,.35) 70%,transparent)"></div>
   <div style="position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,160,90,.35) 30%,rgba(201,160,90,.35) 70%,transparent)"></div>
   <div style="position:absolute;right:5%;top:50%;transform:translateY(-50%);width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(201,160,90,.07) 0%,transparent 65%);pointer-events:none"></div>
@@ -663,16 +683,16 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 
       <!-- Left: Text -->
       <div>
-        <div class="eyebrow reveal" style="color:var(--gold)">Our Patron Deity</div>
+        <div data-cms="sections.home_vasavi_1" class="eyebrow reveal" style="color:var(--gold)">Our Patron Deity</div>
         <h2 class="d2 text-cream reveal d1" style="margin-bottom:14px">
-          Sri Vasavi<br>
-          <em class="italic-gold">Kanyaka Parameshwari</em>
+          <span data-cms="sections.home_vasavi_2">Sri Vasavi</span><br>
+          <em data-cms="sections.home_vasavi_3" class="italic-gold">Kanyaka Parameshwari</em>
         </h2>
         <div class="pip reveal d2"></div>
-        <p class="body-lg reveal d3" style="color:rgba(245,239,230,.7);margin-bottom:14px">
+        <p data-cms="sections.home_vasavi_4" class="body-lg reveal d3" style="color:rgba(245,239,230,.7);margin-bottom:14px">
           Sri Vasavi Interiors and Exteriors draws its name and inspiration from the revered goddess Sri Vasavi Kanyaka Parameshwari — a timeless symbol of righteousness, selfless devotion, and divine grace.
         </p>
-        <p class="body-md reveal d4" style="color:rgba(245,239,230,.85);margin-bottom:24px">
+        <p data-cms="sections.home_vasavi_5" class="body-md reveal d4" style="color:rgba(245,239,230,.85);margin-bottom:24px">
           Her values of integrity, compassion, and unwavering commitment to the community guide every project we undertake. We build not just beautiful spaces, but lasting legacies.
         </p>
         <div class="reveal d5" style="display:flex;align-items:center;gap:12px;padding-top:20px;border-top:1px solid rgba(201,160,90,.15)">
@@ -680,8 +700,8 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
           </div>
           <div>
-            <div style="font-family:var(--font-sans);font-size:.56rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:2px">SVIE — Sri Vasavi Interiors and Exteriors</div>
-            <div style="font-size:.78rem;color:rgba(245,239,230,.65)">Named in Her honour · Bengaluru, since 2017</div>
+            <div data-cms="sections.home_vasavi_6" style="font-family:var(--font-sans);font-size:.56rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:2px">SVIE — Sri Vasavi Interiors and Exteriors</div>
+            <div data-cms="sections.home_vasavi_7" style="font-size:.78rem;color:rgba(245,239,230,.65)">Named in Her honour · Bengaluru, since 2017</div>
           </div>
         </div>
       </div>
@@ -689,9 +709,9 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
       <!-- Right: Image -->
       <div class="reveal reveal-r">
         <div class="vasavi-frame">
-          <img width="500" height="667" src="images/vasavi.jpg" alt="Sri Vasavi Kanyaka Parameshwari — Patron Deity of SVIE" loading="eager">
+          <img data-cms-alt="sections.home_s8_img1_alt" data-cms-src="sections.home_s8_img1" width="500" height="667" src="images/vasavi.jpg" alt="Sri Vasavi Kanyaka Parameshwari — Patron Deity of SVIE" loading="eager">
         </div>
-        <div class="vasavi-caption">Sri Vasavi Kanyaka Parameshwari</div>
+        <div data-cms="sections.home_vasavi_8" class="vasavi-caption">Sri Vasavi Kanyaka Parameshwari</div>
       </div>
 
     </div>
@@ -701,7 +721,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 
 
 <!-- ═══ TESTIMONIALS (CMS-driven · hidden until real reviews exist) ═══ -->
-<section id="testimonials" class="tst-sec" hidden>
+<section data-cms-group="Home — Section 9" id="testimonials" class="tst-sec" hidden>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:34px">
       <div class="eyebrow" style="justify-content:center;color:var(--gold)">Client Stories</div>
@@ -713,30 +733,30 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 </section>
 
 <!-- ═══ CTA ═══ -->
-<section class="cta-sec">
+<section data-cms-group="Home — Your dream space is" class="cta-sec">
   <div class="wrap">
     <div class="cta-inner">
-      <div class="eyebrow reveal" style="justify-content:center">Ready to Begin?</div>
+      <div data-cms="sections.home_s10_1" class="eyebrow reveal" style="justify-content:center">Ready to Begin?</div>
       <h2 class="cta-quote reveal d1">
-        Your dream space is<br>
-        <em>one conversation away</em>
+        <span data-cms="sections.home_s10_2">Your dream space is</span><br>
+        <em data-cms="sections.home_s10_3">one conversation away</em>
       </h2>
       <p class="cta-body reveal d2" data-cms="home.cta.subtitle">
         Schedule a free consultation with our design team. We'll listen, plan, and craft a space that tells your story.
       </p>
       <div class="cta-btns reveal d3">
-        <a href="contact.html" class="btn btn-gold">
-          Book Free Consultation
+        <a data-cms-href="sections.home_s10_link4" href="contact.html" class="btn btn-gold">
+          <span data-cms="sections.home_s10_5">Book Free Consultation</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
-        <a href="gallery.html" class="btn btn-ghost">View Gallery</a>
+        <a data-cms-href="sections.home_s10_link6" href="gallery.html" class="btn btn-ghost"><span data-cms="sections.home_s10_7">View Gallery</span></a>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ═══ FOOTER ═══ -->
-<footer class="footer">
+<footer data-cms-group="All pages — Footer" class="footer">
   <div class="footer-topline"></div>
   <div class="wrap">
     <div class="footer-grid">
@@ -747,24 +767,24 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
         <div class="footer-brand-tag" data-cms="site.tagline">Innovative Ideas · Stylish Designs</div>
         <div class="footer-brand-pip"></div>
         <p class="footer-brand-desc" data-cms="site.description">Bengaluru's trusted interior design and construction company, delivering exceptional spaces since 2017 with ISO-certified quality and sustainable practices.</p>
-        <p class="footer-follow-label">Follow Us</p>
+        <p data-cms="sections.footer_1" class="footer-follow-label">Follow Us</p>
         <div class="footer-socials">
-          <a href="https://www.facebook.com/SVIEBLR/" class="footer-soc" target="_blank" rel="noopener" aria-label="Facebook">
+          <a data-cms-href="sections.footer_link2" href="https://www.facebook.com/SVIEBLR/" class="footer-soc" target="_blank" rel="noopener" aria-label="Facebook">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
           </a>
-          <a href="https://instagram.com/svie.blr" class="footer-soc" target="_blank" rel="noopener" aria-label="Instagram">
+          <a data-cms-href="sections.footer_link3" href="https://instagram.com/svie.blr" class="footer-soc" target="_blank" rel="noopener" aria-label="Instagram">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
           </a>
-          <a href="https://twitter.com/kiran4u1982" class="footer-soc" target="_blank" rel="noopener" aria-label="Twitter / X">
+          <a data-cms-href="sections.footer_link4" href="https://twitter.com/kiran4u1982" class="footer-soc" target="_blank" rel="noopener" aria-label="Twitter / X">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </a>
-          <a href="https://wa.me/919513961740" class="footer-soc" target="_blank" rel="noopener" aria-label="WhatsApp">
+          <a data-cms-href="sections.footer_link5" href="https://wa.me/919513961740" class="footer-soc" target="_blank" rel="noopener" aria-label="WhatsApp">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           </a>
-          <a href="https://youtube.com" class="footer-soc" target="_blank" rel="noopener" aria-label="YouTube">
+          <a data-cms-href="sections.footer_link6" href="https://youtube.com" class="footer-soc" target="_blank" rel="noopener" aria-label="YouTube">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
           </a>
-          <a href="https://linkedin.com" class="footer-soc" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <a data-cms-href="sections.footer_link7" href="https://linkedin.com" class="footer-soc" target="_blank" rel="noopener" aria-label="LinkedIn">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
           </a>
         </div>
@@ -772,32 +792,32 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 
       <!-- ─ Contact ─ -->
       <div class="footer-contact-col">
-        <div class="footer-col-head">Get In Touch</div>
-        <a href="https://maps.google.com/?q=Venus+World,+172+A+B+%26+E,+Link+Road,+5th+Cross+Rd,+Malleshwaram,+Bengaluru,+Karnataka+560003" class="f-contact-item f-clink" target="_blank" rel="noopener">
+        <div data-cms="sections.footer_8" class="footer-col-head">Get In Touch</div>
+        <a data-cms-href="sections.footer_link9" href="https://maps.google.com/?q=Venus+World,+172+A+B+%26+E,+Link+Road,+5th+Cross+Rd,+Malleshwaram,+Bengaluru,+Karnataka+560003" class="f-contact-item f-clink" target="_blank" rel="noopener">
           <div class="f-contact-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </div>
           <div class="f-contact-text">
-            <strong>Visit Us</strong>
+            <strong data-cms="sections.footer_10">Visit Us</strong>
             <span data-cms="site.address">172 A, B &amp; E, Link Road, 5th Cross Rd, Malleshwaram, Bengaluru, Karnataka 560003</span>
           </div>
         </a>
-        <a href="tel:+919513961740" class="f-contact-item f-clink">
+        <a data-cms-href="sections.footer_link11" href="tel:+919513961740" class="f-contact-item f-clink">
           <div class="f-contact-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 19z"/></svg>
           </div>
           <div class="f-contact-text">
-            <strong>Call Us</strong>
+            <strong data-cms="sections.footer_12">Call Us</strong>
             <span data-cms="site.phone1">+91 95139 61740</span><br>
             <span data-cms="site.phone2">+91 98455 81156</span>
           </div>
         </a>
-        <a href="mailto:svie.blr5@gmail.com" class="f-contact-item f-clink">
+        <a data-cms-href="sections.footer_link13" href="mailto:svie.blr5@gmail.com" class="f-contact-item f-clink">
           <div class="f-contact-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A05A" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           </div>
           <div class="f-contact-text">
-            <strong>Email Us</strong>
+            <strong data-cms="sections.footer_14">Email Us</strong>
             <span data-cms="site.email">svie.blr5@gmail.com</span>
           </div>
         </a>
@@ -805,19 +825,18 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
 
     </div>
     <div class="footer-bottom">
-      <div class="footer-copy">© 2026 Sri Vasavi Interiors and Exteriors. All rights reserved.</div>
+      <div data-cms="sections.footer_15" class="footer-copy">© 2026 Sri Vasavi Interiors and Exteriors. All rights reserved.</div>
             <div class="footer-btm-links">
-        <a href="privacy-policy.html" class="footer-btm-link">Privacy Policy</a>
-        <a href="terms-of-service.html" class="footer-btm-link">Terms of Service</a>
+        <a data-cms-href="sections.footer_link16" href="privacy-policy.html" class="footer-btm-link"><span data-cms="sections.footer_17">Privacy Policy</span></a>
+        <a data-cms-href="sections.footer_link18" href="terms-of-service.html" class="footer-btm-link"><span data-cms="sections.footer_19">Terms of Service</span></a>
       </div>
     </div>
   </div>
 </footer>
 
-<script src="script.js?v=e57a2358"></script>
-<script src="cms-loader.js?v=040263e5"></script>
+<script src="script.js?v=b2dd6e18"></script>
+<script src="cms-loader.js?v=574b874c"></script>
 <script src="structured-data.js" defer></script>
-
 <script>
 /* GA4 engagement event tracking */
 document.addEventListener('DOMContentLoaded',function(){
@@ -841,6 +860,6 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <script src="visitor-tracker.js" defer></script>
-<script>/* lazy-load chat widget after first paint: idle timeout or first interaction, whichever comes first */(function(){var d=0,l=function(){if(d)return;d=1;var s=document.createElement("script");s.src="chat-widget.js?v=09bc35bc";document.body.appendChild(s)};"requestIdleCallback"in window?requestIdleCallback(l,{timeout:5000}):addEventListener("load",function(){setTimeout(l,2000)});["pointerdown","keydown","touchstart","scroll"].forEach(function(e){addEventListener(e,l,{once:true,passive:true})})})();</script>
+<script>/* lazy-load chat widget after first paint: idle timeout or first interaction, whichever comes first */(function(){var d=0,l=function(){if(d)return;d=1;var s=document.createElement("script");s.src="chat-widget.js?v=4eff04ff";document.body.appendChild(s)};"requestIdleCallback"in window?requestIdleCallback(l,{timeout:5000}):addEventListener("load",function(){setTimeout(l,2000)});["pointerdown","keydown","touchstart","scroll"].forEach(function(e){addEventListener(e,l,{once:true,passive:true})})})();</script>
 </body>
 </html>

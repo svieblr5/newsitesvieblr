@@ -9,5 +9,12 @@ Disallow: /node_modules/
 User-agent: Googlebot-Image
 Allow: /images/
 
+# Crawlers with no benefit for an India-focused business (also blocked at the Hostinger CDN)
+User-agent: Bytespider
+Disallow: /
+
+User-agent: PetalBot
+Disallow: /
+
 # Sitemap
 Sitemap: https://svie5.com/sitemap.xml

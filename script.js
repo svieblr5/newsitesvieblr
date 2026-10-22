@@ -8,16 +8,20 @@
   const cur = document.querySelector('.cursor');
   const ring = document.querySelector('.cursor-ring');
   if(cur && ring && matchMedia('(pointer:fine)').matches){
-    let mx=0,my=0,rx=0,ry=0;
+    // Positioned with the `translate` property (compositor-only, no layout) and the
+    // ring's easing loop sleeps once it catches up instead of running every frame.
+    let mx=0,my=0,rx=0,ry=0,running=false;
+    const tick=()=>{
+      rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+      if(Math.abs(mx-rx)<.1 && Math.abs(my-ry)<.1){ rx=mx; ry=my; running=false; }
+      ring.style.translate=rx+'px '+ry+'px';
+      if(running) requestAnimationFrame(tick);
+    };
     document.addEventListener('mousemove',e=>{
       mx=e.clientX; my=e.clientY;
-      cur.style.left=mx+'px'; cur.style.top=my+'px';
+      cur.style.translate=mx+'px '+my+'px';
+      if(!running){ running=true; requestAnimationFrame(tick); }
     },{passive:true});
-    (function tick(){
-      rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
-      ring.style.left=rx+'px'; ring.style.top=ry+'px';
-      requestAnimationFrame(tick);
-    })();
     const hovered=['a','button','.btn','.s-card','.team-card','.gal-item','.brand-tile','.prod-card'];
     document.querySelectorAll(hovered.join(',')).forEach(el=>{
       el.addEventListener('mouseenter',()=>{cur.classList.add('hov');ring.classList.add('hov')});
@@ -59,14 +63,13 @@
     const io2 = new IntersectionObserver(entries=>{
       if(!entries[0].isIntersecting) return;
       io2.disconnect();
-      const target = +el.dataset.count;
-      const suf = el.dataset.suf||'';
-      const pre = el.dataset.pre||'';
       let start, dur=1800;
       (function step(ts){
         if(!start) start=ts;
         const p = Math.min((ts-start)/dur,1);
         const e = 1-Math.pow(1-p,3);
+        // read every frame: the CMS may update the figure while it is animating
+        const target = +el.dataset.count||0, suf = el.dataset.suf||'', pre = el.dataset.pre||'';
         el.textContent = pre + Math.round(e*target) + suf;
         if(p<1) requestAnimationFrame(step);
       })(performance.now());

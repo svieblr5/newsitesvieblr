@@ -157,7 +157,8 @@
 
   /* ── Helpers ────────────────────────────────────────────────────────── */
   function escapeHTML(s) {
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // quotes too: render() puts URLs from the reply inside href="…"
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   // Turn plain text into safe HTML: escape, linkify URLs and the phone number,
   // preserve line breaks.
@@ -286,6 +287,8 @@
   }
   function scheduleInvite() {
     if (inviteDismissed()) return;
+    // On phones the bubble covers page content; the chat button stays available instead
+    if (window.matchMedia && window.matchMedia('(max-width:768px)').matches) return;
     inviteTimer = setTimeout(function () {
       if (opened || panel.classList.contains('open') || inviteDismissed()) return;
       invite.innerHTML =

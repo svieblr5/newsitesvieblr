@@ -55,8 +55,11 @@ body{
 .btn:hover{filter:brightness(1.08)}
 .btn svg{width:14px;height:14px}
 /* ---- stage ---- */
-.stage{flex:1 1 auto;display:flex;align-items:center;justify-content:center;position:relative;min-height:0;overflow:hidden;padding:6px 14px 0}
+.stage{flex:1 1 auto;display:flex;align-items:center;justify-content:center;position:relative;min-height:0;overflow:hidden;padding:6px 14px 30px}
 #flip{margin:0 auto;touch-action:pan-y}
+/* pages are real <img> elements (HTML mode) so they stay sharp on high-DPI phones */
+#flip .page{background:var(--cream);overflow:hidden}
+#flip .page img{display:block;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .flip-shadow{box-shadow:0 30px 70px rgba(0,0,0,.55)}
 /* nav arrows */
 .nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;
@@ -79,7 +82,7 @@ body{
   box-shadow:0 6px 18px rgba(0,0,0,.35);cursor:pointer;display:none;align-items:center;gap:7px}
 .readcue svg{width:14px;height:14px}
 /* ---- full-screen zoomable reader ---- */
-.reader{position:fixed;inset:0;z-index:50;background:rgba(8,26,17,.98);display:none;flex-direction:column}
+.reader{position:fixed;inset:0;z-index:50;background:#081A11;display:none;flex-direction:column}
 .reader.open{display:flex}
 .reader-top{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
 .reader-top .rc{font-family:var(--serif);font-size:16px;color:var(--gold-light);letter-spacing:.02em}
@@ -100,9 +103,21 @@ body{
 @media (max-width:640px){
   .brand .t1{font-size:16px}.brand img{height:28px}
   .btn{padding:8px 11px;font-size:11px}.btn .lbl{display:none}.btn svg{width:15px;height:15px}
-  .nav{width:38px;height:38px}.nav.prev{left:6px}.nav.next{right:6px}
+  /* controls sit in a row under the page instead of covering its text */
+  .stage{padding:6px 12px 62px}
+  .nav{top:auto;bottom:8px;transform:none;width:42px;height:42px}.nav.prev{left:16px}.nav.next{right:16px}
+  .readcue{bottom:12px}
   .hint{display:none}
   .readcue{display:flex}
+}
+/* phones held sideways: slim the bars so the page gets the height */
+@media (max-height:520px){
+  .topbar{padding:6px 16px}.brand img{height:26px}.brand .t1{font-size:15px}.brand .t2{display:none}
+  .btn{padding:7px 11px}
+  .stage{padding:2px 70px 4px}
+  .nav{width:40px;height:40px}.nav.prev{left:14px}.nav.next{right:14px}
+  .bottom{padding:4px}.counter{font-size:15px}
+  .hint{display:none}
 }
 </style>
 </head>
@@ -144,7 +159,7 @@ body{
   <!-- full-screen zoomable page reader -->
   <div class="reader" id="reader" aria-hidden="true">
     <div class="reader-top">
-      <span class="rc" id="readerCounter">Page 1 / 11</span>
+      <span class="rc" id="readerCounter">Page 1 / 19</span>
       <button class="reader-close" id="readerClose" aria-label="Close reader">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
@@ -161,9 +176,10 @@ body{
 
   <script src="lib/page-flip.browser.js"></script>
   <script>
-    var TOTAL = 11;
+    var TOTAL = 19;
+    var PAGES_V = '20261018b'; // bump when the page images are re-rendered (cache-bust)
     var images = [];
-    for (var i = 1; i <= TOTAL; i++) images.push('pages/p' + String(i).padStart(2, '0') + '.jpg');
+    for (var i = 1; i <= TOTAL; i++) images.push('pages/p' + String(i).padStart(2, '0') + '.jpg?v=' + PAGES_V);
 
     var el = document.getElementById('flip');
     var counter = document.getElementById('counter');
@@ -174,8 +190,8 @@ body{
     var pageFlip = new St.PageFlip(el, {
       width: 600, height: 849,
       size: 'stretch',
-      minWidth: 280, maxWidth: 1400,
-      minHeight: 396, maxHeight: 1980,
+      minWidth: 120, maxWidth: 1400,
+      minHeight: 170, maxHeight: 1980,
       maxShadowOpacity: 0.5,
       showCover: true,
       mobileScrollSupport: false,
@@ -186,7 +202,18 @@ body{
       swipeDistance: 20
     });
 
-    pageFlip.loadFromImages(images);
+    images.forEach(function (src, i) {
+      var page = document.createElement('div');
+      page.className = 'page';
+      var img = new Image();
+      img.fetchPriority = i < 3 ? 'high' : 'low'; // cover first, rest behind it
+      img.src = src;
+      img.alt = 'Brochure page ' + (i + 1);
+      img.draggable = false;
+      page.appendChild(img);
+      el.appendChild(page);
+    });
+    pageFlip.loadFromHTML(el.querySelectorAll('.page'));
 
     // page-flip's 'stretch' sizes the book from width alone, so on short/wide
     // windows the derived height exceeds the stage and the book slides up under
@@ -201,7 +228,11 @@ body{
       var availH = stage.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
       var availW = stage.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
       if (availH <= 0 || availW <= 0) return;
-      var portrait = pageFlip.getOrientation && pageFlip.getOrientation() === 'portrait';
+      // Tall screens (phones upright, tablets in portrait) read best one page at a
+      // time; wide screens get the two-page spread. page-flip goes single-page when
+      // the book is narrower than 2 x minWidth, and re-reads the setting on resize.
+      var portrait = availH > availW;
+      pageFlip.getSettings().minWidth = portrait ? Math.ceil(availW) : 120;
       // widest the book may be before its height (pageWidth * ratio) overflows availH
       var maxByHeight = (portrait ? 1 : 2) * availH / PAGE_RATIO;
       el.style.maxWidth = Math.min(availW, maxByHeight) + 'px';

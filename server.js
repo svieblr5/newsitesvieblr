@@ -32,7 +32,15 @@ if (compression) app.use(compression());
 // the admin dashboard bounces straight back to the login page. Trust the first
 // proxy hop so secure cookies are issued correctly.
 app.set('trust proxy', 1);
+// www → apex. The .htaccess rule for this never runs (Node serves the site), so
+// www.svie5.com was answering 200 with a duplicate copy of every page.
+app.use((req, res, next) => {
+  const host = req.headers.host || '';
+  if (/^www\./i.test(host)) return res.redirect(301, 'https://' + host.slice(4) + req.originalUrl);
+  next();
+});
 const PORT = process.env.PORT || 3000;
+const HTML_CACHE_CONTROL = 'no-cache';   // browsers/CDN may store HTML but must revalidate before use
 const ROOT = __dirname;
 const SALT_ROUNDS = 12;
 
@@ -54,6 +62,14 @@ try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch { /* exists */ }
 const MEDIA_DIR = process.env.MEDIA_DIR
   || (hbuildsMatch ? path.join(hbuildsMatch[1], 'svie-media') : path.join(ROOT, 'media'));
 try { fs.mkdirSync(MEDIA_DIR, { recursive: true }); } catch { /* exists */ }
+
+// CMS uploads are stored as "media/<sub>/<file>" (served from MEDIA_DIR, survives redeploys);
+// older entries and the site's own files are build-relative ("images/…", "videos/…").
+function mediaAbsPath(rel) {
+  rel = String(rel || '').replace(/^\/+/, '');
+  if (!rel || rel.includes('..')) return null;
+  return rel.startsWith('media/') ? path.join(MEDIA_DIR, rel.slice(6)) : path.join(ROOT, rel);
+}
 
 // ── File paths ──
 const CONTENT_FILE  = path.join(DATA_DIR, 'content.json');        // LIVE / published — public site reads this
@@ -83,8 +99,32 @@ const saveConfig = d  => storage.writeJSON(CONFIG_FILE, d);
 const envSMTPPass = () => (process.env.SMTP_PASS || '').trim();
 const smtpPass    = (cfg) => envSMTPPass() || (cfg && cfg.emailPass) || '';
 
+// One-time admin password reset without file access: set ADMIN_RESET_PASSWORD (8+ chars)
+// in the hPanel Node.js environment variables and redeploy. Applied once per distinct value
+// (a bcrypt hash of it is remembered), so later password changes in the CMS survive restarts.
+// Checked on login too, not only at startup: under Hostinger's LiteSpeed runner the
+// app.listen callback isn't guaranteed to run.
+let envResetChecked = false;
+async function applyEnvPasswordReset() {
+  if (envResetChecked) return;
+  const resetPass = (process.env.ADMIN_RESET_PASSWORD || '').trim();
+  if (resetPass.length >= 8) {
+    const c = getConfig();
+    if (!c.passwordResetHash || !await bcrypt.compare(resetPass, c.passwordResetHash)) {
+      await hashAndSavePassword(resetPass);
+      const c2 = getConfig();
+      c2.passwordResetHash = await bcrypt.hash(resetPass, SALT_ROUNDS);
+      saveConfig(c2);
+      logActivity('Admin password reset via ADMIN_RESET_PASSWORD', 'system');
+      console.log('  ✓ Admin password reset from ADMIN_RESET_PASSWORD (you can now remove the variable)');
+    }
+  }
+  envResetChecked = true;
+}
+
 // ── Password: bcrypt-based with auto-migration from plaintext ──
 async function verifyPassword(input) {
+  await applyEnvPasswordReset();
   const cfg = getConfig();
   if (cfg.passwordHash) {
     return bcrypt.compare(input, cfg.passwordHash);
@@ -414,6 +454,10 @@ function sitemapImagesFor(slug, base, content) {
       if (loc) out.push({ loc, title: ((b.title ? b.title + ' — ' : '') + k) });
     });
   });
+  (content.project_photos || []).forEach(p => {
+    const loc = absImg(base, p.src);
+    if (loc) out.push({ loc, title: 'Malleswaram home renovation — ' + p.kind });
+  });
   return out;
 }
 
@@ -526,31 +570,110 @@ function normalizeSeo(seo) {
   }
   return { global: seo.global || {}, pages };
 }
+// Keep the LocalBusiness JSON-LD (what Google shows in the business panel) in step with
+// CMS → Contact Info, so a changed phone/email/address/hours doesn't leave Google with stale data.
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+function to24h(h, m, ap) { h = +h % 12 + (/p/i.test(ap) ? 12 : 0); return String(h).padStart(2,'0') + ':' + m; }
+function ldPhone(p) {
+  const d = String(p || '').replace(/[^\d+]/g, '');
+  if (!d) return null;
+  return d.startsWith('+') ? d : (d.length === 10 ? '+91' + d : (d.startsWith('91') && d.length === 12 ? '+' + d : d));
+}
+function applyBusinessInfo(node, site) {
+  if (Array.isArray(node)) { node.forEach(n => applyBusinessInfo(n, site)); return; }
+  if (!node || typeof node !== 'object') return;
+  const types = [].concat(node['@type'] || []);
+  if (types.includes('LocalBusiness')) {
+    if (site.name) node.name = site.name;
+    const phones = [site.phone1, site.phone2].map(ldPhone).filter(Boolean);
+    if (phones.length) node.telephone = phones.length === 1 ? phones[0] : phones;
+    if (site.email) node.email = site.email;
+    if (site.address && node.address && typeof node.address === 'object') {
+      // "…, Malleshwaram, Bengaluru, Karnataka 560003" → street part + PIN; city/region stay as set
+      const a = String(site.address).trim();
+      const m = a.match(/^(.*?),\s*(Bengaluru|Bangalore)\b[^,]*,\s*Karnataka\s*(\d{6})?\s*$/i);
+      node.address.streetAddress = m ? m[1] : a;
+      if (m && m[3]) node.address.postalCode = m[3];
+    }
+    // "Every Day · 10:00 AM – 9:00 PM" → openingHoursSpecification (left alone if not recognisable)
+    const h = String(site.hours || '').match(/(\d{1,2}):(\d{2})\s*(AM|PM)\s*[–—-]\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (h && /every\s*day|daily|all\s*days|mon(day)?\s*[–—-]\s*sun/i.test(site.hours)) {
+      node.openingHoursSpecification = [{ '@type':'OpeningHoursSpecification', dayOfWeek: DAYS,
+        opens: to24h(h[1], h[2], h[3]), closes: to24h(h[4], h[5], h[6]) }];
+    }
+  }
+  Object.values(node).forEach(v => { if (v && typeof v === 'object') applyBusinessInfo(v, site); });
+}
+function injectBusinessInfo(html, site) {
+  if (!site) return html;
+  return html.replace(/(<script type="application\/ld\+json">)([\s\S]*?)(<\/script>)/g, (all, open, json, close) => {
+    if (!/LocalBusiness/.test(json)) return all;
+    try {
+      const data = JSON.parse(json);
+      applyBusinessInfo(data, site);
+      return open + JSON.stringify(data).replace(/</g, '\\u003c') + close;   // no "</script>" breakout
+    } catch { return all; }
+  });
+}
+
 app.get(Object.keys(SEO_PAGE_KEY), (req, res, next) => {
   try {
     // read the LIVE/published content so unpublished draft SEO never leaks public
-    const seo = normalizeSeo(readLive().seo);
-    if (!seo) return next();                          // no CMS SEO yet → serve the file as-is
+    const live = readLive();
+    const seo  = normalizeSeo(live.seo);
+    if (!seo && !live.site) return next();            // nothing from the CMS → serve the file as-is
     const fp = path.join(ROOT, SEO_FILE[req.path] || req.path.replace(/^\//, ''));
     if (!fs.existsSync(fp)) return next();
-    const html = injectSeo(fs.readFileSync(fp, 'utf8'), SEO_PAGE_KEY[req.path], seo);
+    let html = fs.readFileSync(fp, 'utf8');
+    if (seo) html = injectSeo(html, SEO_PAGE_KEY[req.path], seo);
+    html = injectBusinessInfo(html, live.site);
+    res.set('Cache-Control', HTML_CACHE_CONTROL);
     res.type('html').send(html);
   } catch (e) { next(); }                            // any error → fall through to static
 });
 
 // Long cache lifetimes for true static assets (images/fonts/css/js) speed up
-// repeat visits; HTML is left at the express.static default (revalidate every
-// time) since pages are CMS-editable and must reflect the latest content.
+// repeat visits; HTML must revalidate every time (cheap 304 via ETag) since pages
+// are CMS-editable and deploys must show up immediately, especially on mobile.
 const STATIC_ASSET_MAX_AGE = 30 * 24 * 60 * 60 * 1000;   // 30 days — images, fonts
 const STATIC_CODE_MAX_AGE  = 365 * 24 * 60 * 60 * 1000;  // 1 year — css/js (safe: cache-busted via ?v=<hash>, stamped by scripts/stamp-assets.js)
 function staticCacheHeaders(res, filePath) {
   const ext = path.extname(filePath).toLowerCase();
-  if (['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.ico', '.woff', '.woff2', '.pdf'].includes(ext)) {
+  if (ext === '.html') {
+    res.setHeader('Cache-Control', HTML_CACHE_CONTROL);
+  } else if (['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.ico', '.woff', '.woff2', '.pdf'].includes(ext)) {
     res.setHeader('Cache-Control', 'public, max-age=' + (STATIC_ASSET_MAX_AGE / 1000));
   } else if (['.css', '.js'].includes(ext)) {
     res.setHeader('Cache-Control', 'public, max-age=' + (STATIC_CODE_MAX_AGE / 1000) + ', immutable');
   }
 }
+// express.static(ROOT) serves the whole project folder, and .htaccess is not
+// applied when Hostinger runs the Node app — so block server code, build
+// scripts and internal docs here. 404 (not 403) so probes learn nothing.
+const PUBLIC_ROOT_JS = new Set(['script.js', 'cms-loader.js', 'chat-widget.js', 'visitor-tracker.js', 'structured-data.js']);
+const BLOCKED_DIRS   = ['node_modules', 'scripts', 'data', 'brochure', 'for mailing', '.git', '.claude'];
+const BLOCKED_FILES  = new Set([
+  'package.json', 'package-lock.json', 'readme.md', 'security.md', '.env', '.env.example', '.gitignore', '.gitattributes', '.htaccess',
+  'svie cms.docx', 'hostinger-deployment-guide.html', 'hosting-comparison.html',
+  'svie-hostinger-deployment-guide.pdf', 'svie visitor dashboard — setup & feature guide.pdf',
+]);
+const BLOCKED_EXT    = ['.mjs', '.cjs', '.md', '.docx', '.env', '.log', '.map', '.ts'];
+app.use((req, res, next) => {
+  let p;
+  try { p = decodeURIComponent(req.path); } catch (e) { return res.status(400).end(); }
+  p = p.replace(/\\/g, '/').replace(/^\/+/, '').toLowerCase();
+  const first = p.split('/')[0];
+  const isRoot = !p.includes('/');
+  if (BLOCKED_DIRS.includes(first) ||
+      BLOCKED_FILES.has(p) ||
+      /(^|\/)svie-new-[^/]*\.json$/.test(p) ||                          // Google service-account keys
+      BLOCKED_EXT.includes(path.extname(p)) ||
+      (isRoot && path.extname(p) === '.js' && !PUBLIC_ROOT_JS.has(p))) {  // server.js, storage.js, render-flyer.js …
+    return res.status(404).sendFile(path.join(ROOT, '404.html'));
+  }
+  next();
+});
+
 // Serve a .webp twin when the browser accepts webp and one exists next to the
 // requested .jpg/.jpeg/.png. Mirrors the .htaccess rule so the origin also
 // negotiates webp when hit directly (belt-and-suspenders behind the CDN).
@@ -566,12 +689,27 @@ app.use((req, res, next) => {
   }
   next();
 });
+// An uploaded logo (MEDIA_DIR) replaces the bundled one everywhere it's referenced.
+app.get('/images/logo.png', (req,res,next) => {
+  if (!fs.existsSync(LOGO_FILE)) return next();
+  res.set('Cache-Control', 'public, max-age=86400');
+  res.type('png').sendFile(LOGO_FILE);
+});
 app.use(express.static(ROOT, { setHeaders: staticCacheHeaders }));
 app.use('/media', express.static(MEDIA_DIR, { setHeaders: staticCacheHeaders }));
 app.use('/admin', express.static(path.join(ROOT,'admin')));
 
-if (!process.env.SESSION_SECRET) {
-  console.warn('  ⚠  SESSION_SECRET env var not set — set it in production so sessions survive restarts.');
+// Session signing secret. Prefer SESSION_SECRET; otherwise generate one once and keep it in
+// DATA_DIR (survives redeploys). A fresh random secret per restart signed everyone out of the
+// CMS on every deploy.
+function sessionSecret() {
+  if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
+  const f = path.join(DATA_DIR, '.session-secret');
+  try { const s = fs.readFileSync(f, 'utf8').trim(); if (s.length >= 32) return s; } catch { /* first run */ }
+  const s = crypto.randomBytes(48).toString('hex');
+  try { fs.writeFileSync(f, s, { mode: 0o600 }); }
+  catch (e) { console.warn('  ⚠  Could not persist session secret — logins will reset on restart:', e.message); }
+  return s;
 }
 
 // Persistent, file-backed session store (pure JS, no native modules).
@@ -588,7 +726,7 @@ app.use(session({
     reapInterval: 60 * 60,       // purge expired sessions hourly
     logFn:        () => {},      // silence the store's verbose logging
   }),
-  secret:            process.env.SESSION_SECRET || crypto.randomBytes(48).toString('hex'),
+  secret:            sessionSecret(),
   resave:            false,
   saveUninitialized: false,
   cookie: {
@@ -704,14 +842,22 @@ async function optimizeImage(absPath, { maxW = 1600, quality = 80 } = {}) {
 }
 
 // ── Multer: gallery uploads ──
+// Stored extension comes from the (already filtered) MIME type, never the client's filename:
+// "x.html" sent as image/png must not land on disk — and get served — as an HTML page.
+const MIME_EXT = {
+  'image/jpeg':'.jpg', 'image/jpg':'.jpg', 'image/png':'.png', 'image/webp':'.webp', 'image/gif':'.gif',
+  'video/mp4':'.mp4', 'video/webm':'.webm', 'video/quicktime':'.mov',
+};
+const safeExt = file => MIME_EXT[file.mimetype] || '.bin';
+
 const galleryStorage = multer.diskStorage({
   destination: (req,file,cb) => {
-    const d = path.join(ROOT,'images','gallery');
+    const d = path.join(MEDIA_DIR,'gallery');
     if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
     cb(null, d);
   },
   filename: (req,file,cb) => {
-    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const ext  = safeExt(file);
     const base = crypto.randomBytes(8).toString('hex');
     cb(null, Date.now() + '-' + base + ext);
   }
@@ -729,12 +875,12 @@ const upload = multer({
 // ── Multer: before/after slider uploads (two images per pair) ──
 const beforeafterStorage = multer.diskStorage({
   destination: (req,file,cb) => {
-    const d = path.join(ROOT,'images','beforeafter');
+    const d = path.join(MEDIA_DIR,'beforeafter');
     if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
     cb(null, d);
   },
   filename: (req,file,cb) => {
-    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const ext  = safeExt(file);
     const base = crypto.randomBytes(8).toString('hex');
     cb(null, Date.now() + '-' + file.fieldname + '-' + base + ext);
   }
@@ -749,18 +895,16 @@ const uploadBA = multer({
 });
 
 // ── Multer: before/after VIDEO uploads (one video + optional poster image) ──
-// The video goes to /videos/beforeafter, an optional poster to /images/beforeafter.
+// The video and its optional poster both go to MEDIA_DIR/beforeafter (served at /media).
 const ALLOWED_VIDEO_MIME = new Set(['video/mp4','video/webm','video/quicktime']);
 const baVideoStorage = multer.diskStorage({
   destination: (req,file,cb) => {
-    const sub = file.fieldname === 'video' ? path.join('videos','beforeafter')
-                                           : path.join('images','beforeafter');
-    const d = path.join(ROOT, sub);
+    const d = path.join(MEDIA_DIR, 'beforeafter');
     if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
     cb(null, d);
   },
   filename: (req,file,cb) => {
-    const ext  = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const ext  = safeExt(file);
     const base = crypto.randomBytes(8).toString('hex');
     cb(null, Date.now() + '-' + file.fieldname + '-' + base + ext);
   }
@@ -779,12 +923,12 @@ const uploadBAVideo = multer({
 // ── Multer: team photo uploads ──
 const teamStorage = multer.diskStorage({
   destination: (req,file,cb) => {
-    const d = path.join(ROOT,'images','team');
+    const d = path.join(MEDIA_DIR,'team');   // survives redeploys
     if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
     cb(null, d);
   },
   filename: (req,file,cb) => {
-    const ext = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g,'');
+    const ext = safeExt(file);
     cb(null, 'team-' + parseInt(req.params.index||0) + '-' + Date.now() + ext);
   }
 });
@@ -812,10 +956,13 @@ const uploadRestore = multer({
   },
 });
 
-// ── Multer: logo / favicon (always overwrites the canonical images/logo.png) ──
+// ── Multer: logo / favicon ──
+// An uploaded logo lives in MEDIA_DIR/logo.png (the bundled images/logo.png is restored on every
+// deploy) and is served in its place by the /images/logo.png route below.
+const LOGO_FILE = path.join(MEDIA_DIR, 'logo.png');
 const logoStorage = multer.diskStorage({
-  destination: (req,file,cb) => { const d = path.join(ROOT,'images'); if(!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true}); cb(null, d); },
-  filename:    (req,file,cb) => cb(null, 'logo.png'),
+  destination: (req,file,cb) => cb(null, MEDIA_DIR),
+  filename:    (req,file,cb) => cb(null, 'logo-upload.tmp'),
 });
 const ALLOWED_LOGO_MIME = new Set(['image/png','image/jpeg','image/jpg','image/webp','image/svg+xml','image/x-icon','image/vnd.microsoft.icon']);
 const uploadLogo = multer({
@@ -1158,14 +1305,20 @@ app.get('/api/backup', requireAuth, (req,res) => {
 // ── Logo / favicon upload (overwrites images/logo.png, used as logo + favicon) ──
 app.post('/api/logo/upload', requireAuth, csrfProtect, uploadLogo.single('logo'), async (req,res) => {
   try {
-    const dest = path.join(ROOT, 'images', 'logo.png'); // multer already wrote the upload here
-    // If sharp is available, normalize whatever was uploaded into a clean, capped PNG.
-    if (sharp && req.file.mimetype !== 'image/svg+xml') {
-      const buf = await sharp(dest, { failOn:'none' })
+    const tmp = req.file.path;
+    // Normalize whatever was uploaded (incl. SVG, rasterized — no script survives) into a capped PNG.
+    if (sharp) {
+      const buf = await sharp(tmp, { failOn:'none' })
         .resize({ width:512, height:512, fit:'inside', withoutEnlargement:true })
         .png()
         .toBuffer();
-      fs.writeFileSync(dest, buf);
+      fs.writeFileSync(LOGO_FILE, buf);
+      try { fs.unlinkSync(tmp); } catch { /* temp file; overwritten by the next upload */ }
+    } else if (req.file.mimetype === 'image/svg+xml') {
+      try { fs.unlinkSync(tmp); } catch {}
+      return res.status(400).json({ error:'SVG logos need image processing, which is unavailable — upload a PNG instead.' });
+    } else {
+      fs.renameSync(tmp, LOGO_FILE);
     }
     // Bump a version in config (immediate + global) so the frontend cache-busts the logo.
     const cfg = getConfig(); cfg.logoVersion = Date.now(); saveConfig(cfg);
@@ -1194,7 +1347,7 @@ app.post('/api/team/upload/:index', requireAuth, csrfProtect, uploadTeam.single(
     const idx = parseInt(req.params.index);
     if (isNaN(idx) || idx < 0 || idx > 20) return res.status(400).json({ error:'Invalid index' });
     const fname = await optimizeImage(req.file.path, { maxW:800, quality:82 }) || req.file.filename;
-    const src = 'images/team/' + fname;
+    const src = 'media/team/' + fname;
     const c   = readContent();
     if (!c.about)       c.about      = {};
     if (!c.about.team)  c.about.team = [];
@@ -1212,8 +1365,9 @@ app.delete('/api/team/photo/:index', requireAuth, csrfProtect, (req,res) => {
     const c      = readContent();
     const member = (c.about?.team||[])[idx];
     if (member?.photo) {
-      const fp = path.join(ROOT, member.photo);
-      if (fs.existsSync(fp)) fs.unlinkSync(fp);
+      // only uploaded team photos — never other site files the field might point at
+      const fp = /^\/?(images|media)\/team\//.test(member.photo) ? mediaAbsPath(member.photo) : null;
+      if (fp && fs.existsSync(fp)) fs.unlinkSync(fp);
       member.photo = '';
       writeContent(c);
     }
@@ -1230,7 +1384,7 @@ app.post('/api/gallery/upload', requireAuth, csrfProtect, upload.single('image')
   try {
     const fname = await optimizeImage(req.file.path, { maxW:1600, quality:80 }) || req.file.filename;
     const c    = readContent();
-    const item = { id:'g'+Date.now(), src:'images/gallery/'+fname, title:req.body.title||'New Project', tag:req.body.tag||'Design', category:req.body.category||'interior' };
+    const item = { id:'g'+Date.now(), src:'media/gallery/'+fname, title:req.body.title||'New Project', tag:req.body.tag||'Design', category:req.body.category||'interior' };
     (c.gallery = c.gallery||[]).push(item);
     writeContent(c);
     logActivity('Uploaded image: '+fname, req.session.user);
@@ -1255,8 +1409,8 @@ app.delete('/api/gallery/:id', requireAuth, csrfProtect, (req,res) => {
     const item = (c.gallery||[]).find(g=>g.id===req.params.id);
     if (!item) return res.status(404).json({ error:'Not found' });
     if (item.src && !/g\d{2}\.(jpg|webp|jpeg|png)/.test(item.src)) {
-      const fp = path.join(ROOT, item.src);
-      if (fs.existsSync(fp)) fs.unlinkSync(fp);
+      const fp = mediaAbsPath(item.src);
+      if (fp && fs.existsSync(fp)) fs.unlinkSync(fp);
     }
     c.gallery = c.gallery.filter(g=>g.id!==req.params.id);
     writeContent(c);
@@ -1296,8 +1450,8 @@ app.post('/api/beforeafter/upload', requireAuth, csrfProtect,
     const item = {
       id:'ba'+Date.now(),
       title:  (req.body.title||'Project Transformation').toString().slice(0,120),
-      before: 'images/beforeafter/'+bName,
-      after:  'images/beforeafter/'+aName,
+      before: 'media/beforeafter/'+bName,
+      after:  'media/beforeafter/'+aName,
     };
     (c.beforeafter = c.beforeafter||[]).push(item);
     writeContent(c);
@@ -1320,14 +1474,14 @@ app.post('/api/beforeafter/upload-video', requireAuth, csrfProtect,
     let poster = null;
     if (pf) {
       const pName = await optimizeImage(pf.path, { maxW:1600, quality:80 }) || pf.filename;
-      poster = 'images/beforeafter/'+pName;
+      poster = 'media/beforeafter/'+pName;
     }
     const c    = readContent();
     const item = {
       id:'ba'+Date.now(),
       type:'video',
       title:  (req.body.title||'Project Transformation').toString().slice(0,120),
-      video:  'videos/beforeafter/'+vf.filename,
+      video:  'media/beforeafter/'+vf.filename,
       poster,
     };
     (c.beforeafter = c.beforeafter||[]).push(item);
@@ -1356,9 +1510,10 @@ app.delete('/api/beforeafter/:id', requireAuth, csrfProtect, (req,res) => {
     if (!item) return res.status(404).json({ error:'Not found' });
     ['before','after','poster','video'].forEach(k => {
       const rel = item[k];
-      if (rel && (rel.startsWith('images/beforeafter/') || rel.startsWith('videos/beforeafter/'))) {
-        const fp = path.join(ROOT, rel);
-        if (fs.existsSync(fp)) try { fs.unlinkSync(fp); } catch {}
+      // only files the CMS uploaded — never the site's own images/bharat-home or videos/bharat-home
+      if (rel && /^\/?(images|videos|media)\/beforeafter\//.test(rel)) {
+        const fp = mediaAbsPath(rel);
+        if (fp && fs.existsSync(fp)) try { fs.unlinkSync(fp); } catch {}
       }
     });
     c.beforeafter = c.beforeafter.filter(b=>b.id!==req.params.id);
@@ -1372,6 +1527,165 @@ app.post('/api/beforeafter/reorder', requireAuth, csrfProtect, (req,res) => {
     const c       = readContent();
     c.beforeafter = req.body.order.map(id=>(c.beforeafter||[]).find(b=>b.id===id)).filter(Boolean);
     writeContent(c);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// ═══════════════════════════════════════════
+//  PROJECT PHOTOS (gallery Before & After photo grid)
+// ═══════════════════════════════════════════
+// Each photo: { id, kind:'after'|'before', src, thumb }. Uploads go to MEDIA_DIR/project-photos.
+const PROJECT_PHOTO_KINDS = ['after', 'before'];
+const projectPhotoStorage = multer.diskStorage({
+  destination: (req,file,cb) => {
+    const d = path.join(MEDIA_DIR,'project-photos');
+    if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
+    cb(null, d);
+  },
+  filename: (req,file,cb) => {
+    const ext  = safeExt(file);
+    const base = crypto.randomBytes(8).toString('hex');
+    cb(null, Date.now() + '-' + base + ext);
+  }
+});
+const uploadProjectPhotos = multer({
+  storage: projectPhotoStorage,
+  limits:  { fileSize: 10*1024*1024, files: 30 },
+  fileFilter: (req,file,cb) => {
+    const ok = ALLOWED_IMG_MIME.has(file.mimetype);
+    cb(ok ? null : new Error('Images only (JPEG, PNG, WebP, GIF)'), ok);
+  },
+});
+
+// Small grid thumbnail next to the full image. Without sharp the grid uses the full image.
+async function makeThumb(absPath) {
+  if (!sharp) return null;
+  const name = path.basename(absPath, path.extname(absPath)) + '-t.webp';
+  try {
+    await sharp(absPath, { failOn: 'none' })
+      .rotate()
+      .resize({ width: 480, height: 480, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 72 })
+      .toFile(path.join(path.dirname(absPath), name));
+    return name;
+  } catch (e) { console.warn('[img] thumbnail failed:', e.message); return null; }
+}
+
+// Image fields in the Page Sections editor upload here (MEDIA_DIR/site-images, survives redeploys).
+const siteImageStorage = multer.diskStorage({
+  destination: (req,file,cb) => {
+    const d = path.join(MEDIA_DIR,'site-images');
+    if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
+    cb(null, d);
+  },
+  filename: (req,file,cb) => {
+    const ext  = safeExt(file);
+    cb(null, Date.now() + '-' + crypto.randomBytes(8).toString('hex') + ext);
+  }
+});
+const uploadSiteImage = multer({
+  storage: siteImageStorage,
+  limits:  { fileSize: 10*1024*1024 },
+  fileFilter: (req,file,cb) => {
+    const ok = ALLOWED_IMG_MIME.has(file.mimetype);   // no SVG: it can carry script
+    cb(ok ? null : new Error('Images only (JPEG, PNG, WebP, GIF)'), ok);
+  },
+});
+app.post('/api/sections/upload-image', requireAuth, csrfProtect, uploadSiteImage.single('image'), async (req,res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error:'Pick an image.' });
+    const name = await optimizeImage(req.file.path, { maxW:1920, quality:82 }) || req.file.filename;
+    logActivity('Uploaded site image: '+name, req.session.user);
+    res.json({ success:true, path:'media/site-images/'+name });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// Link fields can point at an uploaded PDF (e.g. a new brochure) — MEDIA_DIR/files.
+const uploadSiteFile = multer({
+  storage: multer.diskStorage({
+    destination: (req,file,cb) => {
+      const d = path.join(MEDIA_DIR,'files');
+      if (!fs.existsSync(d)) fs.mkdirSync(d,{recursive:true});
+      cb(null, d);
+    },
+    // keep a readable name (visitors see it when downloading), made safe + unique
+    filename: (req,file,cb) => {
+      const base = path.basename(file.originalname, path.extname(file.originalname)).replace(/[^a-zA-Z0-9-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60) || 'document';
+      cb(null, base + '-' + Date.now().toString(36) + '.pdf');
+    }
+  }),
+  limits:  { fileSize: 60*1024*1024 },
+  fileFilter: (req,file,cb) => {
+    const ok = file.mimetype === 'application/pdf';
+    cb(ok ? null : new Error('PDF files only'), ok);
+  },
+});
+app.post('/api/sections/upload-file', requireAuth, csrfProtect, uploadSiteFile.single('file'), (req,res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error:'Pick a PDF.' });
+    // the browser-supplied type isn't proof: require the PDF signature
+    const fd = fs.openSync(req.file.path, 'r'); const sig = Buffer.alloc(5); fs.readSync(fd, sig, 0, 5, 0); fs.closeSync(fd);
+    if (sig.toString('latin1') !== '%PDF-') { try { fs.unlinkSync(req.file.path); } catch {} return res.status(400).json({ error:'That file is not a valid PDF.' }); }
+    logActivity('Uploaded file: '+req.file.filename, req.session.user);
+    res.json({ success:true, path:'media/files/'+req.file.filename });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+app.get('/api/projectphotos', requireAuth, (req,res) => res.json(readContent().project_photos||[]));
+
+app.post('/api/projectphotos/upload', requireAuth, csrfProtect, uploadProjectPhotos.array('photos', 30), async (req,res) => {
+  try {
+    const kind = PROJECT_PHOTO_KINDS.includes(req.body.kind) ? req.body.kind : 'after';
+    if (!req.files || !req.files.length) return res.status(400).json({ error:'Pick at least one image.' });
+    const added = [];
+    for (const f of req.files) {
+      const name  = await optimizeImage(f.path, { maxW:1600, quality:80 }) || f.filename;
+      const thumb = await makeThumb(path.join(path.dirname(f.path), name));
+      added.push({
+        id:    'pp' + Date.now() + '-' + crypto.randomBytes(3).toString('hex'),
+        kind,
+        src:   'media/project-photos/' + name,
+        thumb: 'media/project-photos/' + (thumb || name),
+      });
+    }
+    const c = readContent();
+    c.project_photos = (c.project_photos||[]).concat(added);
+    writeContent(c);
+    logActivity(`Added ${added.length} ${kind} project photo(s)`, req.session.user);
+    res.json({ success:true, items:added });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// Move a photo one place earlier/later among photos of the same kind.
+app.post('/api/projectphotos/:id/move', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const c    = readContent();
+    const list = c.project_photos || [];
+    const i    = list.findIndex(p=>p.id===req.params.id);
+    if (i===-1) return res.status(404).json({ error:'Not found' });
+    const dir = req.body.dir < 0 ? -1 : 1;
+    let j = i + dir;
+    while (j >= 0 && j < list.length && list[j].kind !== list[i].kind) j += dir;
+    if (j >= 0 && j < list.length) { [list[i], list[j]] = [list[j], list[i]]; c.project_photos = list; writeContent(c); }
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+app.delete('/api/projectphotos/:id', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const c    = readContent();
+    const item = (c.project_photos||[]).find(p=>p.id===req.params.id);
+    if (!item) return res.status(404).json({ error:'Not found' });
+    // only files the CMS uploaded — never the site's own images/bharat-home photos
+    [...new Set([item.src, item.thumb])].forEach(rel => {
+      if (rel && /^\/?media\/project-photos\//.test(rel)) {
+        const fp = mediaAbsPath(rel);
+        if (fp && fs.existsSync(fp)) try { fs.unlinkSync(fp); } catch {}
+      }
+    });
+    c.project_photos = c.project_photos.filter(p=>p.id!==req.params.id);
+    writeContent(c);
+    logActivity('Removed a project photo', req.session.user);
     res.json({ success:true });
   } catch(e) { res.status(500).json({ error:e.message }); }
 });
@@ -2618,6 +2932,54 @@ app.use((req, res) => {
 // ═══════════════════════════════════════════
 //  START
 // ═══════════════════════════════════════════
+// One-time: the gallery's Before & After section now renders from the CMS list. Seed it with
+// what the page showed while it was hard-coded (6 sliders + 2 walkthrough videos). The previous
+// list is kept as a restore point in Version History.
+const BA_SPOTLIGHT_SEED = [
+  { id:'ba-bh-hall',    title:'Living hall — opened up & marble floored', before:'images/bharat-home/pairs/hall-before.webp',    after:'images/bharat-home/pairs/hall-after.webp' },
+  { id:'ba-bh-kitchen', title:'Modular kitchen',                          before:'images/bharat-home/pairs/kitchen-before.webp', after:'images/bharat-home/pairs/kitchen-after.webp' },
+  { id:'ba-bh-opening', title:'Structural opening with wood-clad beam',   before:'images/bharat-home/pairs/opening-before.webp', after:'images/bharat-home/pairs/opening-after.webp' },
+  { id:'ba-bh-tvwall',  title:'Marble TV wall with lit display niches',   before:'images/bharat-home/pairs/tv-wall-before.webp', after:'images/bharat-home/pairs/tv-wall-after.webp', tall:true },
+  { id:'ba-bh-wash',    title:'Wash area vanity',                         before:'images/bharat-home/pairs/wash-before.webp',    after:'images/bharat-home/pairs/wash-after.webp',    tall:true },
+  { id:'ba-bh-arch',    title:'Arch & column finish',                     before:'images/bharat-home/pairs/arch-before.webp',    after:'images/bharat-home/pairs/arch-after.webp',    tall:true },
+  { id:'ba-bh-walk1', type:'video', title:'Finished home walkthrough — part 1', video:'videos/bharat-home/walkthrough-1.mp4', poster:'videos/bharat-home/walkthrough-1-poster.webp' },
+  { id:'ba-bh-walk2', type:'video', title:'Finished home walkthrough — part 2', video:'videos/bharat-home/walkthrough-2.mp4', poster:'videos/bharat-home/walkthrough-2-poster.webp' },
+];
+function seedBeforeAfterSpotlight() {
+  try {
+    if (getConfig().baSpotlightSeeded) return;
+    const live = readLive();
+    snapshotVersion(live, 'system', 'Before syncing Before & After with the gallery page');
+    live.beforeafter = BA_SPOTLIGHT_SEED.map(b => ({ ...b }));
+    writeLive(live);
+    const draft = readJSON(DRAFT_FILE, null);          // only touch a draft that actually exists
+    if (draft !== null) { draft.beforeafter = BA_SPOTLIGHT_SEED.map(b => ({ ...b })); writeDraft(draft); }
+    const cfg = getConfig(); cfg.baSpotlightSeeded = true; saveConfig(cfg);
+    console.log('  ✓ Before & After list synced with the gallery page (old list saved in Version History)');
+  } catch (e) { console.warn('[seed] before/after:', e.message); }
+}
+seedBeforeAfterSpotlight();
+
+// One-time: the gallery's photo grid now renders from the CMS too. Seed it with the photos the
+// page showed while hard-coded (images/bharat-home: 18 after, 69 before).
+function seedProjectPhotos() {
+  try {
+    if (getConfig().projectPhotosSeeded) return;
+    const make = (kind, n) => Array.from({ length: n }, (_, i) => {
+      const f = `images/bharat-home/${kind}/${kind}-${String(i + 1).padStart(2, '0')}`;
+      return { id: `pp-bh-${kind}-${i + 1}`, kind, src: f + '.webp', thumb: f + '-t.webp' };
+    });
+    const seed = () => [...make('after', 18), ...make('before', 69)];
+    const live = readLive();
+    if (!Array.isArray(live.project_photos)) { live.project_photos = seed(); writeLive(live); }
+    const draft = readJSON(DRAFT_FILE, null);
+    if (draft !== null && !Array.isArray(draft.project_photos)) { draft.project_photos = seed(); writeDraft(draft); }
+    const cfg = getConfig(); cfg.projectPhotosSeeded = true; saveConfig(cfg);
+    console.log('  ✓ Gallery photo grid loaded into the CMS (87 photos)');
+  } catch (e) { console.warn('[seed] project photos:', e.message); }
+}
+seedProjectPhotos();
+
 app.listen(PORT, async () => {
   // Auto-migrate plaintext password to bcrypt on first start
   const cfg = getConfig();
@@ -2628,6 +2990,8 @@ app.listen(PORT, async () => {
     saveConfig(cfg);
     console.log('  ✓ Password auto-migrated to bcrypt hash');
   }
+
+  await applyEnvPasswordReset();
 
   console.log('\n╔══════════════════════════════════════╗');
   console.log('║      SVIE CMS — Server Running       ║');
