@@ -10,3 +10,6 @@ svie-new-*.json
 # Raw WhatsApp source photos (optimized copies live in images/bharat-home)
 images/Bharat Home After/
 images/Bharat Home before/
+
+# Raw renovation originals (kept locally; optimized copies live in images/bharat-home)
+SVIE-renovation-originals/
