@@ -58,6 +58,21 @@
   .btn{border:none;border-radius:8px;padding:8px 16px;font:600 13px system-ui;cursor:pointer}
   .btn.p{background:var(--gold);color:#fff}.btn.s{background:#eee;color:#444}
   .empty{text-align:center;color:var(--muted);padding:30px}
+  .tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+  .tabs .tab{border:none;background:none;padding:10px 16px;cursor:pointer;font:600 14px system-ui;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tabs .tab.on{color:#7a5c26;border-bottom-color:var(--gold)}
+  .field{margin-bottom:9px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
+  .field input,.field select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:400 13px system-ui;background:#fff}
+  .stars{color:#e8a200;letter-spacing:1px}
+  .alert{border-radius:10px;padding:10px 13px;margin-bottom:10px;font-size:13px;font-weight:600}
+  .alert.warn{background:#fdecec;color:#c62828;border:1px solid #f5c6c6}
+  .alert.info{background:#fff6e5;color:#9a6b00;border:1px solid #f0dcae}
+  .check-row{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:13px;border-bottom:1px solid var(--line)}
+  .check-row:last-child{border:none}
+  .check-row .ic{width:18px;height:18px;flex:0 0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
+  .check-row .ic.ok{background:#167a33}.check-row .ic.no{background:#c0392b}
+  .repeat-badge{display:inline-block;background:#e6f4ea;color:#167a33;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:5px}
 </style>
 </head>
 <body>
@@ -77,6 +92,12 @@
 </header>
 
 <div class="wrap" id="main" style="display:none">
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-t="leads">Leads &amp; Pipeline</button>
+    <button class="tab" data-t="google">Google Profile &amp; Reviews</button>
+  </div>
+
+  <div class="tabpane" id="tab-leads">
   <div class="period" id="period">
     <button data-d="7">7 days</button>
     <button data-d="30" class="on">30 days</button>
@@ -119,12 +140,85 @@
       <table>
         <thead><tr>
           <th>Date</th><th>Name / Phone</th><th>Service</th><th>Source</th>
-          <th>Status</th><th>Assigned</th><th>Follow-up</th><th>Notes</th>
+          <th>Status</th><th>Assigned</th><th>Follow-up</th><th>Referral</th><th>Notes</th>
         </tr></thead>
         <tbody id="leadRows"></tbody>
       </table>
     </div>
   </div>
+  </div><!-- /tab-leads -->
+
+  <div class="tabpane" id="tab-google" hidden>
+    <div class="cards" id="gCards"></div>
+
+    <div class="panel" id="gbpHealthPanel">
+      <h2>Google Business Profile — health</h2>
+      <div id="gbpAlerts"></div>
+      <div id="gbpChecklist"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <h2>Business profile details</h2>
+        <p class="muted" style="font-size:12px;margin-top:-6px">Keep this in sync with your Google Business Profile. A complete profile ranks higher and gets more calls.</p>
+        <form id="gbpForm">
+          <div class="field"><label>Business status</label>
+            <select name="status"><option value="open">Open</option><option value="closed">Permanently/Temporarily closed</option></select></div>
+          <div class="field"><label>Business name</label><input name="name" maxlength="150"></div>
+          <div class="field"><label>Primary phone</label><input name="phone" maxlength="30"></div>
+          <div class="field"><label>Full address</label><input name="address" maxlength="300"></div>
+          <div class="field"><label>Business hours</label><input name="hours" placeholder="Mon–Sat 9:30–18:30" maxlength="200"></div>
+          <div class="field"><label>Primary category</label><input name="category" placeholder="Interior designer / Renovation contractor" maxlength="150"></div>
+          <div class="field"><label>Website URL</label><input name="website" maxlength="300"></div>
+          <div class="field"><label>Services offered</label><input name="servicesList" placeholder="Interiors, Modular furniture, Renovation…" maxlength="500"></div>
+          <div class="field"><label>Short description</label><input name="description" maxlength="750"></div>
+          <div class="field"><label>Google profile URL (Maps listing)</label><input name="mapsUrl" placeholder="https://maps.app.goo.gl/…" maxlength="400"></div>
+          <div class="field"><label>Google review link (for review requests)</label><input name="reviewLink" placeholder="https://g.page/r/…/review" maxlength="400"></div>
+          <label style="display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px"><input type="checkbox" name="photosDone" style="width:auto"> Profile has 10+ recent project photos</label>
+          <button type="submit" class="btn p">Save profile</button>
+          <span id="gbpSaved" class="muted" style="font-size:12px;margin-left:8px"></span>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2>Ask a customer for a review</h2>
+        <p class="muted" style="font-size:12px;margin-top:-6px">Generates a ready-to-send message with your Google review link. Free — no WhatsApp API needed.</p>
+        <form id="reqForm">
+          <div class="field"><label>Customer name</label><input name="cname" maxlength="100" required></div>
+          <div class="field"><label>Customer WhatsApp/mobile (10-digit)</label><input name="cphone" maxlength="15" required></div>
+          <button type="submit" class="btn p">Build request</button>
+        </form>
+        <div id="reqOut" style="display:none;margin-top:12px">
+          <label style="font-size:12px;color:var(--muted)">Message</label>
+          <textarea id="reqMsg" style="width:100%;min-height:90px;border:1px solid var(--line);border-radius:8px;padding:8px;font:400 13px system-ui"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+            <a id="reqWa" class="btn p" target="_blank" rel="noopener" style="text-decoration:none">Send on WhatsApp</a>
+            <a id="reqSms" class="btn s" style="text-decoration:none">Send as SMS</a>
+            <button type="button" class="btn s" id="reqCopy">Copy message</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Reviews</h2>
+      <div class="controls">
+        <form id="revForm" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;width:100%">
+          <label>Reviewer<br><input name="author" maxlength="100" required></label>
+          <label>Rating<br><select name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
+          <label>Source<br><select name="source"><option value="google">Google</option><option value="facebook">Facebook</option><option value="justdial">Justdial</option><option value="sulekha">Sulekha</option><option value="indiamart">IndiaMART</option><option value="other">Other</option></select></label>
+          <label style="flex:1;min-width:200px">Review text<br><input name="text" maxlength="500" style="width:100%"></label>
+          <button type="submit" class="btn p">Add review</button>
+        </form>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Date</th><th>Reviewer</th><th>Rating</th><th>Source</th><th>Review</th><th>Replied</th><th></th></tr></thead>
+          <tbody id="revRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /tab-google -->
 </div>
 
 <dialog id="noteDlg">
@@ -159,6 +253,20 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('fSource').addEventListener('change', renderLeads);
   document.getElementById('saveTeam').addEventListener('click', saveTeam);
   document.getElementById('noteSave').addEventListener('click', saveNote);
+  document.getElementById('tabs').addEventListener('click', e => {
+    const b = e.target.closest('.tab'); if(!b) return;
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.querySelectorAll('.tabpane').forEach(p=>p.hidden = (p.id !== 'tab-'+b.dataset.t));
+  });
+  document.getElementById('gbpForm').addEventListener('submit', saveGBP);
+  document.getElementById('revForm').addEventListener('submit', addReview);
+  document.getElementById('reqForm').addEventListener('submit', buildReviewRequest);
+  document.getElementById('reqCopy').addEventListener('click', () => {
+    const t = document.getElementById('reqMsg'); t.select(); document.execCommand('copy');
+    document.getElementById('reqCopy').textContent = 'Copied!';
+    setTimeout(()=>{document.getElementById('reqCopy').textContent='Copy message';}, 1500);
+  });
   await loadAll();
 });
 
@@ -172,22 +280,31 @@ async function api(method, url, body){
 }
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
+let allLeads = [], gbp = {}, reviews = [], phoneCounts = {};
 async function loadAll(){
-  const [enq, ev, vis, tm] = await Promise.all([
+  const [enq, ev, vis, tm, g, rv] = await Promise.all([
     api('GET','/api/enquiries').catch(()=>[]),
     api('GET','/api/event-stats?days='+days).catch(()=>({byType:{},total:0})),
     api('GET','/api/visitor-stats?days='+days).catch(()=>({total:0})),
     api('GET','/api/team-members').catch(()=>[]),
+    api('GET','/api/gbp').catch(()=>({})),
+    api('GET','/api/reviews').catch(()=>[]),
   ]);
   team = tm || [];
   _ev = ev || {byType:{}}; _vis = vis || {total:0};
+  gbp = g || {}; reviews = rv || [];
+  allLeads = enq || [];
+  // phone-frequency map for repeat-customer detection (across all time)
+  phoneCounts = {};
+  allLeads.forEach(l => { if (l.phone) phoneCounts[l.phone] = (phoneCounts[l.phone]||0)+1; });
   document.getElementById('teamInput').value = team.join(', ');
   const cutoff = Date.now() - days*86400000;
-  leads = (enq||[]).filter(l => new Date(l.date).getTime() >= cutoff);
+  leads = allLeads.filter(l => new Date(l.date).getTime() >= cutoff);
   renderCards(ev, vis);
   renderBreakdowns();
   populateSourceFilter();
   renderLeads();
+  renderGoogleTab();
 }
 
 function renderCards(ev, vis){
@@ -237,7 +354,7 @@ function renderLeads(){
   const fSt = document.getElementById('fStatus').value, fSrc = document.getElementById('fSource').value;
   const rows = leads.filter(l => (!fSt || (l.status||'new')===fSt) && (!fSrc || (l.source||'unknown')===fSrc));
   const tb = document.getElementById('leadRows');
-  if (!rows.length){ tb.innerHTML = '<tr><td colspan="8" class="empty">No matching leads.</td></tr>'; return; }
+  if (!rows.length){ tb.innerHTML = '<tr><td colspan="9" class="empty">No matching leads.</td></tr>'; return; }
   tb.innerHTML = rows.map(l => {
     const d = new Date(l.date); const dateStr = isNaN(d) ? '' : d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
     const status = l.status||'new';
@@ -249,12 +366,15 @@ function renderLeads(){
     const nCount = (l.history||[]).length;
     const phone = l.phone ? '<a href="tel:+91'+esc(l.phone)+'">'+esc(l.phone)+'</a>' : '';
     const wa = l.phone ? ' · <a href="https://wa.me/91'+esc(l.phone)+'" target="_blank" rel="noopener">WA</a>' : '';
+    const repeat = (l.phone && phoneCounts[l.phone] > 1) ? '<span class="repeat-badge" title="This number appears in '+phoneCounts[l.phone]+' leads">↻ repeat</span>' : '';
+    const ref = '<input value="'+esc(l.referredBy||'')+'" placeholder="who referred?" onchange="updateLead(\''+l.id+'\',\'referredBy\',this.value)" style="max-width:110px">';
     return '<tr>'+
       '<td>'+dateStr+'</td>'+
-      '<td><b>'+esc(l.name||'—')+'</b><br>'+phone+wa+'</td>'+
+      '<td><b>'+esc(l.name||'—')+'</b>'+repeat+'<br>'+phone+wa+'</td>'+
       '<td>'+esc(l.service||'')+'</td>'+
       '<td><span class="pill src-'+esc(l.source||'unknown')+'">'+esc(l.source||'unknown')+'</span></td>'+
       '<td>'+statusSel+'</td><td>'+asgSel+'</td><td>'+fu+'</td>'+
+      '<td>'+ref+'</td>'+
       '<td><button class="linkbtn" onclick="openNotes(\''+l.id+'\')">Notes ('+nCount+')</button></td>'+
     '</tr>';
   }).join('');
@@ -295,6 +415,135 @@ async function saveTeam(){
   const members = document.getElementById('teamInput').value.split(',').map(s=>s.trim()).filter(Boolean);
   try { const r = await api('POST','/api/team-members',{ members }); team = r.members||[]; renderLeads(); alert('Team saved.'); }
   catch(e){ alert('Could not save team: '+e.message); }
+}
+
+// ═══ Google Profile & Reviews tab ════════════════════════════════════════════
+const BIZ_NAME = 'SVIE Interiors & Exteriors';
+function stars(n){ n = Math.round(n||0); return '<span class="stars">'+'★'.repeat(n)+'☆'.repeat(5-n)+'</span>'; }
+
+function gbpChecklist(){
+  return [
+    ['Business is marked Open', (gbp.status||'open') !== 'closed'],
+    ['Business name set',       !!gbp.name],
+    ['Primary phone set',       !!gbp.phone],
+    ['Full address set',        !!gbp.address],
+    ['Business hours set',      !!gbp.hours],
+    ['Primary category set',    !!gbp.category],
+    ['Website linked',          !!gbp.website],
+    ['Services listed',         !!gbp.servicesList],
+    ['Description added',       !!gbp.description],
+    ['Google profile URL saved',!!gbp.mapsUrl],
+    ['Review link saved',       !!gbp.reviewLink],
+    ['10+ recent photos',       !!gbp.photosDone],
+    ['5+ reviews collected',    reviews.length >= 5],
+  ];
+}
+
+function renderGoogleTab(){
+  const chk = gbpChecklist();
+  const done = chk.filter(c=>c[1]).length;
+  const health = Math.round(done/chk.length*100);
+  const avg = reviews.length ? reviews.reduce((a,r)=>a+(r.rating||0),0)/reviews.length : 0;
+  const replied = reviews.length ? Math.round(reviews.filter(r=>r.replied).length/reviews.length*100) : 0;
+  const repeatCustomers = Object.values(phoneCounts).filter(c=>c>1).length;
+
+  // KPI cards
+  document.getElementById('gCards').innerHTML = [
+    { n: health+'%', l:'Profile health', s:done+'/'+chk.length+' complete' },
+    { n: avg ? avg.toFixed(1) : '—', l:'Avg rating', s:stars(avg) },
+    { n: reviews.length, l:'Reviews logged', s:replied+'% replied' },
+    { n: repeatCustomers, l:'Repeat customers', s:'same number, 2+ leads' },
+  ].map(c => '<div class="card"><div class="n">'+c.n+'</div><div class="l">'+c.l+'</div><div class="s">'+c.s+'</div></div>').join('');
+
+  // Alerts
+  let alerts = '';
+  if ((gbp.status||'open') === 'closed')
+    alerts += '<div class="alert warn">⚠ Your profile is marked <b>closed</b> — Google hides closed listings, so customers can\'t find or call you. Reopen it in your Google Business Profile right away.</div>';
+  if (!gbp.reviewLink)
+    alerts += '<div class="alert info">Add your <b>Google review link</b> below to start sending one-tap review requests.</div>';
+  if (health < 100)
+    alerts += '<div class="alert info">Profile is '+health+'% complete. Finishing the checklist below improves your Google ranking and call volume.</div>';
+  document.getElementById('gbpAlerts').innerHTML = alerts;
+
+  // Checklist
+  document.getElementById('gbpChecklist').innerHTML = chk.map(([label,ok]) =>
+    '<div class="check-row"><span class="ic '+(ok?'ok':'no')+'">'+(ok?'✓':'!')+'</span>'+esc(label)+'</div>'
+  ).join('');
+
+  // Fill the form
+  const f = document.getElementById('gbpForm');
+  ['name','phone','address','hours','category','website','servicesList','description','mapsUrl','reviewLink'].forEach(k => { if (f[k]) f[k].value = gbp[k] || ''; });
+  f.status.value = (gbp.status||'open');
+  f.photosDone.checked = !!gbp.photosDone;
+
+  renderReviews();
+}
+
+async function saveGBP(e){
+  e.preventDefault();
+  const f = e.target, body = {};
+  ['name','phone','address','hours','category','website','servicesList','description','mapsUrl','reviewLink','status'].forEach(k => { body[k] = f[k].value; });
+  body.photosDone = f.photosDone.checked;
+  try {
+    const r = await api('POST','/api/gbp', body);
+    gbp = r.gbp || body;
+    document.getElementById('gbpSaved').textContent = '✓ Saved';
+    setTimeout(()=>{document.getElementById('gbpSaved').textContent='';}, 2500);
+    renderGoogleTab();
+  } catch(err){ alert('Could not save profile: '+err.message); }
+}
+
+function renderReviews(){
+  const tb = document.getElementById('revRows');
+  if (!reviews.length){ tb.innerHTML = '<tr><td colspan="7" class="empty">No reviews logged yet.</td></tr>'; return; }
+  tb.innerHTML = reviews.map(r => {
+    const d = new Date(r.date); const ds = isNaN(d)?'':d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'});
+    return '<tr>'+
+      '<td>'+ds+'</td>'+
+      '<td>'+esc(r.author)+'</td>'+
+      '<td>'+stars(r.rating)+'</td>'+
+      '<td style="text-transform:capitalize">'+esc(r.source)+'</td>'+
+      '<td>'+esc(r.text||'')+'</td>'+
+      '<td><input type="checkbox" '+(r.replied?'checked':'')+' onchange="toggleReplied(\''+r.id+'\',this.checked)"></td>'+
+      '<td><button class="linkbtn" onclick="deleteReview(\''+r.id+'\')">Delete</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+async function addReview(e){
+  e.preventDefault();
+  const f = e.target;
+  const body = { author:f.author.value, rating:f.rating.value, source:f.source.value, text:f.text.value };
+  if (!body.author.trim()) return;
+  try { await api('POST','/api/reviews', body); f.reset(); await loadAll(); }
+  catch(err){ alert('Could not add review: '+err.message); }
+}
+async function toggleReplied(id, replied){
+  try { await api('PATCH','/api/reviews/'+id, { replied }); const r = reviews.find(x=>x.id===id); if (r) r.replied = replied; renderGoogleTab(); }
+  catch(err){ alert('Could not update: '+err.message); }
+}
+async function deleteReview(id){
+  if (!confirm('Delete this review?')) return;
+  try { await api('DELETE','/api/reviews/'+id); reviews = reviews.filter(x=>x.id!==id); renderGoogleTab(); }
+  catch(err){ alert('Could not delete: '+err.message); }
+}
+
+function buildReviewRequest(e){
+  e.preventDefault();
+  const name = document.getElementById('reqForm').cname.value.trim();
+  const phoneRaw = document.getElementById('reqForm').cphone.value.replace(/\D/g,'');
+  let phone = phoneRaw;
+  if (phone.length === 10) phone = '91'+phone; else if (phone.length===11 && phone[0]==='0') phone='91'+phone.slice(1);
+  const link = gbp.reviewLink || gbp.mapsUrl || '';
+  const msg = 'Hi '+(name||'there')+', thank you for choosing '+BIZ_NAME+'! 🙏 '+
+    'We\'d be really grateful if you could share a quick review of your experience'+
+    (link ? ': '+link : ' on our Google profile') + '. It means a lot to our small team. — Team SVIE';
+  document.getElementById('reqMsg').value = msg;
+  document.getElementById('reqOut').style.display = 'block';
+  const enc = encodeURIComponent(msg);
+  document.getElementById('reqWa').href  = 'https://wa.me/'+ (phone||'') +'?text='+enc;
+  document.getElementById('reqSms').href = 'sms:'+ (phone?'+'+phone:'') +'?body='+enc;
+  if (!link) document.getElementById('reqMsg').value += '\n\n(Tip: add your Google review link in "Business profile details" so the link is included automatically.)';
 }
 </script>
 </body>

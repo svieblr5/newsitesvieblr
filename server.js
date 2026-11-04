@@ -83,6 +83,7 @@ const VISITORS_FILE = path.join(DATA_DIR, 'visitors.json');
 const CHATLOG_FILE  = path.join(DATA_DIR, 'chatlogs.json');       // AI chat transcripts
 const EVENTS_FILE   = path.join(DATA_DIR, 'events.json');         // marketing events (call/whatsapp/callback clicks)
 const MAX_EVENTS    = 50000;                                      // keep the newest 50k events
+const REVIEWS_FILE  = path.join(DATA_DIR, 'reviews.json');        // manually-logged customer reviews
 const MAX_VERSIONS  = 50; // keep the 50 most recent restore points
 const MAX_CHATLOGS  = 500; // keep the newest 500 chat conversations
 
@@ -2005,6 +2006,71 @@ app.get('/api/event-stats', requireAuth, (req,res) => {
     byDay[d][e.type] = (byDay[d][e.type]||0) + 1;
   }
   res.json({ days, total: all.length, byType, byDay });
+});
+
+// ── Google Business Profile tracker (auth) ───────────────────────────────────
+// Business info + profile status, stored in config.gbp. This is a *tracker*
+// (manually maintained) — live sync with Google needs the GBP API (later phase).
+const GBP_FIELDS = ['name','phone','address','hours','website','category','description','profileUrl','mapsUrl','reviewLink','servicesList'];
+app.get('/api/gbp', requireAuth, (req,res) => res.json(getConfig().gbp || {}));
+app.post('/api/gbp', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const b = req.body || {};
+    const cfg = getConfig();
+    const g = cfg.gbp && typeof cfg.gbp === 'object' ? cfg.gbp : {};
+    for (const f of GBP_FIELDS) if (b[f] !== undefined) g[f] = String(b[f]).slice(0, 2000);
+    if (b.status !== undefined)     g.status     = (b.status === 'closed') ? 'closed' : 'open';
+    if (b.photosDone !== undefined) g.photosDone = !!b.photosDone;
+    g.lastVerified = new Date().toISOString();
+    cfg.gbp = g; saveConfig(cfg);
+    logActivity('Updated Google Business Profile info', req.session.user);
+    res.json({ success:true, gbp:g });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// ── Customer reviews (auth) — manually logged, with rating analytics ─────────
+function sanitizeReview(b) {
+  const srcOk = new Set(['google','facebook','justdial','sulekha','indiamart','other']);
+  let r = parseInt(b.rating, 10); if (!(r >= 1 && r <= 5)) r = 5;
+  return {
+    author:  String(b.author  || '').trim().slice(0,100),
+    rating:  r,
+    text:    String(b.text    || '').trim().slice(0,2000),
+    source:  srcOk.has(String(b.source)) ? String(b.source) : 'google',
+    date:    (b.date && !isNaN(new Date(b.date))) ? new Date(b.date).toISOString() : new Date().toISOString(),
+    replied: !!b.replied,
+  };
+}
+app.get('/api/reviews', requireAuth, (req,res) => res.json(readJSON(REVIEWS_FILE, [])));
+app.post('/api/reviews', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const rv = sanitizeReview(req.body || {});
+    if (!rv.author) return res.status(400).json({ error:'Reviewer name is required.' });
+    const list = readJSON(REVIEWS_FILE, []);
+    list.unshift({ id:'r'+Date.now(), ...rv });
+    writeJSON(REVIEWS_FILE, list);
+    logActivity('Logged a customer review', req.session.user);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+app.patch('/api/reviews/:id', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const list = readJSON(REVIEWS_FILE, []);
+    const i = list.findIndex(r => r.id === req.params.id);
+    if (i === -1) return res.status(404).json({ error:'Not found' });
+    const b = req.body || {};
+    if (b.replied !== undefined) list[i].replied = !!b.replied;
+    if (b.rating  !== undefined) { const r = parseInt(b.rating,10); if (r>=1&&r<=5) list[i].rating = r; }
+    if (b.text    !== undefined) list[i].text = String(b.text).slice(0,2000);
+    writeJSON(REVIEWS_FILE, list);
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+app.delete('/api/reviews/:id', requireAuth, csrfProtect, (req,res) => {
+  try {
+    writeJSON(REVIEWS_FILE, readJSON(REVIEWS_FILE, []).filter(r => r.id !== req.params.id));
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
 });
 
 // ═══════════════════════════════════════════
