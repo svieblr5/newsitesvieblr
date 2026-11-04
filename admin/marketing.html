@@ -245,7 +245,7 @@ function renderLeads(){
       STATUS_KEYS.map(k=>'<option value="'+k+'"'+(k===status?' selected':'')+'>'+STATUS_LABELS[k]+'</option>').join('') + '</select>';
     const asgOpts = ['<option value="">—</option>'].concat(team.map(m=>'<option'+((l.assignedTo||'')===m?' selected':'')+'>'+esc(m)+'</option>'));
     const asgSel = '<select onchange="updateLead(\''+l.id+'\',\'assignedTo\',this.value)">'+asgOpts.join('')+'</select>';
-    const fu = '<input type="date" value="'+(l.followUpAt||'')+'" onchange="updateLead(\''+l.id+'\',\'followUpAt\',this.value)">';
+    const fu = '<input type="date" value="'+esc(l.followUpAt||'')+'" onchange="updateLead(\''+l.id+'\',\'followUpAt\',this.value)">';
     const nCount = (l.history||[]).length;
     const phone = l.phone ? '<a href="tel:+91'+esc(l.phone)+'">'+esc(l.phone)+'</a>' : '';
     const wa = l.phone ? ' · <a href="https://wa.me/91'+esc(l.phone)+'" target="_blank" rel="noopener">WA</a>' : '';
