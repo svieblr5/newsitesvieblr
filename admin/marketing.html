@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Lead & Marketing Dashboard — SVIE</title>
+<style>
+  :root{ --gold:#C9A05A; --gold-d:#b3894a; --ink:#2b2b2b; --muted:#6b6155; --line:#eae4dc; --bg:#f7f4ef; }
+  *{box-sizing:border-box}
+  body{margin:0;font:400 15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);background:var(--bg)}
+  a{color:var(--gold-d)}
+  header{background:#fff;border-bottom:1px solid var(--line);padding:16px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  header h1{font-size:19px;margin:0;color:#7a5c26}
+  header .sp{flex:1}
+  header nav a{font-size:13px;font-weight:600;text-decoration:none;margin-left:14px}
+  .wrap{max-width:1200px;margin:0 auto;padding:22px}
+  .period{display:flex;gap:8px;margin-bottom:18px}
+  .period button{border:1px solid var(--line);background:#fff;padding:7px 14px;border-radius:8px;cursor:pointer;font:600 13px system-ui}
+  .period button.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .card .n{font-size:28px;font-weight:800;color:#7a5c26;line-height:1.1}
+  .card .l{font-size:12px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.03em}
+  .card .s{font-size:12px;color:var(--muted);margin-top:2px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
+  .panel h2{font-size:15px;margin:0 0 14px;color:#7a5c26}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px}
+  .bar-row .name{width:92px;flex:0 0 auto;text-transform:capitalize;color:var(--muted)}
+  .bar-track{flex:1;background:#f0ebe2;border-radius:6px;height:16px;overflow:hidden}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-d))}
+  .bar-row .val{width:34px;text-align:right;font-weight:700}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
+  td select,td input{font:400 12px system-ui;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:#fff;max-width:130px}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;text-transform:capitalize}
+  .src-website{background:#e8f0fe;color:#1a56c4}.src-chat{background:#fdeede;color:#b06a12}
+  .src-callback{background:#e6f4ea;color:#167a33}.src-brochure{background:#f3e8fd;color:#7b36c4}
+  .src-unknown{background:#eee;color:#666}
+  .st-new{color:#1a56c4}.st-won{color:#167a33}.st-lost{color:#c62828}
+  .linkbtn{border:none;background:none;color:var(--gold-d);cursor:pointer;font:600 12px system-ui;padding:0}
+  .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .controls select,.controls input{padding:7px 9px;border:1px solid var(--line);border-radius:8px;font:400 13px system-ui}
+  .authwall{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:99}
+  .authwall a{background:var(--gold);color:#fff;padding:10px 20px;border-radius:9px;text-decoration:none;font-weight:700}
+  .muted{color:var(--muted)}
+  .note-box{margin-top:6px;background:#faf8f4;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12px}
+  .note-box .ni{margin-bottom:5px;padding-bottom:5px;border-bottom:1px dashed var(--line)}
+  .note-box .ni:last-child{border:none;margin:0;padding:0}
+  dialog{border:none;border-radius:14px;padding:0;max-width:440px;width:92vw;box-shadow:0 30px 70px rgba(0,0,0,.3)}
+  dialog .dh{padding:16px 18px;border-bottom:1px solid var(--line);font-weight:700;color:#7a5c26}
+  dialog .db{padding:16px 18px}
+  dialog textarea{width:100%;min-height:70px;border:1px solid var(--line);border-radius:8px;padding:8px;font:400 13px system-ui}
+  dialog .df{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+  .btn{border:none;border-radius:8px;padding:8px 16px;font:600 13px system-ui;cursor:pointer}
+  .btn.p{background:var(--gold);color:#fff}.btn.s{background:#eee;color:#444}
+  .empty{text-align:center;color:var(--muted);padding:30px}
+</style>
+</head>
+<body>
+<div class="authwall" id="authWall">
+  <div style="font-size:18px;font-weight:700;color:#7a5c26">Please sign in</div>
+  <a href="/admin">Go to admin login</a>
+</div>
+
+<header>
+  <h1>📈 Lead &amp; Marketing Dashboard</h1>
+  <div class="sp"></div>
+  <nav>
+    <a href="/admin/dashboard">CMS</a>
+    <a href="/admin/visitor-dashboard">Visitors</a>
+    <a href="/api/enquiries/export.csv">Export CSV</a>
+  </nav>
+</header>
+
+<div class="wrap" id="main" style="display:none">
+  <div class="period" id="period">
+    <button data-d="7">7 days</button>
+    <button data-d="30" class="on">30 days</button>
+    <button data-d="90">90 days</button>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Leads by source</h2>
+      <div id="bySource"><div class="empty">No leads yet.</div></div>
+    </div>
+    <div class="panel">
+      <h2>Pipeline</h2>
+      <div id="byStatus"><div class="empty">No leads yet.</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Lead pipeline &amp; follow-ups</h2>
+    <div class="controls">
+      <label>Status
+        <select id="fStatus">
+          <option value="">All</option>
+          <option value="new">New</option><option value="contacted">Contacted</option>
+          <option value="proposal">Proposal Sent</option><option value="negotiation">Negotiation</option>
+          <option value="won">Won</option><option value="lost">Lost</option>
+        </select>
+      </label>
+      <label>Source
+        <select id="fSource"><option value="">All</option></select>
+      </label>
+      <label>Team members
+        <input id="teamInput" placeholder="comma-separated names" style="min-width:220px">
+      </label>
+      <button class="btn s" id="saveTeam">Save team</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Name / Phone</th><th>Service</th><th>Source</th>
+          <th>Status</th><th>Assigned</th><th>Follow-up</th><th>Notes</th>
+        </tr></thead>
+        <tbody id="leadRows"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<dialog id="noteDlg">
+  <div class="dh">Communication history</div>
+  <div class="db">
+    <div id="noteHist" style="margin-bottom:12px"></div>
+    <textarea id="noteText" placeholder="Add a note (e.g. 'Called, asked for quote on 3BHK')"></textarea>
+  </div>
+  <div class="df">
+    <button class="btn s" onclick="document.getElementById('noteDlg').close()">Close</button>
+    <button class="btn p" id="noteSave">Add note</button>
+  </div>
+</dialog>
+
+<script>
+const STATUS_LABELS = { new:'New', contacted:'Contacted', proposal:'Proposal Sent', negotiation:'Negotiation', won:'Won', lost:'Lost' };
+const STATUS_KEYS = Object.keys(STATUS_LABELS);
+let csrfToken = '', days = 30, leads = [], team = [], noteLeadId = null;
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const auth = await api('GET','/api/auth/check');
+  if (!auth.loggedIn) { document.getElementById('authWall').style.display='flex'; return; }
+  document.getElementById('main').style.display='block';
+  try { csrfToken = (await api('GET','/api/csrf-token')).token || ''; } catch(_){}
+  document.getElementById('period').addEventListener('click', e => {
+    const b = e.target.closest('button'); if(!b) return;
+    days = +b.dataset.d;
+    document.querySelectorAll('#period button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); loadAll();
+  });
+  document.getElementById('fStatus').addEventListener('change', renderLeads);
+  document.getElementById('fSource').addEventListener('change', renderLeads);
+  document.getElementById('saveTeam').addEventListener('click', saveTeam);
+  document.getElementById('noteSave').addEventListener('click', saveNote);
+  await loadAll();
+});
+
+async function api(method, url, body){
+  const opts = { method, headers:{'Content-Type':'application/json'} };
+  if (csrfToken && method !== 'GET') opts.headers['X-CSRF-Token'] = csrfToken;
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function loadAll(){
+  const [enq, ev, vis, tm] = await Promise.all([
+    api('GET','/api/enquiries').catch(()=>[]),
+    api('GET','/api/event-stats?days='+days).catch(()=>({byType:{},total:0})),
+    api('GET','/api/visitor-stats?days='+days).catch(()=>({total:0})),
+    api('GET','/api/team-members').catch(()=>[]),
+  ]);
+  team = tm || [];
+  _ev = ev || {byType:{}}; _vis = vis || {total:0};
+  document.getElementById('teamInput').value = team.join(', ');
+  const cutoff = Date.now() - days*86400000;
+  leads = (enq||[]).filter(l => new Date(l.date).getTime() >= cutoff);
+  renderCards(ev, vis);
+  renderBreakdowns();
+  populateSourceFilter();
+  renderLeads();
+}
+
+function renderCards(ev, vis){
+  const t = ev.byType || {};
+  const won = leads.filter(l=>l.status==='won').length;
+  const conv = leads.length ? Math.round(won/leads.length*100) : 0;
+  const cards = [
+    { n: leads.length, l:'Leads', s:'last '+days+' days' },
+    { n: won, l:'Won', s:conv+'% conversion' },
+    { n: vis.total||0, l:'Website visits', s:(vis.today||0)+' today' },
+    { n: t.call||0, l:'Call clicks', s:'tapped "Call Now"' },
+    { n: t.whatsapp||0, l:'WhatsApp clicks', s:'tapped WhatsApp' },
+    { n: (t.callback_submit||0), l:'Callback requests', s:(t.callback_open||0)+' opened form' },
+  ];
+  document.getElementById('cards').innerHTML = cards.map(c =>
+    '<div class="card"><div class="n">'+c.n+'</div><div class="l">'+c.l+'</div><div class="s">'+c.s+'</div></div>'
+  ).join('');
+}
+
+function bars(counts){
+  const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  if (!entries.length) return '<div class="empty">No leads yet.</div>';
+  const max = Math.max(...entries.map(e=>e[1]));
+  return entries.map(([k,v]) =>
+    '<div class="bar-row"><div class="name">'+esc(k)+'</div>'+
+    '<div class="bar-track"><div class="bar-fill" style="width:'+Math.round(v/max*100)+'%"></div></div>'+
+    '<div class="val">'+v+'</div></div>'
+  ).join('');
+}
+function renderBreakdowns(){
+  const bySrc = {}, bySt = {};
+  leads.forEach(l => {
+    const s = l.source || 'unknown'; bySrc[s] = (bySrc[s]||0)+1;
+    const st = STATUS_LABELS[l.status] || 'New'; bySt[st] = (bySt[st]||0)+1;
+  });
+  document.getElementById('bySource').innerHTML = bars(bySrc);
+  document.getElementById('byStatus').innerHTML = bars(bySt);
+}
+function populateSourceFilter(){
+  const sel = document.getElementById('fSource'), cur = sel.value;
+  const srcs = [...new Set(leads.map(l=>l.source||'unknown'))].sort();
+  sel.innerHTML = '<option value="">All</option>' + srcs.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
+  sel.value = cur;
+}
+
+function renderLeads(){
+  const fSt = document.getElementById('fStatus').value, fSrc = document.getElementById('fSource').value;
+  const rows = leads.filter(l => (!fSt || (l.status||'new')===fSt) && (!fSrc || (l.source||'unknown')===fSrc));
+  const tb = document.getElementById('leadRows');
+  if (!rows.length){ tb.innerHTML = '<tr><td colspan="8" class="empty">No matching leads.</td></tr>'; return; }
+  tb.innerHTML = rows.map(l => {
+    const d = new Date(l.date); const dateStr = isNaN(d) ? '' : d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+    const status = l.status||'new';
+    const statusSel = '<select onchange="updateLead(\''+l.id+'\',\'status\',this.value)">' +
+      STATUS_KEYS.map(k=>'<option value="'+k+'"'+(k===status?' selected':'')+'>'+STATUS_LABELS[k]+'</option>').join('') + '</select>';
+    const asgOpts = ['<option value="">—</option>'].concat(team.map(m=>'<option'+((l.assignedTo||'')===m?' selected':'')+'>'+esc(m)+'</option>'));
+    const asgSel = '<select onchange="updateLead(\''+l.id+'\',\'assignedTo\',this.value)">'+asgOpts.join('')+'</select>';
+    const fu = '<input type="date" value="'+(l.followUpAt||'')+'" onchange="updateLead(\''+l.id+'\',\'followUpAt\',this.value)">';
+    const nCount = (l.history||[]).length;
+    const phone = l.phone ? '<a href="tel:+91'+esc(l.phone)+'">'+esc(l.phone)+'</a>' : '';
+    const wa = l.phone ? ' · <a href="https://wa.me/91'+esc(l.phone)+'" target="_blank" rel="noopener">WA</a>' : '';
+    return '<tr>'+
+      '<td>'+dateStr+'</td>'+
+      '<td><b>'+esc(l.name||'—')+'</b><br>'+phone+wa+'</td>'+
+      '<td>'+esc(l.service||'')+'</td>'+
+      '<td><span class="pill src-'+esc(l.source||'unknown')+'">'+esc(l.source||'unknown')+'</span></td>'+
+      '<td>'+statusSel+'</td><td>'+asgSel+'</td><td>'+fu+'</td>'+
+      '<td><button class="linkbtn" onclick="openNotes(\''+l.id+'\')">Notes ('+nCount+')</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+// cached stats so a status change can refresh the cards without a full refetch
+let _ev = { byType:{} }, _vis = { total:0 };
+async function updateLead(id, field, value){
+  const body = {}; body[field] = value;
+  try {
+    await api('PATCH','/api/enquiries/'+id, body);
+    const l = leads.find(x=>x.id===id); if (l) l[field]=value;
+    if (field==='status'){ renderBreakdowns(); renderCards(_ev, _vis); }
+  } catch(e){ alert('Could not save: '+e.message); }
+}
+
+function openNotes(id){
+  noteLeadId = id;
+  const l = leads.find(x=>x.id===id);
+  const hist = (l && l.history) || [];
+  document.getElementById('noteHist').innerHTML = hist.length
+    ? '<div class="note-box">'+hist.map(h=>'<div class="ni"><b>'+esc(h.by||'admin')+'</b> · '+new Date(h.at).toLocaleString('en-IN')+'<br>'+esc(h.text)+'</div>').join('')+'</div>'
+    : '<div class="muted" style="font-size:13px">No notes yet.</div>';
+  document.getElementById('noteText').value='';
+  document.getElementById('noteDlg').showModal();
+}
+async function saveNote(){
+  const text = document.getElementById('noteText').value.trim();
+  if (!text) return;
+  try {
+    const r = await api('POST','/api/enquiries/'+noteLeadId+'/note', { text });
+    const l = leads.find(x=>x.id===noteLeadId); if (l) l.history = r.history;
+    openNotes(noteLeadId); renderLeads();
+  } catch(e){ alert('Could not save note: '+e.message); }
+}
+
+async function saveTeam(){
+  const members = document.getElementById('teamInput').value.split(',').map(s=>s.trim()).filter(Boolean);
+  try { const r = await api('POST','/api/team-members',{ members }); team = r.members||[]; renderLeads(); alert('Team saved.'); }
+  catch(e){ alert('Could not save team: '+e.message); }
+}
+</script>
+</body>
+</html>

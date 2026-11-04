@@ -17,7 +17,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const root = path.join(__dirname, '..');
-const ASSETS = ['styles.css', 'fonts.css', 'script.js', 'cms-loader.js', 'chat-widget.js'];
+const ASSETS = ['styles.css', 'fonts.css', 'script.js', 'cms-loader.js', 'chat-widget.js', 'floating-cta.js'];
 
 const hash = {};
 for (const a of ASSETS) {

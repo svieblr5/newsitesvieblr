@@ -81,6 +81,8 @@ const ACTIVITY_FILE = path.join(DATA_DIR, 'activity.json');
 const CONFIG_FILE   = path.join(DATA_DIR, 'config.json');
 const VISITORS_FILE = path.join(DATA_DIR, 'visitors.json');
 const CHATLOG_FILE  = path.join(DATA_DIR, 'chatlogs.json');       // AI chat transcripts
+const EVENTS_FILE   = path.join(DATA_DIR, 'events.json');         // marketing events (call/whatsapp/callback clicks)
+const MAX_EVENTS    = 50000;                                      // keep the newest 50k events
 const MAX_VERSIONS  = 50; // keep the 50 most recent restore points
 const MAX_CHATLOGS  = 500; // keep the newest 500 chat conversations
 
@@ -650,7 +652,7 @@ function staticCacheHeaders(res, filePath) {
 // express.static(ROOT) serves the whole project folder, and .htaccess is not
 // applied when Hostinger runs the Node app — so block server code, build
 // scripts and internal docs here. 404 (not 403) so probes learn nothing.
-const PUBLIC_ROOT_JS = new Set(['script.js', 'cms-loader.js', 'chat-widget.js', 'visitor-tracker.js', 'structured-data.js']);
+const PUBLIC_ROOT_JS = new Set(['script.js', 'cms-loader.js', 'chat-widget.js', 'visitor-tracker.js', 'structured-data.js', 'floating-cta.js']);
 const BLOCKED_DIRS   = ['node_modules', 'scripts', 'data', 'brochure', 'for mailing', '.git', '.claude'];
 const BLOCKED_FILES  = new Set([
   'package.json', 'package-lock.json', 'readme.md', 'security.md', '.env', '.env.example', '.gitignore', '.gitattributes', '.htaccess',
@@ -1848,7 +1850,7 @@ app.post('/api/enquiries', enquiryLimiter, (req,res) => {
       message: (message||'').toString().trim().slice(0,2000),
     };
     const list = readJSON(ENQUIRY_FILE,[]);
-    list.unshift({ id:'e'+Date.now(), ...safe, status:'new', date:new Date().toISOString() });
+    list.unshift({ id:'e'+Date.now(), ...safe, source:'website', status:'new', date:new Date().toISOString() });
     writeJSON(ENQUIRY_FILE, list);
     // Fire notification + auto-reply emails without blocking the response.
     sendEnquiryEmails(safe).catch(()=>{});
@@ -1906,6 +1908,103 @@ app.delete('/api/enquiries/:id', requireAuth, csrfProtect, (req,res) => {
     writeJSON(ENQUIRY_FILE, list);
     res.json({ success:true });
   } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// ── Lead follow-up note: appends a timestamped entry to the lead's history ──
+// Communication history for a lead (calls made, messages sent, meeting notes…).
+app.post('/api/enquiries/:id/note', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const text = String((req.body && req.body.text) || '').trim().slice(0,1000);
+    if (!text) return res.status(400).json({ error:'Note text is required.' });
+    const list = readJSON(ENQUIRY_FILE,[]);
+    const lead = list.find(e=>e.id===req.params.id);
+    if (!lead) return res.status(404).json({ error:'Not found' });
+    lead.history = Array.isArray(lead.history) ? lead.history : [];
+    lead.history.unshift({ text, by:req.session.user||'admin', at:new Date().toISOString() });
+    writeJSON(ENQUIRY_FILE, list);
+    res.json({ success:true, history:lead.history });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// ── Team members (for lead assignment) — stored in config ──
+const LEAD_STATUSES = ['new','contacted','proposal','negotiation','won','lost'];
+app.get('/api/team-members', requireAuth, (req,res) =>
+  res.json(Array.isArray(getConfig().teamMembers) ? getConfig().teamMembers : []));
+app.post('/api/team-members', requireAuth, csrfProtect, (req,res) => {
+  try {
+    const raw = Array.isArray(req.body && req.body.members) ? req.body.members : [];
+    const members = [...new Set(raw.map(m => String(m||'').trim().slice(0,60)).filter(Boolean))].slice(0,50);
+    const cfg = getConfig(); cfg.teamMembers = members; saveConfig(cfg);
+    logActivity('Updated lead-assignment team members', req.session.user);
+    res.json({ success:true, members });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// ── One-click callback request (public) — captures a lead like any other ──
+// Minimal fields (name + phone). Lands in the same inbox tagged source=callback.
+app.post('/api/callback', enquiryLimiter, (req,res) => {
+  try {
+    const name  = String((req.body && req.body.name) || '').trim();
+    const phone = normalizeIndianMobile(req.body && req.body.phone);
+    if (name.length < 2 || name.length > 100)
+      return res.status(400).json({ error:'Please enter your name.' });
+    if (!phone)
+      return res.status(400).json({ error:'A valid 10-digit mobile number is required.' });
+    const page = String((req.body && req.body.page) || '').slice(0,200);
+    const safe = {
+      name:    name.slice(0,100),
+      email:   '',
+      phone,
+      service: 'Callback Request',
+      budget:  '',
+      message: '📞 One-click callback request' + (page ? '\nRequested from: ' + page : ''),
+      source:  'callback',
+    };
+    const list = readJSON(ENQUIRY_FILE,[]);
+    list.unshift({ id:'e'+Date.now(), ...safe, status:'new', date:new Date().toISOString() });
+    writeJSON(ENQUIRY_FILE, list);
+    sendEnquiryEmails(safe).catch(()=>{});
+    logActivity('New one-click callback request', 'system');
+    res.json({ success:true });
+  } catch(e) { res.status(500).json({ error:e.message }); }
+});
+
+// ── Marketing events (public) — lightweight click tracking for CTAs ──
+// Logs when a visitor taps Call Now / WhatsApp / opens the callback form, so the
+// marketing dashboard can report calls & WhatsApp inquiries per day and by source.
+const EVENT_TYPES = new Set(['call','whatsapp','callback_open','callback_submit']);
+// Generous limiter — CTA taps are legitimate high-frequency events, but this
+// caps abuse of the public, unauthenticated endpoint.
+const eventLimiter = rateLimit({ windowMs: 60000, max: 60, standardHeaders:true, legacyHeaders:false });
+app.post('/api/event', eventLimiter, (req,res) => {
+  try {
+    const type = String((req.body && req.body.type) || '');
+    if (!EVENT_TYPES.has(type)) return res.json({ ok:false });
+    const list = readJSON(EVENTS_FILE, []);
+    list.unshift({
+      type,
+      page:   String((req.body && req.body.page)   || '').slice(0,200),
+      source: String((req.body && req.body.source) || '').slice(0,100), // utm_source if known
+      ts:     new Date().toISOString(),
+    });
+    writeJSON(EVENTS_FILE, list.slice(0, MAX_EVENTS));
+    res.json({ ok:true });
+  } catch(e) { res.json({ ok:false }); }
+});
+
+// ── Marketing event stats (auth) — totals + per-day + by-type over N days ──
+app.get('/api/event-stats', requireAuth, (req,res) => {
+  const days   = Math.min(parseInt(req.query.days) || 30, 365);
+  const cutoff = new Date(Date.now() - days*86400000).toISOString();
+  const all    = readJSON(EVENTS_FILE, []).filter(e => e.ts >= cutoff);
+  const byType = {}; const byDay = {};
+  for (const e of all) {
+    byType[e.type] = (byType[e.type]||0) + 1;
+    const d = (e.ts||'').slice(0,10);
+    byDay[d] = byDay[d] || {};
+    byDay[d][e.type] = (byDay[d][e.type]||0) + 1;
+  }
+  res.json({ days, total: all.length, byType, byDay });
 });
 
 // ═══════════════════════════════════════════
@@ -2919,6 +3018,7 @@ app.get('/admin',                    (req,res) => res.sendFile(path.join(ROOT,'a
 app.get('/admin/dashboard',          (req,res) => res.sendFile(path.join(ROOT,'admin','dashboard.html')));
 app.get('/admin/visitor-dashboard',  (req,res) => res.sendFile(path.join(ROOT,'admin','visitor-dashboard.html')));
 app.get('/admin/visitor-guide',      (req,res) => res.sendFile(path.join(ROOT,'admin','visitor-dashboard-guide.html')));
+app.get('/admin/marketing',          (req,res) => res.sendFile(path.join(ROOT,'admin','marketing.html')));
 
 // ── 404 — anything not matched above ──
 // Registered last so it only fires for genuinely unknown paths. Returns the
