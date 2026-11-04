@@ -14,7 +14,7 @@
 <link rel="canonical" href="https://svie5.com/gallery.html">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- Self-hosted Cormorant / Raleway / Jost (latin + latin-ext, variable woff2 in /fonts).
-     Non-default fonts picked in the CMS still load from Google via /fonts.css?v=0c59d47d. -->
+     Non-default fonts picked in the CMS still load from Google via /fonts.css?v=0d861e74. -->
 <style id="self-hosted-fonts">
 @font-face{font-family:'Cormorant';font-style:italic;font-weight:300 600;font-display:swap;src:url(/fonts/cormorant-italic-latin-ext-v24.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
 @font-face{font-family:'Cormorant';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/cormorant-normal-latin-ext-v24.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
@@ -44,7 +44,7 @@
 {"@context":"https://schema.org","@graph":[{"@type":"ImageGallery","@id":"https://svie5.com/gallery.html#webpage","url":"https://svie5.com/gallery.html","name":"SVIE Portfolio Gallery","description":"Premium interior design, construction, and modular furniture projects across Bengaluru since 2017.","isPartOf":{"@id":"https://svie5.com/#website"},"about":{"@id":"https://svie5.com/#business"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://svie5.com/"},{"@type":"ListItem","position":2,"name":"Portfolio","item":"https://svie5.com/gallery.html"}]}]}
 </script>
 <style id="critical-css">/* Static fallback — served from file:// or when Node server is offline.
-   On localhost, the Express /fonts.css?v=0c59d47d route always takes priority over this file. */
+   On localhost, the Express /fonts.css?v=0d861e74 route always takes priority over this file. */
 :root{
   --font-display:'Cormorant', Georgia, serif;
   --font-sans:'Raleway', system-ui, sans-serif;
@@ -827,8 +827,8 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
   </div>
 </div></footer>
 
-<script src="script.js?v=b2dd6e18"></script>
-<script src="cms-loader.js?v=574b874c"></script>
+<script src="script.js?v=eb3b93d5"></script>
+<script src="cms-loader.js?v=00607306"></script>
 <script>
 (function(){
   var lb    = document.getElementById('lightbox');
@@ -1085,7 +1085,7 @@ html{font-size:16px}:root { --forest-ink: #0C2C1B; --forest-deep: #113524; --for
       var masonry = document.getElementById('gal-masonry');
       masonry.innerHTML = items.map(cardHtml).join('');
 
-      /* Re-run script.js?v=b2dd6e18 reveal observer on new cards */
+      /* Re-run script.js?v=eb3b93d5 reveal observer on new cards */
       document.querySelectorAll('.gal-card.reveal').forEach(function(el){
         if(window.revealObserver) window.revealObserver.observe(el);
         else el.classList.add('in');   // fallback: never leave cards hidden
@@ -1129,6 +1129,7 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <script src="visitor-tracker.js" defer></script>
-<script>/* lazy-load chat widget after first paint: idle timeout or first interaction, whichever comes first */(function(){var d=0,l=function(){if(d)return;d=1;var s=document.createElement("script");s.src="chat-widget.js?v=4eff04ff";document.body.appendChild(s)};"requestIdleCallback"in window?requestIdleCallback(l,{timeout:5000}):addEventListener("load",function(){setTimeout(l,2000)});["pointerdown","keydown","touchstart","scroll"].forEach(function(e){addEventListener(e,l,{once:true,passive:true})})})();</script>
+<script>/* lazy-load chat widget after first paint: idle timeout or first interaction, whichever comes first */(function(){var d=0,l=function(){if(d)return;d=1;var s=document.createElement("script");s.src="chat-widget.js?v=d72e0d32";document.body.appendChild(s)};"requestIdleCallback"in window?requestIdleCallback(l,{timeout:5000}):addEventListener("load",function(){setTimeout(l,2000)});["pointerdown","keydown","touchstart","scroll"].forEach(function(e){addEventListener(e,l,{once:true,passive:true})})})();</script>
+<script src="/floating-cta.js?v=c078fbe6" defer></script>
 </body>
 </html>
