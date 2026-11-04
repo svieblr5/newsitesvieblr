@@ -16,7 +16,7 @@
   if (window.__svieCTALoaded) return;
   window.__svieCTALoaded = true;
 
-  var DEFAULT_TEL  = '919513961740';                       // fallback until config loads
+  var DEFAULT_TEL  = '918310543477';                       // fallback until config loads
   var DEFAULT_WA   = 'https://wa.me/919513961740';
   var WA_TEXT      = 'Hi SVIE, I would like to know more about your renovation & interior services.';
 
