@@ -17,7 +17,7 @@
   window.__svieCTALoaded = true;
 
   var DEFAULT_TEL  = '918310543477';                       // fallback until config loads
-  var DEFAULT_WA   = 'https://wa.me/919513961740';
+  var DEFAULT_WA   = 'https://wa.me/918310543477';
   var WA_TEXT      = 'Hi SVIE, I would like to know more about your renovation & interior services.';
 
   // ── UTM source (persisted for the session) so events/leads are attributable ──
