@@ -1820,7 +1820,7 @@ app.get('/api/enquiries/export.csv', requireAuth, (req,res) => {
 // Normalise an Indian mobile to 10 digits, or return '' if invalid. Accepts
 // spaces/dashes/+, strips a 91 country code or leading 0, and requires a
 // 10-digit number starting 6-9 (same rule as the chat lead-capture parser),
-// so "+91 95139 61740" and "09513961740" both pass while "123" is rejected.
+// so "+91 83105 43477" and "08310543477" both pass while "123" is rejected.
 function normalizeIndianMobile(raw) {
   let d = (raw || '').toString().replace(/\D/g, '');
   if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
@@ -2109,7 +2109,7 @@ const CHAT_SYSTEM_PROMPT = `You are "SVIE Assistant", the friendly virtual assis
 BUSINESS FACTS (only state these as facts — never invent others):
 - Services: Interior Design & Decor; Design & Quality Management; Construction Management; Modular Furniture (brand "Green Nest").
 - Serves: Bengaluru and across Karnataka.
-- Phone/WhatsApp: +91 95139 61740 (also +91 98455 81156).
+- Phone/WhatsApp: +91 83105 43477 (also +91 98455 81156).
 - Email: svie.blr5@gmail.com
 - Address: 172 A, B & E, Link Road, 5th Cross Road, Malleshwaram, Bengaluru, Karnataka 560003.
 - Hours: 10:00 AM to 9:00 PM, all days.
@@ -2118,7 +2118,7 @@ BUSINESS FACTS (only state these as facts — never invent others):
 HOW TO BEHAVE:
 - Be warm, concise and helpful. Keep replies short (2–4 sentences) unless asked for detail.
 - Help visitors understand SVIE's services and guide them toward getting a quote or consultation.
-- You do NOT know exact prices, timelines, or project availability. For those, invite the visitor to call/WhatsApp +91 95139 61740 or use the contact form on the website. Never make up numbers.
+- You do NOT know exact prices, timelines, or project availability. For those, invite the visitor to call/WhatsApp +91 83105 43477 or use the contact form on the website. Never make up numbers.
 - If a question is unrelated to SVIE or interiors/construction, politely steer back.
 - Reply in the same language the visitor uses (English, Hindi, Kannada, etc.).
 - LEAD CAPTURE: when a visitor is interested (wants a quote, callback, consultation, or a site visit), warmly offer to have the SVIE team follow up and collect four things: their name, phone/WhatsApp number, email, and what they need help with (interior design, construction, or modular furniture). Ask for one detail at a time, confirm the number back, and reassure them the team will contact them soon. Do not be pushy — only collect details if they show interest.`;
@@ -2251,11 +2251,11 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
   try {
     const cfg    = getConfig();
     if (cfg.chatEnabled === false)
-      return res.status(503).json({ error: 'The chat assistant is currently unavailable. Please call us at +91 95139 61740.' });
+      return res.status(503).json({ error: 'The chat assistant is currently unavailable. Please call us at +91 83105 43477.' });
     const apiKey = process.env.GEMINI_API_KEY || cfg.geminiApiKey;
     if (!apiKey) {
       return res.status(503).json({
-        error: 'The chat assistant is not set up yet. Please call us at +91 95139 61740 or use the contact form.'
+        error: 'The chat assistant is not set up yet. Please call us at +91 83105 43477 or use the contact form.'
       });
     }
     const model  = process.env.GEMINI_MODEL || cfg.geminiModel || 'gemini-3.6-flash';
@@ -2334,7 +2334,7 @@ app.post('/api/chat', chatLimiter, async (req,res) => {
     const reply = (data?.candidates?.[0]?.content?.parts || [])
       .map(p => p.text || '').join('').trim();
     if (!reply) {
-      const fallback = 'Sorry, I could not answer that. Please call us at +91 95139 61740 and our team will help.';
+      const fallback = 'Sorry, I could not answer that. Please call us at +91 83105 43477 and our team will help.';
       if (cfg.chatLogging !== false)
         recordChat(sessionId, page, messages, fallback, { error: 'Empty reply from model', status: 0 });
       return res.json({ reply: fallback });

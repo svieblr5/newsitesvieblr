@@ -145,7 +145,7 @@
         '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4 20-7z"/></svg>' +
       '</button>' +
     '</div>' +
-    '<div class="svie-chat-note">AI assistant · <span class="svie-cb" role="button" tabindex="0">Request a callback</span> · call +91 95139 61740</div>';
+    '<div class="svie-chat-note">AI assistant · <span class="svie-cb" role="button" tabindex="0">Request a callback</span> · call +91 83105 43477</div>';
 
   var body     = panel.querySelector('.svie-chat-body');
   var input    = panel.querySelector('textarea');
@@ -257,16 +257,16 @@
         if (res.ok && data.success) {
           leadSent = true; formOpen = false;
           card.remove();
-          addMsg('Thanks, ' + name + '! ✅ We’ve received your details and our team will reach out to you shortly. For anything urgent, call us at +91 95139 61740.', 'bot');
+          addMsg('Thanks, ' + name + '! ✅ We’ve received your details and our team will reach out to you shortly. For anything urgent, call us at +91 83105 43477.', 'bot');
           if (typeof gtag !== 'undefined')
             gtag('event', 'generate_lead', { event_category: 'engagement', event_label: 'chat_callback', value: 1 });
         } else {
           subBtn.disabled = false; subBtn.textContent = 'Send';
-          showErr(data.error || 'Could not send. Please try again or call +91 95139 61740.');
+          showErr(data.error || 'Could not send. Please try again or call +91 83105 43477.');
         }
       } catch (err) {
         subBtn.disabled = false; subBtn.textContent = 'Send';
-        showErr('Network error. Please check your connection or call +91 95139 61740.');
+        showErr('Network error. Please check your connection or call +91 83105 43477.');
       }
     });
   }
@@ -358,7 +358,7 @@
         addMsg(data.reply, 'bot');
         history.push({ role: 'model', text: data.reply });
       } else {
-        addMsg(data.error || 'Sorry, something went wrong. Please call us at +91 95139 61740.', 'err');
+        addMsg(data.error || 'Sorry, something went wrong. Please call us at +91 83105 43477.', 'err');
         // The AI couldn't reply — offer the callback form so the lead isn't lost.
         showEnquiryForm('Leave your details below and we’ll get back to you shortly.');
       }
@@ -366,9 +366,9 @@
       clearTimeout(timer);
       typing.remove();
       if (timedOut)
-        addMsg('Sorry, this is taking longer than usual 🙏 — please leave your details below and we’ll get right back to you, or call +91 95139 61740.', 'err');
+        addMsg('Sorry, this is taking longer than usual 🙏 — please leave your details below and we’ll get right back to you, or call +91 83105 43477.', 'err');
       else
-        addMsg('Network error. Please check your connection or call +91 95139 61740.', 'err');
+        addMsg('Network error. Please check your connection or call +91 83105 43477.', 'err');
       showEnquiryForm('Leave your details below and we’ll get back to you shortly.');
     } finally {
       sending = false;
