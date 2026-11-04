@@ -2012,7 +2012,28 @@ app.get('/api/event-stats', requireAuth, (req,res) => {
 // Business info + profile status, stored in config.gbp. This is a *tracker*
 // (manually maintained) — live sync with Google needs the GBP API (later phase).
 const GBP_FIELDS = ['name','phone','address','hours','website','category','description','profileUrl','mapsUrl','reviewLink','servicesList'];
-app.get('/api/gbp', requireAuth, (req,res) => res.json(getConfig().gbp || {}));
+// Sensible defaults derived from the live site content so the GBP tab is
+// pre-filled out of the box. Saved values (config.gbp) always take precedence.
+function gbpDefaults() {
+  const s = (readLive().site) || {};
+  return {
+    name:        s.name || '',
+    phone:       s.phone1 || '',
+    address:     s.address || '',
+    hours:       s.hours || '',
+    website:     'https://svie5.com',
+    category:    'Interior designer',
+    description: s.description || '',
+    servicesList:'Interior Design, Construction, Modular Furniture, Home Renovation, Electronics, IT & HR Services',
+    status:      'open',
+  };
+}
+app.get('/api/gbp', requireAuth, (req,res) => {
+  const saved = getConfig().gbp || {};
+  const out = gbpDefaults();
+  for (const k in saved) if (saved[k] !== '' && saved[k] != null) out[k] = saved[k]; // saved wins over defaults
+  res.json(out);
+});
 app.post('/api/gbp', requireAuth, csrfProtect, (req,res) => {
   try {
     const b = req.body || {};
