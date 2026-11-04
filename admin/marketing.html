@@ -73,6 +73,12 @@
   .check-row .ic{width:18px;height:18px;flex:0 0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
   .check-row .ic.ok{background:#167a33}.check-row .ic.no{background:#c0392b}
   .repeat-badge{display:inline-block;background:#e6f4ea;color:#167a33;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:5px}
+  .legend{display:flex;gap:16px;margin-bottom:10px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .legend .k{display:inline-flex;align-items:center;gap:6px}
+  .legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .trend-svg{width:100%;height:auto;display:block}
+  .trend-svg .grid{stroke:#f0ebe2;stroke-width:1}
+  .trend-svg text{fill:#9b9183;font:400 10px system-ui}
 </style>
 </head>
 <body>
@@ -106,6 +112,12 @@
 
   <div class="cards" id="cards"></div>
 
+  <div class="panel">
+    <h2>Daily trend — leads, calls &amp; WhatsApp</h2>
+    <div class="legend" id="trendLegend"></div>
+    <div id="trendChart"><div class="empty">No activity yet.</div></div>
+  </div>
+
   <div class="grid2">
     <div class="panel">
       <h2>Leads by source</h2>
@@ -114,6 +126,28 @@
     <div class="panel">
       <h2>Pipeline</h2>
       <div id="byStatus"><div class="empty">No leads yet.</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Campaign link builder</h2>
+    <p class="muted" style="font-size:12px;margin-top:-6px">Make tagged links for Instagram, Justdial, ads, etc. — leads that arrive through them show up by source in this dashboard automatically.</p>
+    <div class="controls">
+      <label>Destination<br><input id="utmBase" value="https://svie5.com/" style="min-width:190px"></label>
+      <label>Source<br><select id="utmSource">
+        <option value="instagram">Instagram</option><option value="facebook">Facebook</option>
+        <option value="google">Google</option><option value="justdial">Justdial</option>
+        <option value="indiamart">IndiaMART</option><option value="sulekha">Sulekha</option>
+        <option value="whatsapp">WhatsApp</option><option value="youtube">YouTube</option>
+        <option value="flyer">Flyer/Print</option><option value="other">Other</option>
+      </select></label>
+      <label>Medium<br><input id="utmMedium" placeholder="social, cpc, listing" style="max-width:130px"></label>
+      <label>Campaign<br><input id="utmCampaign" placeholder="diwali-offer" style="max-width:150px"></label>
+      <button class="btn p" id="utmGo" type="button">Build link</button>
+    </div>
+    <div id="utmResult" style="display:none;margin-top:4px">
+      <input id="utmOut" readonly style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:400 13px monospace;background:#faf8f4">
+      <div style="margin-top:6px"><button class="btn s" id="utmCopy">Copy link</button></div>
     </div>
   </div>
 
@@ -267,6 +301,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('reqCopy').textContent = 'Copied!';
     setTimeout(()=>{document.getElementById('reqCopy').textContent='Copy message';}, 1500);
   });
+  document.getElementById('utmGo').addEventListener('click', buildUtm);
+  document.getElementById('utmCopy').addEventListener('click', () => {
+    const t = document.getElementById('utmOut'); t.select(); document.execCommand('copy');
+    document.getElementById('utmCopy').textContent = 'Copied!';
+    setTimeout(()=>{document.getElementById('utmCopy').textContent='Copy link';}, 1500);
+  });
   await loadAll();
 });
 
@@ -304,6 +344,7 @@ async function loadAll(){
   renderBreakdowns();
   populateSourceFilter();
   renderLeads();
+  renderTrends();
   renderGoogleTab();
 }
 
@@ -343,6 +384,72 @@ function renderBreakdowns(){
   document.getElementById('bySource').innerHTML = bars(bySrc);
   document.getElementById('byStatus').innerHTML = bars(bySt);
 }
+const TREND_SERIES = [
+  { key:'Leads',    color:'#C9A05A' },
+  { key:'Calls',    color:'#1e8e3e' },
+  { key:'WhatsApp', color:'#25D366' },
+];
+function renderTrends(){
+  const n = Math.min(days, 90);
+  const dl = []; for (let i=n-1;i>=0;i--) dl.push(new Date(Date.now()-i*86400000).toISOString().slice(0,10));
+  const byDay = (_ev && _ev.byDay) || {};
+  const leadByDay = {}; leads.forEach(l => { const d=(l.date||'').slice(0,10); leadByDay[d]=(leadByDay[d]||0)+1; });
+  const data = {
+    Leads:    dl.map(d => leadByDay[d]||0),
+    Calls:    dl.map(d => (byDay[d]&&byDay[d].call)||0),
+    WhatsApp: dl.map(d => (byDay[d]&&byDay[d].whatsapp)||0),
+  };
+  const max = Math.max(1, ...Object.values(data).flat());
+  const totalAll = Object.values(data).flat().reduce((a,b)=>a+b,0);
+
+  // legend
+  document.getElementById('trendLegend').innerHTML = TREND_SERIES.map(s =>
+    '<span class="k"><span class="sw" style="background:'+s.color+'"></span>'+s.key+
+    ' ('+data[s.key].reduce((a,b)=>a+b,0)+')</span>').join('');
+
+  if (totalAll === 0){ document.getElementById('trendChart').innerHTML = '<div class="empty">No activity in this period yet.</div>'; return; }
+
+  const W=700, H=180, padL=26, padB=18, padT=8, padR=6;
+  const iw=W-padL-padR, ih=H-padT-padB;
+  const x = i => padL + (n<=1 ? iw/2 : i*(iw/(n-1)));
+  const y = v => padT + ih - (v/max)*ih;
+  // horizontal gridlines + y labels at 0, mid, max
+  let grid='';
+  [0, Math.round(max/2), max].forEach(v => {
+    const yy=y(v);
+    grid += '<line class="grid" x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'"/>'+
+            '<text x="'+(padL-4)+'" y="'+(yy+3)+'" text-anchor="end">'+v+'</text>';
+  });
+  // x labels: first, middle, last date
+  let xlabels='';
+  [0, Math.floor((n-1)/2), n-1].forEach(i => {
+    const lbl = new Date(dl[i]).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+    xlabels += '<text x="'+x(i)+'" y="'+(H-4)+'" text-anchor="middle">'+lbl+'</text>';
+  });
+  const lines = TREND_SERIES.map(s => {
+    const pts = data[s.key].map((v,i)=>x(i)+','+y(v)).join(' ');
+    const dots = (n<=31) ? data[s.key].map((v,i)=>'<circle cx="'+x(i)+'" cy="'+y(v)+'" r="2" fill="'+s.color+'"/>').join('') : '';
+    return '<polyline fill="none" stroke="'+s.color+'" stroke-width="2" stroke-linejoin="round" points="'+pts+'"/>'+dots;
+  }).join('');
+
+  document.getElementById('trendChart').innerHTML =
+    '<svg class="trend-svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">'+grid+lines+xlabels+'</svg>';
+}
+
+function buildUtm(){
+  const baseRaw = document.getElementById('utmBase').value.trim() || 'https://svie5.com/';
+  let base = baseRaw; if (!/^https?:\/\//i.test(base)) base = 'https://' + base;
+  let u; try { u = new URL(base); } catch(e){ alert('Enter a valid destination URL.'); return; }
+  const src  = document.getElementById('utmSource').value;
+  const med  = document.getElementById('utmMedium').value.trim().replace(/\s+/g,'-').toLowerCase();
+  const camp = document.getElementById('utmCampaign').value.trim().replace(/\s+/g,'-').toLowerCase();
+  if (src)  u.searchParams.set('utm_source', src);
+  if (med)  u.searchParams.set('utm_medium', med);
+  if (camp) u.searchParams.set('utm_campaign', camp);
+  document.getElementById('utmOut').value = u.toString();
+  document.getElementById('utmResult').style.display = 'block';
+}
+
 function populateSourceFilter(){
   const sel = document.getElementById('fSource'), cur = sel.value;
   const srcs = [...new Set(leads.map(l=>l.source||'unknown'))].sort();
